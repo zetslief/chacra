@@ -32,11 +32,16 @@ function direction(from: Point, to: Point): Vec2 {
 type GameState = {
     player: Player,
     arena: Arena,
+    slots: Slot[],
     spell: Spell | null,
     inputState: InputState
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
+
+type Slot = {
+    index: number,
+}
 
 type Player = {
     x: number,
@@ -68,11 +73,22 @@ type InputUpdate = {
 }
 
 function setupState(): GameState {
-    const arena = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: 500 };
+    const arena = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: (window.innerHeight / 2) * 0.97 };
+    function slot(index: number): Slot {
+        return { index };
+    }
+    function generateSlots(count: number): Slot[] {
+        const result = [];
+        for(let index = 0; index < count; ++index) {
+            result.push(slot(index));
+        }
+        return result;
+    }
     return {
         player: { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } },
         arena,
         spell: null,
+        slots: generateSlots(12),
         inputState: { cast: null, player: vec2(0, 0) },
     };
 }
@@ -157,6 +173,22 @@ function drawArena(
     ctx.fill();
 }
 
+function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
+    ctx.fillStyle = "black";
+    for(const slot of slots) {
+        const angleStep = (Math.PI * 2) / slots.length;
+        const angleShift = 0;
+        const angle = angleStep * slot.index + angleShift;
+        const shiftX = (arena.radius * 0.8) * Math.cos(angle);
+        const shiftY = (arena.radius * 0.8) * Math.sin(angle);
+        const x = arena.x + shiftX;
+        const y = arena.y + shiftY;
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+}
+
 // PROCESSING
 function processInput(inputState: InputState): InputUpdate {
     let input: InputUpdate = { cast: null, player: vec2(0, 0) };
@@ -205,6 +237,7 @@ function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
     drawBackground(ctx, canvas.width, canvas.height);
     drawArena(ctx, state.arena);
+    drawSlots(ctx, state.arena, state.slots);
     drawPlayer(ctx, state.player)
     if (state.spell) {
         drawSpell(ctx, state.spell);
