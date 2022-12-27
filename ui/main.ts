@@ -14,7 +14,7 @@ function vec2(x: number, y: number): Vec2 {
 
 function distance(from: Point, to: Point): number {
     const dx = to.x - from.x;
-    const dy = to.x - from.x;
+    const dy = to.y - from.y;
     return Math.sqrt(dx * dx + dy * dy);
 }
 
@@ -231,7 +231,6 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
     }
     if (inputChange.cast) {
         state.spell = spell(state.player.x, state.player.y, inputChange.cast.x, inputChange.cast.y);
-        console.log(state.spell);
     }
     const playerMoveLength = distance(vec2(0, 0), inputChange.player);
     if (playerMoveLength > 0) {
@@ -245,7 +244,8 @@ function updatePhysics(state: GameState, dt: number) {
     if (state.spell) {
         const spell = state.spell
         const dist = spellDistance(spell);
-        const spellExitDistance = 10;
+        const spellExitDistance = 1;
+        console.log(dist);
         if (dist < spellExitDistance) {
             state.spell = null;
         } else {
