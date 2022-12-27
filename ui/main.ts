@@ -270,6 +270,7 @@ function draw(state: GameState, render: RenderState) {
 }
 
 function loop(game: GameState, render: RenderState, deltaTime: number) {
+    requestAnimationFrame(() => loop(game, render, deltaTime));
     const update = processInput(game.inputState);
     applyInput(game, update);
     updatePhysics(game, deltaTime);
@@ -289,7 +290,7 @@ function main() {
     const renderState = setupRenderState();
     const deltaTime = 1000 / 60;
     setupHandlers(state.inputState)
-    setInterval(() => loop(state, renderState, deltaTime * 0.001), deltaTime);
+    requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
 }
 
 main()
