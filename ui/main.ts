@@ -57,6 +57,7 @@ type Player = {
     chakra: Chakra
 }
 
+type EnemyFactory = () => Enemy;
 type EnemySpawner = Point & {
     nextIndex: number,
     delay: number,
@@ -64,7 +65,7 @@ type EnemySpawner = Point & {
 };
 
 type Enemy = Point & {
-    direction: Direction,
+    target: Point
 };
 
 type RenderState = {
@@ -89,6 +90,17 @@ type InputUpdate = {
     cast: Cast | null
     player: Vec2
 };
+
+function slotPosition(slot: Slot, arena: Arena, slotsCount: number): Point {
+        const angleStep = (Math.PI * 2) / slotsCount;
+        const angleShift = 0;
+        const angle = angleStep * slot.index + angleShift;
+        const shiftX = (arena.radius * 0.8) * Math.cos(angle);
+        const shiftY = (arena.radius * 0.8) * Math.sin(angle);
+        const x = arena.x + shiftX;
+        const y = arena.y + shiftY;
+        return { x, y };
+}
 
 function setupState(): GameState {
     const arena = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: (window.innerHeight / 2) * 0.97 };
@@ -157,6 +169,19 @@ function drawRect(
     ctx.fillRect(x, y, width, height);
 }
 
+function fillCircle(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    radius: number,
+    color: Color
+) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
 function drawBackground(
     ctx: CanvasRenderingContext2D,
     width: number,
@@ -185,6 +210,16 @@ function drawSpell(
     ctx.fill();
 }
 
+function drawEnemy(
+    ctx: CanvasRenderingContext2D,
+    enemy: Enemy
+) {
+    const enemyRadius = 10;
+    const enemyColor = "white";
+    fillCircle(ctx, enemy.x, enemy.y, enemyRadius, enemyColor);
+}
+
+
 type Arena = {
     x: number,
     y: number,
@@ -203,16 +238,16 @@ function drawArena(
 function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
     ctx.fillStyle = "black";
     for(const slot of slots) {
-        const angleStep = (Math.PI * 2) / slots.length;
-        const angleShift = 0;
-        const angle = angleStep * slot.index + angleShift;
-        const shiftX = (arena.radius * 0.8) * Math.cos(angle);
-        const shiftY = (arena.radius * 0.8) * Math.sin(angle);
-        const x = arena.x + shiftX;
-        const y = arena.y + shiftY;
+        const position = slotPosition(slot, arena, slots.length);
         ctx.beginPath();
-        ctx.arc(x, y, 10, 0, 2 * Math.PI);
+        ctx.arc(position.x, position.y, 10, 0, 2 * Math.PI);
         ctx.fill();
+    }
+}
+
+function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
+    for(const enemy of enemies) {
+        drawEnemy(ctx, enemy);
     }
 }
 
@@ -240,27 +275,40 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
 }
 
 function updatePhysics(state: GameState, dt: number) {
-    function updateEnemySpawner(enemySpawner: EnemySpawner, dt: number): Enemy | null {
+    function updateEnemySpawner(enemySpawner: EnemySpawner, enemyFactory: EnemyFactory, dt: number): Enemy | null {
         if (enemySpawner.delayLeft < 0) {
             enemySpawner.delayLeft = enemySpawner.delay;
-            // TODO: implement direction.
-            return { x: enemySpawner.x, y: enemySpawner.y, direction: { x: 0, y: 1 } };
+            const newEnemy = enemyFactory();
+            console.log(newEnemy);
+            return newEnemy;
         }
         enemySpawner.delayLeft -= dt;
         return null;
     }
     function handleEnemies(state: GameState, newEnemy: Enemy | null) {
         if (newEnemy) {
+            state.enemies.push(newEnemy);
+        }
+        for(const enemy of state.enemies) {
             const defaultEnemySpeed = 10;
             const speed = defaultEnemySpeed;
-            const spell = { x0: newEnemy.x, y0: newEnemy.y, x1: newEnemy.x, y1: 0, speed: speed };
-            const dir = direction(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
-            spell.x0 = spell.x0 + dir.x * spell.speed * dt;
-            spell.y0 = spell.y0 + dir.y * spell.speed * dt;
-            state.spell = spell;
+            const dir = direction(enemy, enemy.target);
+            enemy.x = enemy.x + dir.x * speed * dt;
+            enemy.y = enemy.y + dir.y * speed * dt;
         }
+        state.enemies = state.enemies.filter(enemy => {
+            const dist = distance(enemy, enemy.target);
+            return dist > 1;
+        });
     }
-    const newEnemy = updateEnemySpawner(state.enemySpawner, dt);
+    function createEnemy(): Enemy {
+        const x = state.arena.x;
+        const y = state.arena.y;
+        const targetSlotIndex = 0;
+        const targetSlot = state.slots[targetSlotIndex];
+        return { x, y, target: slotPosition(targetSlot, state.arena, state.slots.length) };
+    }
+    const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
     handleEnemies(state, newEnemy);
     if (state.spell) {
         const spell = state.spell
@@ -284,6 +332,7 @@ function draw(state: GameState, render: RenderState) {
     drawBackground(ctx, canvas.width, canvas.height);
     drawArena(ctx, state.arena);
     drawSlots(ctx, state.arena, state.slots);
+    drawEnemies(ctx, state.enemies);
     drawPlayer(ctx, state.player)
     if (state.spell) {
         drawSpell(ctx, state.spell);
