@@ -4,8 +4,9 @@ const PLAYER = "#ff3333"
 
 // MATHTYPE
 
-interface Vec2 { x: number, y: number }
-type Point = Vec2;
+interface Vec2 { x: number, y: number };
+interface Direction extends Vec2 {};
+interface Point extends Vec2 {};
 
 function vec2(x: number, y: number): Vec2 {
     return {x, y};
@@ -15,6 +16,10 @@ function distance(from: Point, to: Point): number {
     const dx = to.x - from.x;
     const dy = to.x - from.x;
     return Math.sqrt(dx * dx + dy * dy);
+}
+
+function normalize(v: Vec2) {
+    return direction(vec2(0, 0), v);
 }
 
 function direction(from: Point, to: Point): Vec2 {
@@ -31,6 +36,8 @@ function direction(from: Point, to: Point): Vec2 {
 
 type GameState = {
     player: Player,
+    enemySpawner: EnemySpawner,
+    enemies: Enemy[],
     arena: Arena,
     slots: Slot[],
     spell: Spell | null,
@@ -41,7 +48,7 @@ type Color = string | CanvasGradient | CanvasPattern;
 
 type Slot = {
     index: number,
-}
+};
 
 type Player = {
     x: number,
@@ -50,10 +57,18 @@ type Player = {
     chakra: Chakra
 }
 
+type EnemySpawner = Point & {
+    nextIndex: number,
+    delay: number,
+    delayLeft: number,
+};
+
+type Enemy = Point & Direction;
+
 type RenderState = {
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
-}
+};
 
 type Chakra = { timeout: number }
 type Cast = { x: number, y: number }
@@ -61,16 +76,17 @@ type Spell = {
     x0: number, y0: number,
     x1: number, y1: number,
     speed: number
-}
+};
 
 type InputState = {
     cast: Cast | null,
     player: Vec2
-}
+};
+
 type InputUpdate = {
     cast: Cast | null
     player: Vec2
-}
+};
 
 function setupState(): GameState {
     const arena = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: (window.innerHeight / 2) * 0.97 };
@@ -84,12 +100,21 @@ function setupState(): GameState {
         }
         return result;
     }
+    const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
+    const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 1, delayLeft: 1 };
+    const enemies: Enemy[] = [];
+    const spell = null;
+    const defaultSlotsNumber = 12;
+    const slots = generateSlots(defaultSlotsNumber);
+    const inputState = { cast: null, player: vec2(0, 0) };
     return {
-        player: { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } },
+        player, 
+        enemySpawner,
+        enemies,
         arena,
-        spell: null,
-        slots: generateSlots(12),
-        inputState: { cast: null, player: vec2(0, 0) },
+        spell,
+        slots,
+        inputState,
     };
 }
 
