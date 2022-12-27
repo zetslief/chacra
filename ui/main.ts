@@ -63,7 +63,9 @@ type EnemySpawner = Point & {
     delayLeft: number,
 };
 
-type Enemy = Point & Direction;
+type Enemy = Point & {
+    direction: Direction,
+};
 
 type RenderState = {
     canvas: HTMLCanvasElement,
@@ -238,12 +240,31 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
 }
 
 function updatePhysics(state: GameState, dt: number) {
-    function spellDistance(spell: Spell): number {
-        return distance(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
+    function updateEnemySpawner(enemySpawner: EnemySpawner, dt: number): Enemy | null {
+        if (enemySpawner.delayLeft < 0) {
+            enemySpawner.delayLeft = enemySpawner.delay;
+            // TODO: implement direction.
+            return { x: enemySpawner.x, y: enemySpawner.y, direction: { x: 0, y: 1 } };
+        }
+        enemySpawner.delayLeft -= dt;
+        return null;
     }
+    function handleEnemies(state: GameState, newEnemy: Enemy | null) {
+        if (newEnemy) {
+            const defaultEnemySpeed = 10;
+            const speed = defaultEnemySpeed;
+            const spell = { x0: newEnemy.x, y0: newEnemy.y, x1: newEnemy.x, y1: 0, speed: speed };
+            const dir = direction(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
+            spell.x0 = spell.x0 + dir.x * spell.speed * dt;
+            spell.y0 = spell.y0 + dir.y * spell.speed * dt;
+            state.spell = spell;
+        }
+    }
+    const newEnemy = updateEnemySpawner(state.enemySpawner, dt);
+    handleEnemies(state, newEnemy);
     if (state.spell) {
         const spell = state.spell
-        const dist = spellDistance(spell);
+        const dist = distance(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
         const spellExitDistance = 1;
         console.log(dist);
         if (dist < spellExitDistance) {
