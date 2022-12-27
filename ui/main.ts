@@ -115,10 +115,10 @@ function setupState(): GameState {
         return result;
     }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
-    const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 1, delayLeft: 1 };
+    const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const enemies: Enemy[] = [];
     const spell = null;
-    const defaultSlotsNumber = 12;
+    const defaultSlotsNumber = 7;
     const slots = generateSlots(defaultSlotsNumber);
     const inputState = { cast: null, player: vec2(0, 0) };
     return {
@@ -304,7 +304,7 @@ function updatePhysics(state: GameState, dt: number) {
     function createEnemy(): Enemy {
         const x = state.arena.x;
         const y = state.arena.y;
-        const targetSlotIndex = 0;
+        const targetSlotIndex = Math.floor(Math.random() * state.slots.length);
         const targetSlot = state.slots[targetSlotIndex];
         return { x, y, target: slotPosition(targetSlot, state.arena, state.slots.length) };
     }
