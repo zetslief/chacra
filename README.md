@@ -4,6 +4,9 @@ Simple network game.
 
 Game design:
 
+Restrications:
+* Game must be simple enough to be implemented without external dependencies.
+
 Tower diffence with enemy spawner in the center.
 
 * Chakras stays at around the circle arena.
