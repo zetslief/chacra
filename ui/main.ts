@@ -12,10 +12,18 @@ function vec2(x: number, y: number): Vec2 {
     return {x, y};
 }
 
+function len(vec: Vec2): number {
+    return distance(vec2(0, 0), vec);
+}
+
 function distance(from: Point, to: Point): number {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     return Math.sqrt(dx * dx + dy * dy);
+}
+
+function sub(left: Vec2, right: Vec2): Vec2 {
+    return { x: left.x - right.x, y: left.y - right.y };
 }
 
 function normalize(v: Vec2) {
@@ -33,6 +41,19 @@ function direction(from: Point, to: Point): Vec2 {
         (to.y - from.y) / dst
     );
 }
+
+// COLLISIONS
+
+type CircleCollider = Point & {
+    radius: number
+}
+
+function collide(first: CircleCollider, second: CircleCollider): boolean {
+    const diff = sub(first, second);
+    return len(diff) >= (first.radius + second.radius);
+}
+
+// GAME
 
 type GameState = {
     player: Player,
@@ -75,10 +96,8 @@ type RenderState = {
 
 type Chakra = { timeout: number }
 type Cast = { x: number, y: number }
-type Spell = {
-    x0: number, y0: number,
-    x1: number, y1: number,
-    speed: number
+type Spell = Point & {
+    collider: CircleCollider
 };
 
 type InputState = {
@@ -182,6 +201,19 @@ function fillCircle(
     ctx.fill();
 }
 
+function strokeCircle(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    radius: number,
+    color: Color
+) {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+}
+
 function drawBackground(
     ctx: CanvasRenderingContext2D,
     width: number,
@@ -204,10 +236,8 @@ function drawSpell(
     ctx: CanvasRenderingContext2D,
     spell: Spell
 ) {
-    ctx.fillStyle = "green";
-    ctx.beginPath();
-    ctx.arc(spell.x0, spell.y0, 20 / 2, 0, 2 * Math.PI);
-    ctx.fill();
+    strokeCircle(ctx, spell.x, spell.y, spell.collider.radius, "green");
+    fillCircle(ctx, spell.x, spell.y, spell.collider.radius * 0.7, "green");
 }
 
 function drawEnemy(
@@ -262,12 +292,12 @@ function processInput(inputState: InputState): InputUpdate {
 }
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
-    function spell(x0: number, y0: number, x1: number, y1: number): Spell {
-        const defaultSpeed = 10;
-        return { x0: x0, y0: y0, x1: x1, y1: y1, speed: defaultSpeed };
+    function spell(x: number, y: number): Spell {
+        const defaultCollider = 10;
+        return { x, y, collider: { x, y, radius: defaultCollider }};
     }
     if (inputChange.cast) {
-        state.spell = spell(state.player.x, state.player.y, inputChange.cast.x, inputChange.cast.y);
+        state.spell = spell(inputChange.cast.x, inputChange.cast.y);
     }
     const playerMoveLength = distance(vec2(0, 0), inputChange.player);
     if (playerMoveLength > 0) {
@@ -311,17 +341,7 @@ function updatePhysics(state: GameState, dt: number) {
     const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
     handleEnemies(state, newEnemy);
     if (state.spell) {
-        const spell = state.spell
-        const dist = distance(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
-        const spellExitDistance = 1;
-        console.log(dist);
-        if (dist < spellExitDistance) {
-            state.spell = null;
-        } else {
-            const dir = direction(vec2(spell.x0, spell.y0), vec2(spell.x1, spell.y1));
-            spell.x0 = spell.x0 + dir.x * spell.speed * dt;
-            spell.y0 = spell.y0 + dir.y * spell.speed * dt;
-        }
+        // do nothing
     }
 }
 
