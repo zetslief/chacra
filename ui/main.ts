@@ -50,7 +50,7 @@ type CircleCollider = Point & {
 
 function collide(first: CircleCollider, second: CircleCollider): boolean {
     const diff = sub(first, second);
-    return len(diff) >= (first.radius + second.radius);
+    return len(diff) < (first.radius + second.radius);
 }
 
 // GAME
@@ -86,7 +86,8 @@ type EnemySpawner = Point & {
 };
 
 type Enemy = Point & {
-    target: Point
+    target: Point,
+    collider: CircleCollider
 };
 
 type RenderState = {
@@ -309,7 +310,6 @@ function updatePhysics(state: GameState, dt: number) {
         if (enemySpawner.delayLeft < 0) {
             enemySpawner.delayLeft = enemySpawner.delay;
             const newEnemy = enemyFactory();
-            console.log(newEnemy);
             return newEnemy;
         }
         enemySpawner.delayLeft -= dt;
@@ -325,6 +325,8 @@ function updatePhysics(state: GameState, dt: number) {
             const dir = direction(enemy, enemy.target);
             enemy.x = enemy.x + dir.x * speed * dt;
             enemy.y = enemy.y + dir.y * speed * dt;
+            enemy.collider.x = enemy.x;
+            enemy.collider.y = enemy.y;
         }
         state.enemies = state.enemies.filter(enemy => {
             const dist = distance(enemy, enemy.target);
@@ -336,12 +338,22 @@ function updatePhysics(state: GameState, dt: number) {
         const y = state.arena.y;
         const targetSlotIndex = Math.floor(Math.random() * state.slots.length);
         const targetSlot = state.slots[targetSlotIndex];
-        return { x, y, target: slotPosition(targetSlot, state.arena, state.slots.length) };
+        return { 
+            x,
+            y,
+            target: slotPosition(targetSlot, state.arena, state.slots.length),
+            collider: { x, y, radius: 10 }
+        };
     }
     const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
     handleEnemies(state, newEnemy);
     if (state.spell) {
-        // do nothing
+        const collider = state.spell.collider;
+        const enemiesCount = state.enemies.length;
+        state.enemies = state.enemies.filter(enemy => !collide(collider, enemy.collider));
+        if (enemiesCount < state.enemies.length) {
+            state.spell = null;
+        }
     }
 }
 
