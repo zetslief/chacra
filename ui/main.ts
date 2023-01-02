@@ -343,6 +343,16 @@ function updatePhysics(state: GameState, dt: number) {
             return dist > 1;
         });
     }
+    function handleCollisions(state: GameState) {
+        if (state.spell) {
+            const collider = state.spell.collider;
+            const enemiesCount = state.enemies.length;
+            state.enemies = state.enemies.filter(enemy => !collide(collider, enemy.collider));
+            if (enemiesCount < state.enemies.length) {
+                state.spell = null;
+            }
+        }
+    }
     function createEnemy(): Enemy {
         const x = state.arena.x;
         const y = state.arena.y;
@@ -357,14 +367,7 @@ function updatePhysics(state: GameState, dt: number) {
     }
     const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
     handleEnemies(state, newEnemy);
-    if (state.spell) {
-        const collider = state.spell.collider;
-        const enemiesCount = state.enemies.length;
-        state.enemies = state.enemies.filter(enemy => !collide(collider, enemy.collider));
-        if (enemiesCount < state.enemies.length) {
-            state.spell = null;
-        }
-    }
+    handleCollisions(state);
 }
 
 // MAIN
