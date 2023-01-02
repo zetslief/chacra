@@ -63,6 +63,7 @@ type GameState = {
     enemies: Enemy[],
     arena: Arena,
     slots: Slot[],
+    chakras: Chakra[],
     spell: Spell | null,
     inputState: InputState
 }
@@ -77,7 +78,6 @@ type Player = {
     x: number,
     y: number,
     size: number,
-    chakra: Chakra
 }
 
 type EnemyFactory = () => Enemy;
@@ -97,7 +97,7 @@ type RenderState = {
     ctx: CanvasRenderingContext2D
 };
 
-type Chakra = { timeout: number }
+type Chakra = { slot: Slot, collider: CircleCollider }
 type Cast = { x: number, y: number }
 type Spell = Point & {
     collider: CircleCollider
@@ -136,12 +136,20 @@ function setupState(): GameState {
         }
         return result;
     }
+    function generateChakras(slots: Slot[], arena: Arena): Chakra[] {
+        return slots.map(slot => {
+            const { x, y } = slotPosition(slot, arena, slots.length);
+            const collider =  { x, y, radius: DEFAULT_RADIUS };
+            return { slot, collider };
+        });
+    }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const enemies: Enemy[] = [];
     const spell = null;
     const defaultSlotsNumber = 7;
     const slots = generateSlots(defaultSlotsNumber);
+    const chakras = generateChakras(slots, arena);
     const inputState = { cast: null, player: vec2(0, 0) };
     return {
         player, 
@@ -150,6 +158,7 @@ function setupState(): GameState {
         arena,
         spell,
         slots,
+        chakras,
         inputState,
     };
 }
@@ -343,7 +352,7 @@ function updatePhysics(state: GameState, dt: number) {
             x,
             y,
             target: slotPosition(targetSlot, state.arena, state.slots.length),
-            collider: { x, y, radius: 10 }
+            collider: { x, y, radius: DEFAULT_RADIUS }
         };
     }
     const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
@@ -377,14 +386,14 @@ function loop(game: GameState, render: RenderState, deltaTime: number) {
     const update = processInput(game.inputState);
     applyInput(game, update);
     updatePhysics(game, deltaTime);
-    draw(game, render)
+    draw(game, render);
 }
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('1d') as CanvasRenderingContext2D;
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
 
