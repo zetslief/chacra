@@ -338,10 +338,6 @@ function updatePhysics(state: GameState, dt: number) {
             enemy.collider.x = enemy.x;
             enemy.collider.y = enemy.y;
         }
-        state.enemies = state.enemies.filter(enemy => {
-            const dist = distance(enemy, enemy.target);
-            return dist > 1;
-        });
     }
     function handleCollisions(state: GameState) {
         if (state.spell) {
@@ -352,6 +348,14 @@ function updatePhysics(state: GameState, dt: number) {
                 state.spell = null;
             }
         }
+        state.enemies = state.enemies.filter(enemy => {
+            for (const chakra of state.chakras) {
+                if (collide(chakra.collider, enemy.collider)) {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
     function createEnemy(): Enemy {
         const x = state.arena.x;
