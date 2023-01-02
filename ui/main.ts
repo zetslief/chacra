@@ -2,6 +2,8 @@ const BLACK = "black";
 const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 
+const DEFAULT_RADIUS = 10;
+
 // MATHTYPE
 
 interface Vec2 { x: number, y: number };
@@ -294,8 +296,7 @@ function processInput(inputState: InputState): InputUpdate {
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
     function spell(x: number, y: number): Spell {
-        const defaultCollider = 10;
-        return { x, y, collider: { x, y, radius: defaultCollider }};
+        return { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
     }
     if (inputChange.cast) {
         state.spell = spell(inputChange.cast.x, inputChange.cast.y);
