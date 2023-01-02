@@ -1,6 +1,6 @@
 const BLACK = "black";
-const BACKGROUND = "#3333dd"
-const PLAYER = "#ff3333"
+const BACKGROUND = "#3333dd";
+const PLAYER = "#ff3333";
 
 // MATHTYPE
 
@@ -112,14 +112,14 @@ type InputUpdate = {
 };
 
 function slotPosition(slot: Slot, arena: Arena, slotsCount: number): Point {
-        const angleStep = (Math.PI * 2) / slotsCount;
-        const angleShift = 0;
-        const angle = angleStep * slot.index + angleShift;
-        const shiftX = (arena.radius * 0.8) * Math.cos(angle);
-        const shiftY = (arena.radius * 0.8) * Math.sin(angle);
-        const x = arena.x + shiftX;
-        const y = arena.y + shiftY;
-        return { x, y };
+    const angleStep = (Math.PI * 2) / slotsCount;
+    const angleShift = 0;
+    const angle = angleStep * slot.index + angleShift;
+    const shiftX = (arena.radius * 0.8) * Math.cos(angle);
+    const shiftY = (arena.radius * 0.8) * Math.sin(angle);
+    const x = arena.x + shiftX;
+    const y = arena.y + shiftY;
+    return { x, y };
 }
 
 function setupState(): GameState {
@@ -383,7 +383,7 @@ function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    const ctx = canvas.getContext('1d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
 
