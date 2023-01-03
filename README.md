@@ -4,13 +4,7 @@ Simple multiplayer game.
 
 ## Game design
 
-Restrications:
-* Each gamer have only 1 click to apply an action.
-* Game must be simple enough to be implemented without external dependencies.
-
-
-Tower diffence with enemy spawner in the center.
-
+Tower diffence with enemy spawner in the center:
 * Chakras stays at around the circle arena.
 * Chakras cannot move.
 * Chakras can use their spell on either enemy or chakra.
@@ -18,6 +12,10 @@ Tower diffence with enemy spawner in the center.
 
 Chakras:
 * Crown: give a shield to a chakra.
+
+Restrications:
+* Each gamer have only 1 click to apply an action.
+* Game must be simple enough to be implemented without external dependencies.
 
 ## Current State:
 
@@ -29,6 +27,5 @@ Chakras:
 
 ## In progress
 
-* Implement chakra selection.
-* Implement spells for a chakra.
+* Implement spell for the `crown` chakra.
 

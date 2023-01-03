@@ -70,6 +70,7 @@ type GameState = {
     activeSlot: Slot | null,
     slots: Slot[],
     chakras: Chakra[],
+    effects: Effect[],
     spell: Spell | null,
     inputState: InputState
 }
@@ -109,13 +110,17 @@ type Spell = Point & {
     collider: CircleCollider
 };
 
+type Effect = { chakra: Chakra };
+
 type InputState = {
     click: Click | null,
+    spellActivated: boolean | null,
     player: Vec2
 };
 
 type InputUpdate = {
     click: Click | null
+    spellActivated: boolean,
     player: Vec2
 };
 
@@ -157,7 +162,8 @@ function setupState(): GameState {
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
-    const inputState = { click: null, player: vec2(0, 0) };
+    const effects: Effect[] = []; 
+    const inputState = { click: null, spellActivated: false, player: vec2(0, 0) };
     return {
         player, 
         enemySpawner,
@@ -167,6 +173,7 @@ function setupState(): GameState {
         activeSlot,
         slots,
         chakras,
+        effects,
         inputState,
     };
 }
@@ -301,10 +308,14 @@ function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
 
 // PROCESSING
 function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { click: null, player: vec2(0, 0) };
+    let input: InputUpdate = { click: null, spellActivated: false, player: vec2(0, 0) };
     if (inputState.click) {
         input.click = inputState.click;
         inputState.click = null;
+    }
+    if (inputState.spellActivated != null) {
+        input.spellActivated = inputState.spellActivated;
+        inputState.spellActivated = null;
     }
     return input;
 }
@@ -317,9 +328,13 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         let slotActivated = false;
         for (const chakra of state.chakras) {
             if (insideCircle(chakra.collider, inputChange.click)) {
-                state.activeSlot = chakra.slot;
-                slotActivated = true;
-                break;
+                if (inputChange.spellActivated) {
+                    state.effects.push({ chakra });
+                } else {
+                    state.activeSlot = chakra.slot;
+                    slotActivated = true;
+                    break;
+                }
             }
         }
         if (!slotActivated) {
