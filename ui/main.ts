@@ -55,6 +55,11 @@ function collide(first: CircleCollider, second: CircleCollider): boolean {
     return len(diff) < (first.radius + second.radius);
 }
 
+function insideCircle(circle: CircleCollider, point: Point): boolean {
+    const diff = sub(circle, point);
+    return len(diff) <= circle.radius;
+}
+
 // GAME
 
 type GameState = {
@@ -62,6 +67,7 @@ type GameState = {
     enemySpawner: EnemySpawner,
     enemies: Enemy[],
     arena: Arena,
+    activeSlot: Slot | null,
     slots: Slot[],
     chakras: Chakra[],
     spell: Spell | null,
@@ -98,18 +104,18 @@ type RenderState = {
 };
 
 type Chakra = { slot: Slot, collider: CircleCollider }
-type Cast = { x: number, y: number }
+type Click = Point;
 type Spell = Point & {
     collider: CircleCollider
 };
 
 type InputState = {
-    cast: Cast | null,
+    click: Click | null,
     player: Vec2
 };
 
 type InputUpdate = {
-    cast: Cast | null
+    click: Click | null
     player: Vec2
 };
 
@@ -148,15 +154,17 @@ function setupState(): GameState {
     const enemies: Enemy[] = [];
     const spell = null;
     const defaultSlotsNumber = 7;
+    const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
-    const inputState = { cast: null, player: vec2(0, 0) };
+    const inputState = { click: null, player: vec2(0, 0) };
     return {
         player, 
         enemySpawner,
         enemies,
         arena,
         spell,
+        activeSlot,
         slots,
         chakras,
         inputState,
@@ -165,7 +173,7 @@ function setupState(): GameState {
 
 function setupHandlers(inputState: InputState) {
     document.addEventListener("click", (e) => {
-        inputState.cast = { x: e.pageX, y: e.pageY };
+        inputState.click = { x: e.pageX, y: e.pageY };
     });
     document.addEventListener("keydown", (e) => {
         if (e.isComposing || e.keyCode === 229) {
@@ -278,12 +286,16 @@ function drawArena(
 }
 
 function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
-    ctx.fillStyle = "black";
     for(const slot of slots) {
         const position = slotPosition(slot, arena, slots.length);
-        ctx.beginPath();
-        ctx.arc(position.x, position.y, 10, 0, 2 * Math.PI);
-        ctx.fill();
+        fillCircle(ctx, position.x, position.y, DEFAULT_RADIUS, "black");
+    }
+}
+
+function drawActiveSlot(ctx: CanvasRenderingContext2D, slot: Slot | null, arena: Arena, slots: Slot[]) {
+    if (slot) {
+        const position = slotPosition(slot, arena, slots.length);
+        strokeCircle(ctx, position.x, position.y, DEFAULT_RADIUS * 1.1, "red");
     }
 }
 
@@ -295,10 +307,10 @@ function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
 
 // PROCESSING
 function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { cast: null, player: vec2(0, 0) };
-    if (inputState.cast) {
-        input.cast = inputState.cast;
-        inputState.cast = null;
+    let input: InputUpdate = { click: null, player: vec2(0, 0) };
+    if (inputState.click) {
+        input.click = inputState.click;
+        inputState.click = null;
     }
     return input;
 }
@@ -307,10 +319,20 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
     function spell(x: number, y: number): Spell {
         return { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
     }
-    if (inputChange.cast) {
-        state.spell = spell(inputChange.cast.x, inputChange.cast.y);
+    if (inputChange.click) {
+        let slotActivated = false;
+        for (const chakra of state.chakras) {
+            if (insideCircle(chakra.collider, inputChange.click)) {
+                state.activeSlot = chakra.slot;
+                slotActivated = true;
+                break;
+            }
+        }
+        if (!slotActivated) {
+            state.spell = spell(inputChange.click.x, inputChange.click.y);
+        }
     }
-    const playerMoveLength = distance(vec2(0, 0), inputChange.player);
+    const playerMoveLength = len(inputChange.player);
     if (playerMoveLength > 0) {
     }
 }
@@ -381,6 +403,7 @@ function draw(state: GameState, render: RenderState) {
     drawBackground(ctx, canvas.width, canvas.height);
     drawArena(ctx, state.arena);
     drawSlots(ctx, state.arena, state.slots);
+    drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
     drawEnemies(ctx, state.enemies);
     drawPlayer(ctx, state.player)
     if (state.spell) {
