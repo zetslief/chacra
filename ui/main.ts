@@ -3,6 +3,7 @@ const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 
 const DEFAULT_RADIUS = 10;
+const LINE_WIDTH = 1;
 
 // MATHTYPE
 
@@ -236,12 +237,16 @@ function strokeCircle(
     x: number,
     y: number,
     radius: number,
-    color: Color
+    color: Color,
+    lineWidth: number
 ) {
+    const defaultLineWidth = ctx.lineWidth;
+    ctx.lineWidth = lineWidth;
     ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.stroke();
+    ctx.lineWidth = defaultLineWidth;
 }
 
 function drawBackground(
@@ -263,7 +268,7 @@ function drawSpell(
     ctx: CanvasRenderingContext2D,
     spell: Spell
 ) {
-    strokeCircle(ctx, spell.x, spell.y, spell.collider.radius, "green");
+    strokeCircle(ctx, spell.x, spell.y, spell.collider.radius, "green", LINE_WIDTH);
     fillCircle(ctx, spell.x, spell.y, spell.collider.radius * 0.7, "green");
 }
 
@@ -299,7 +304,7 @@ function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
 function drawActiveSlot(ctx: CanvasRenderingContext2D, slot: Slot | null, arena: Arena, slots: Slot[]) {
     if (slot) {
         const position = slotPosition(slot, arena, slots.length);
-        strokeCircle(ctx, position.x, position.y, DEFAULT_RADIUS * 1.1, "red");
+        strokeCircle(ctx, position.x, position.y, DEFAULT_RADIUS * 1.1, "red", LINE_WIDTH);
     }
 }
 
@@ -312,7 +317,7 @@ function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
 function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
     for(const effect of effects) {
         const { x, y, radius } = effect.chakra.collider;
-        strokeCircle(ctx, x, y, radius * 1.2, "purple");
+        strokeCircle(ctx, x, y, radius * 1.4, "purple", LINE_WIDTH * 3);
     }
 }
 
@@ -419,6 +424,7 @@ function updatePhysics(state: GameState, dt: number) {
 }
 
 // MAIN
+
 function draw(state: GameState, render: RenderState) {
     const canvas = render.canvas;
     const ctx = render.ctx;
