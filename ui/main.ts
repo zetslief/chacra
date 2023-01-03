@@ -199,6 +199,9 @@ function setupHandlers(inputState: InputState) {
         if (key === "A") {
             inputState.player.x = -1;
         }
+        if (key === "DIGIT1") {
+            inputState.spellActivated = true;
+        }
     });
 }
 
@@ -306,7 +309,15 @@ function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
     }
 }
 
+function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
+    for(const effect of effects) {
+        const { x, y, radius } = effect.chakra.collider;
+        strokeCircle(ctx, x, y, radius * 1.2, "purple");
+    }
+}
+
 // PROCESSING
+
 function processInput(inputState: InputState): InputUpdate {
     let input: InputUpdate = { click: null, spellActivated: false, player: vec2(0, 0) };
     if (inputState.click) {
@@ -315,7 +326,6 @@ function processInput(inputState: InputState): InputUpdate {
     }
     if (inputState.spellActivated != null) {
         input.spellActivated = inputState.spellActivated;
-        inputState.spellActivated = null;
     }
     return input;
 }
@@ -329,7 +339,10 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         for (const chakra of state.chakras) {
             if (insideCircle(chakra.collider, inputChange.click)) {
                 if (inputChange.spellActivated) {
+                    console.log(state.effects);
                     state.effects.push({ chakra });
+                    slotActivated = true;
+                    break;
                 } else {
                     state.activeSlot = chakra.slot;
                     slotActivated = true;
@@ -413,6 +426,7 @@ function draw(state: GameState, render: RenderState) {
     drawArena(ctx, state.arena);
     drawSlots(ctx, state.arena, state.slots);
     drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
+    drawEffects(ctx, state.effects);
     drawEnemies(ctx, state.enemies);
     drawPlayer(ctx, state.player)
     if (state.spell) {
@@ -445,3 +459,4 @@ function main() {
 }
 
 main()
+
