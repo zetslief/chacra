@@ -29,5 +29,6 @@ Chakras:
 
 ## In progress
 
-* Game restard on enemy collision with a chakra.
+* Implement chakra selection.
+* Implement spells for a chakra.
 
