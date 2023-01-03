@@ -246,10 +246,7 @@ function drawPlayer(
     ctx: CanvasRenderingContext2D,
     player: Player
 ) {
-    ctx.fillStyle = PLAYER;
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
-    ctx.fill();
+    fillCircle(ctx, player.x, player.y, player.size, PLAYER);
 }
 
 function drawSpell(
@@ -279,10 +276,7 @@ function drawArena(
     ctx: CanvasRenderingContext2D,
     arena: Arena
 ) {
-    ctx.fillStyle = "orange";
-    ctx.beginPath();
-    ctx.arc(arena.x, arena.y, arena.radius, 0, 2 * Math.PI);
-    ctx.fill();
+    fillCircle(ctx, arena.x, arena.y, arena.radius, "orange");
 }
 
 function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
