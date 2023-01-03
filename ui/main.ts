@@ -114,7 +114,7 @@ type Effect = { chakra: Chakra };
 
 type InputState = {
     click: Click | null,
-    spellActivated: boolean | null,
+    spellActivated: boolean,
     player: Vec2
 };
 
@@ -200,7 +200,7 @@ function setupHandlers(inputState: InputState) {
             inputState.player.x = -1;
         }
         if (key === "DIGIT1") {
-            inputState.spellActivated = true;
+            inputState.spellActivated = !inputState.spellActivated;
         }
     });
 }
