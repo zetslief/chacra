@@ -8,11 +8,11 @@ const LINE_WIDTH = 1;
 // MATHTYPE
 
 interface Vec2 { x: number, y: number };
-interface Direction extends Vec2 {};
-interface Point extends Vec2 {};
+interface Direction extends Vec2 { };
+interface Point extends Vec2 { };
 
 function vec2(x: number, y: number): Vec2 {
-    return {x, y};
+    return { x, y };
 }
 
 function len(vec: Vec2): number {
@@ -143,7 +143,7 @@ function setupState(): GameState {
     }
     function generateSlots(count: number): Slot[] {
         const result = [];
-        for(let index = 0; index < count; ++index) {
+        for (let index = 0; index < count; ++index) {
             result.push(slot(index));
         }
         return result;
@@ -151,7 +151,7 @@ function setupState(): GameState {
     function generateChakras(slots: Slot[], arena: Arena): Chakra[] {
         return slots.map(slot => {
             const { x, y } = slotPosition(slot, arena, slots.length);
-            const collider =  { x, y, radius: DEFAULT_RADIUS };
+            const collider = { x, y, radius: DEFAULT_RADIUS };
             return { slot, collider };
         });
     }
@@ -163,10 +163,10 @@ function setupState(): GameState {
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
-    const effects: Effect[] = []; 
+    const effects: Effect[] = [];
     const inputState = { click: null, spellActivated: false, player: vec2(0, 0) };
     return {
-        player, 
+        player,
         enemySpawner,
         enemies,
         arena,
@@ -295,7 +295,7 @@ function drawArena(
 }
 
 function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
-    for(const slot of slots) {
+    for (const slot of slots) {
         const position = slotPosition(slot, arena, slots.length);
         fillCircle(ctx, position.x, position.y, DEFAULT_RADIUS, "black");
     }
@@ -309,13 +309,13 @@ function drawActiveSlot(ctx: CanvasRenderingContext2D, slot: Slot | null, arena:
 }
 
 function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
-    for(const enemy of enemies) {
+    for (const enemy of enemies) {
         drawEnemy(ctx, enemy);
     }
 }
 
 function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
-    for(const effect of effects) {
+    for (const effect of effects) {
         const { x, y, radius } = effect.chakra.collider;
         strokeCircle(ctx, x, y, radius * 1.4, "purple", LINE_WIDTH * 3);
     }
@@ -337,14 +337,13 @@ function processInput(inputState: InputState): InputUpdate {
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
     function spell(x: number, y: number): Spell {
-        return { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
+        return { x, y, collider: { x, y, radius: DEFAULT_RADIUS } };
     }
     if (inputChange.click) {
         let slotActivated = false;
         for (const chakra of state.chakras) {
             if (insideCircle(chakra.collider, inputChange.click)) {
                 if (inputChange.spellActivated) {
-                    console.log(state.effects);
                     state.effects.push({ chakra });
                     slotActivated = true;
                     break;
@@ -378,7 +377,7 @@ function updatePhysics(state: GameState, dt: number) {
         if (newEnemy) {
             state.enemies.push(newEnemy);
         }
-        for(const enemy of state.enemies) {
+        for (const enemy of state.enemies) {
             const defaultEnemySpeed = 10;
             const speed = defaultEnemySpeed;
             const dir = direction(enemy, enemy.target);
@@ -390,11 +389,16 @@ function updatePhysics(state: GameState, dt: number) {
     }
     function handleCollisions(state: GameState) {
         if (state.spell) {
-            const collider = state.spell.collider;
-            const enemiesCount = state.enemies.length;
-            state.enemies = state.enemies.filter(enemy => !collide(collider, enemy.collider));
-            if (enemiesCount < state.enemies.length) {
-                state.spell = null;
+            let enemyToRemove: Enemy | null = null;
+            for (const enemy of state.enemies) {
+                if (collide(state.spell.collider, enemy.collider)) {
+                    state.spell = null;
+                    enemyToRemove = enemy;
+                    break;
+                }
+            }
+            if (enemyToRemove) {
+                state.enemies = state.enemies.filter(enemy => enemy != enemyToRemove);;
             }
         }
         state.enemies = state.enemies.filter(enemy => {
@@ -411,7 +415,7 @@ function updatePhysics(state: GameState, dt: number) {
         const y = state.arena.y;
         const targetSlotIndex = Math.floor(Math.random() * state.slots.length);
         const targetSlot = state.slots[targetSlotIndex];
-        return { 
+        return {
             x,
             y,
             target: slotPosition(targetSlot, state.arena, state.slots.length),
