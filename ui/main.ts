@@ -388,27 +388,30 @@ function updatePhysics(state: GameState, dt: number) {
         }
     }
     function handleCollisions(state: GameState) {
-        if (state.spell) {
-            let enemyToRemove: Enemy | null = null;
-            for (const enemy of state.enemies) {
-                if (collide(state.spell.collider, enemy.collider)) {
-                    state.spell = null;
-                    enemyToRemove = enemy;
-                    break;
+        const enemiesToRemove = new Set<Enemy>();
+        const effectsToRemove = new Set<Effect>();
+        for (const enemy of state.enemies) {
+            if (state.spell) {
+                    if (collide(state.spell.collider, enemy.collider)) {
+                        state.spell = null;
+                        enemiesToRemove.add(enemy);
+                        break;
+                    }
+            }
+            for (const effect of state.effects) {
+                if (collide(effect.chakra.collider, enemy.collider)) {
+                    enemiesToRemove.add(enemy);
+                    effectsToRemove.add(effect);
                 }
             }
-            if (enemyToRemove) {
-                state.enemies = state.enemies.filter(enemy => enemy != enemyToRemove);;
-            }
-        }
-        state.enemies = state.enemies.filter(enemy => {
             for (const chakra of state.chakras) {
                 if (collide(chakra.collider, enemy.collider)) {
-                    return false;
+                    enemiesToRemove.add(enemy);
                 }
             }
-            return true;
-        });
+        }
+        state.enemies = state.enemies.filter(enemy => !enemiesToRemove.has(enemy));
+        state.effects = state.effects.filter(effect => !effectsToRemove.has(effect));
     }
     function createEnemy(): Enemy {
         const x = state.arena.x;
