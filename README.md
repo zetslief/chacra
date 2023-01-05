@@ -2,6 +2,13 @@
 
 Simple multiplayer game.
 
+## How to build
+
+```bash
+cd ui
+tsc
+```
+
 ## Game design
 
 Tower diffence with enemy spawner in the center:
