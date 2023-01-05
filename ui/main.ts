@@ -111,7 +111,7 @@ type Spell = Point & {
     collider: CircleCollider
 };
 
-type Effect = { chakra: Chakra };
+type Effect = { collider: CircleCollider };
 
 type InputState = {
     click: Click | null,
@@ -317,8 +317,8 @@ function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
 
 function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
     for (const effect of effects) {
-        const { x, y, radius } = effect.chakra.collider;
-        strokeCircle(ctx, x, y, radius * 1.4, "purple", LINE_WIDTH * 3);
+        const { x, y, radius } = effect.collider;
+        strokeCircle(ctx, x, y, radius, "purple", LINE_WIDTH * 3);
     }
 }
 
@@ -345,7 +345,10 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         for (const chakra of state.chakras) {
             if (insideCircle(chakra.collider, inputChange.click)) {
                 if (inputChange.spellActivated) {
-                    state.effects.get(chakra)!.push({chakra});
+                    const effects = state.effects.get(chakra)!;
+                    const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1)); 
+                    const collider = { ...chakra.collider, radius };
+                    effects.push({collider});
                     slotActivated = true;
                     break;
                 } else {
@@ -401,7 +404,7 @@ function updatePhysics(state: GameState, dt: number) {
             }
             for (const [_chakra, effects] of state.effects) {
                 for (const effect of effects) {
-                    if (collide(effect.chakra.collider, enemy.collider)) {
+                    if (collide(effect.collider, enemy.collider)) {
                         enemiesToRemove.add(enemy);
                         effectsToRemove.add(effect);
                     }
