@@ -35,5 +35,4 @@ Restrications:
 
 ## In progress
 
-* Several types of `effects`. 
-
+* 

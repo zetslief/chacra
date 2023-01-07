@@ -193,10 +193,10 @@ function setupState(): GameState {
 }
 
 function setupHandlers(inputState: InputState) {
-    document.addEventListener("click", (e) => {
+    document.onclick = (e) => {
         inputState.click = { x: e.pageX, y: e.pageY };
-    });
-    document.addEventListener("keydown", (e) => {
+    };
+    document.onkeydown = (e) => {
         if (e.isComposing || e.keyCode === 229) {
             return;
         }
@@ -219,7 +219,7 @@ function setupHandlers(inputState: InputState) {
         if (key === "DIGIT2") {
             inputState.activatedAbility = AbilityType.ThirdEye;
         }
-    });
+    };
 }
 
 // DRAWING
@@ -292,9 +292,19 @@ function drawEnemy(
     ctx: CanvasRenderingContext2D,
     enemy: Enemy
 ) {
-    const enemyRadius = 10;
-    const enemyColor = "white";
-    fillCircle(ctx, enemy.x, enemy.y, enemyRadius, enemyColor);
+    fillCircle(ctx, enemy.x, enemy.y, DEFAULT_RADIUS, "white");
+    strokeCircle(ctx, enemy.collider.x, enemy.collider.y, enemy.collider.radius, "gray", 1);
+}
+
+function drawChakra(
+    ctx: CanvasRenderingContext2D,
+    chakra: Chakra,
+    arena: Arena,
+    slotCount: number
+) {
+    const { x, y } = slotPosition(chakra.slot, arena, slotCount);
+    fillCircle(ctx, x, y, DEFAULT_RADIUS, "black");
+    strokeCircle(ctx, chakra.collider.x, chakra.collider.y, chakra.collider.radius, "gray", 1);
 }
 
 
@@ -308,13 +318,6 @@ function drawArena(
     arena: Arena
 ) {
     fillCircle(ctx, arena.x, arena.y, arena.radius, "orange");
-}
-
-function drawSlots(ctx: CanvasRenderingContext2D, arena: Arena, slots: Slot[]) {
-    for (const slot of slots) {
-        const position = slotPosition(slot, arena, slots.length);
-        fillCircle(ctx, position.x, position.y, DEFAULT_RADIUS, "black");
-    }
 }
 
 function drawActiveSlot(ctx: CanvasRenderingContext2D, slot: Slot | null, arena: Arena, slots: Slot[]) {
@@ -361,7 +364,6 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         }
         state.ability.type = inputChange.activatedAbility;
     }
-    console.log(state.ability);
     if (inputChange.click) {
         let clickProcessed = false;
         for (const chakra of state.chakras.keys()) {
@@ -374,6 +376,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
                 } else {
                     state.activeSlot = chakra.slot;
                 }
+                console.log("Clicked on chakra", chakra);
                 clickProcessed = true;
                 break;
             }
@@ -384,6 +387,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
                     effects.push({ collider: enemy.collider});
                     enemy.target = { x: state.arena.x, y: state.arena.y };
                 }
+                console.log("Clicked on enemy", enemy);
                 clickProcessed = true;
                 break;
             }
@@ -476,9 +480,9 @@ function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
     drawBackground(ctx, canvas.width, canvas.height);
     drawArena(ctx, state.arena);
-    drawSlots(ctx, state.arena, state.slots);
     drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
-    for (const effects of state.chakras.values()) {
+    for (const [chakra, effects] of state.chakras) {
+        drawChakra(ctx, chakra, state.arena, state.slots.length);
         drawEffects(ctx, effects);
     }
     for(const enemy of state.enemies.keys()) {
