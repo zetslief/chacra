@@ -15,6 +15,10 @@ function vec2(x: number, y: number): Vec2 {
     return { x, y };
 }
 
+function mul(vec: Vec2, value: number) {
+    return { x: vec.x * value, y: vec.y * value };
+}
+
 function len(vec: Vec2): number {
     return distance(vec2(0, 0), vec);
 }
@@ -72,6 +76,7 @@ type GameState = {
     chakras: Map<Chakra, Effect[]>,
     enemies: Map<Enemy, Effect[]>,
     spell: Spell | null,
+    ability: Ability,
     inputState: InputState
 }
 
@@ -115,15 +120,22 @@ type Effect = { collider: CircleCollider };
 type ShieldEffect = Effect;
 type MirrorEffect = Effect;
 
+enum AbilityType {
+    None = 0,
+    Crown = 1,
+    ThirdEye = 2
+}
+type Ability = { active: boolean, type: AbilityType };
+
 type InputState = {
     click: Click | null,
-    spellActivated: boolean,
+    activatedAbility: AbilityType,
     player: Vec2
 };
 
 type InputUpdate = {
     click: Click | null
-    spellActivated: boolean,
+    activatedAbility: AbilityType,
     player: Vec2
 };
 
@@ -160,17 +172,19 @@ function setupState(): GameState {
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
+    const ability = { active: false, type: AbilityType.None };
     const defaultSlotsNumber = 7;
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
     const enemies = new Map<Enemy, Effect[]>();
-    const inputState = { click: null, spellActivated: false, player: vec2(0, 0) };
+    const inputState = { click: null, activatedAbility: AbilityType.None, player: vec2(0, 0) };
     return {
         player,
         enemySpawner,
         arena,
         spell,
+        ability,
         activeSlot,
         slots,
         chakras,
@@ -201,7 +215,10 @@ function setupHandlers(inputState: InputState) {
             inputState.player.x = -1;
         }
         if (key === "DIGIT1") {
-            inputState.spellActivated = !inputState.spellActivated;
+            inputState.activatedAbility = AbilityType.Crown;
+        }
+        if (key === "DIGIT2") {
+            inputState.activatedAbility = AbilityType.ThirdEye;
         }
     });
 }
@@ -324,37 +341,47 @@ function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
 // PROCESSING
 
 function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { click: null, spellActivated: false, player: vec2(0, 0) };
+    let input: InputUpdate = { click: null, activatedAbility: AbilityType.None, player: vec2(0, 0) };
     if (inputState.click) {
         input.click = inputState.click;
         inputState.click = null;
     }
-    if (inputState.spellActivated != null) {
-        input.spellActivated = inputState.spellActivated;
+    if (inputState.activatedAbility != null) {
+        input.activatedAbility = inputState.activatedAbility;
     }
     return input;
 }
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
     if (inputChange.click) {
-        let slotActivated = false;
+        let clickProcessed = false;
         for (const chakra of state.chakras.keys()) {
             if (insideCircle(chakra.collider, inputChange.click)) {
-                if (inputChange.spellActivated) {
+                if (inputChange.activatedAbility === AbilityType.Crown) {
                     const effects = state.chakras.get(chakra)!;
                     const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
                     const collider = { ...chakra.collider, radius };
                     effects.push({ collider });
-                    slotActivated = true;
+                    clickProcessed = true;
                     break;
                 } else {
                     state.activeSlot = chakra.slot;
-                    slotActivated = true;
+                    clickProcessed = true;
                     break;
                 }
             }
         }
-        if (!slotActivated) {
+        for (const [enemy, effects] of state.enemies) {
+            if (insideCircle(enemy.collider, inputChange.click)) {
+                if (inputChange.activatedAbility === AbilityType.ThirdEye) {
+                    effects.push({ collider: enemy.collider});
+                    enemy.target = mul(enemy.target, -1);
+                }
+                clickProcessed = true;
+                break;
+            }
+        }
+        if (!clickProcessed) {
             const x = inputChange.click.x;
             const y = inputChange.click.y;
             state.spell = { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
