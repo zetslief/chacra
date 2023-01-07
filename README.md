@@ -32,7 +32,3 @@ Restrications:
 * There are `defaultSlotNumber` which defines a number of the slots.
 * `Arena` is a circle within which the `player` and the `slots` are located.
 * `EnemySpawner` is in the center of `Arena` and creates enemies along the `y` axis.
-
-## In progress
-
-* 

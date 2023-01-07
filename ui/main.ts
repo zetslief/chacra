@@ -200,18 +200,6 @@ function setupHandlers(inputState: InputState) {
             return;
         }
         const key = e.code.toUpperCase();
-        if (key === "W") {
-            inputState.player.y = 1;
-        }
-        if (key === "S") {
-            inputState.player.y = -1;
-        }
-        if (key === "D") {
-            inputState.player.x = 1;
-        }
-        if (key === "A") {
-            inputState.player.x = -1;
-        }
         if (key === "DIGIT1") {
             inputState.activatedAbility = AbilityType.Crown;
         }
