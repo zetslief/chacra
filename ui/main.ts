@@ -69,7 +69,7 @@ type GameState = {
     arena: Arena,
     activeSlot: Slot | null,
     slots: Slot[],
-    chakrasEffects: Map<Chakra, Effect[]>,
+    chakras: Map<Chakra, Effect[]>,
     enemiesEffects: Map<Enemy, Effect[]>,
     spell: Spell | null,
     inputState: InputState
@@ -150,12 +150,12 @@ function setupState(): GameState {
         }
         return result;
     }
-    function generateChakras(slots: Slot[], arena: Arena): Chakra[] {
-        return slots.map(slot => {
+    function generateChakras(slots: Slot[], arena: Arena): Map<Chakra, []> {
+        return new Map(slots.map(slot => {
             const { x, y } = slotPosition(slot, arena, slots.length);
             const collider = { x, y, radius: DEFAULT_RADIUS };
-            return { slot, collider };
-        });
+            return [{ slot, collider }, []];
+        }));
     }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
@@ -164,8 +164,6 @@ function setupState(): GameState {
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
-    const chakrasEffects = new Map<Chakra, Effect[]>();
-    chakras.forEach(chakra => chakrasEffects.set(chakra, []));
     const enemiesEffects = new Map<Enemy, Effect[]>();
     const inputState = { click: null, spellActivated: false, player: vec2(0, 0) };
     return {
@@ -175,7 +173,7 @@ function setupState(): GameState {
         spell,
         activeSlot,
         slots,
-        chakrasEffects,
+        chakras,
         enemiesEffects,
         inputState,
     };
@@ -343,10 +341,10 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
     }
     if (inputChange.click) {
         let slotActivated = false;
-        for (const chakra of state.chakrasEffects.keys()) {
+        for (const chakra of state.chakras.keys()) {
             if (insideCircle(chakra.collider, inputChange.click)) {
                 if (inputChange.spellActivated) {
-                    const effects = state.chakrasEffects.get(chakra)!;
+                    const effects = state.chakras.get(chakra)!;
                     const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
                     const collider = { ...chakra.collider, radius };
                     effects.push({ collider });
@@ -400,7 +398,7 @@ function updatePhysics(state: GameState, dt: number) {
                     break;
                 }
             }
-            for (const [_chakra, effects] of state.chakrasEffects) {
+            for (const [_chakra, effects] of state.chakras) {
                 for (const effect of effects) {
                     if (collide(effect.collider, enemy.collider)) {
                         enemiesToRemove.add(enemy);
@@ -408,7 +406,7 @@ function updatePhysics(state: GameState, dt: number) {
                     }
                 }
             }
-            for (const chakra of state.chakrasEffects.keys()) {
+            for (const chakra of state.chakras.keys()) {
                 if (collide(chakra.collider, enemy.collider)) {
                     enemiesToRemove.add(enemy);
                 }
@@ -417,8 +415,8 @@ function updatePhysics(state: GameState, dt: number) {
         for(const enemyToRemove of enemiesToRemove) {
             state.enemiesEffects.delete(enemyToRemove);
         }
-        for (const [chakra, effects] of state.chakrasEffects) {
-            state.chakrasEffects.set(chakra, effects.filter(effect => !effectsToRemove.has(effect)));
+        for (const [chakra, effects] of state.chakras) {
+            state.chakras.set(chakra, effects.filter(effect => !effectsToRemove.has(effect)));
         }
     }
     function createEnemy(): Enemy {
@@ -447,7 +445,7 @@ function draw(state: GameState, render: RenderState) {
     drawArena(ctx, state.arena);
     drawSlots(ctx, state.arena, state.slots);
     drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
-    for (const effects of state.chakrasEffects.values()) {
+    for (const effects of state.chakras.values()) {
         drawEffects(ctx, effects);
     }
     for(const enemy of state.enemiesEffects.keys()) {
