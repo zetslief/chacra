@@ -497,13 +497,25 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
+function connectBackend() {
+    fetch('http://localhost:5000/')
+    .then((response) => response.text().then(text => {
+        console.log(text);
+        setTimeout(connectBackend, 500);
+    }))
+    .catch((error) => {
+        console.error(error);
+    });
+}
+
 function main() {
     const state = setupState();
     const renderState = setupRenderState();
     const deltaTime = 1000 / 60;
     setupHandlers(state.inputState)
+    connectBackend();
     requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
 }
 
-main()
+main();
 

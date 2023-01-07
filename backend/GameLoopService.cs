@@ -19,7 +19,11 @@ public class GameLoopService : BackgroundService
         {
             if (delay > 500)
             {
-                SpawnEnemy(db);
+                if (db.Enemies.Count() < 10)
+                {
+                    Console.WriteLine("create enemy");
+                    SpawnEnemy(db);
+                }
                 delay = 0;
             } 
             else
