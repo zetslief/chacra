@@ -14,10 +14,33 @@ public class GameLoopService : BackgroundService
             ?? throw new InvalidOperationException("Failed to get database!");
         Console.WriteLine($"Clear database... {db.Enemies.Count()} enemies");
         ClearEnemies(db);
+        int delay = 0;
         while(!stoppingToken.IsCancellationRequested)
         {
+            if (delay > 500)
+            {
+                SpawnEnemy(db);
+                delay = 0;
+            } 
+            else
+            {
+                delay += 10;
+            }
             await Task.Delay(10);
         }
+    }
+
+    private void SpawnEnemy(Database db)
+    {
+        float x = 1000;
+        float y = 500;
+        CircleCollider collider = new() { X = x, Y = y, Radius = 10 };
+        db.Enemies.Add(new EnemyModel() { 
+            X = x,
+            Y = y,
+            Collider = collider 
+        });
+        db.SaveChanges();
     }
 
     private void ClearEnemies(Database db)
