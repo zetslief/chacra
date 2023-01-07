@@ -69,7 +69,6 @@ type GameState = {
     arena: Arena,
     activeSlot: Slot | null,
     slots: Slot[],
-    chakras: Chakra[],
     chakrasEffects: Map<Chakra, Effect[]>,
     enemiesEffects: Map<Enemy, Effect[]>,
     spell: Spell | null,
@@ -176,7 +175,6 @@ function setupState(): GameState {
         spell,
         activeSlot,
         slots,
-        chakras,
         chakrasEffects,
         enemiesEffects,
         inputState,
@@ -345,7 +343,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
     }
     if (inputChange.click) {
         let slotActivated = false;
-        for (const chakra of state.chakras) {
+        for (const chakra of state.chakrasEffects.keys()) {
             if (insideCircle(chakra.collider, inputChange.click)) {
                 if (inputChange.spellActivated) {
                     const effects = state.chakrasEffects.get(chakra)!;
@@ -410,7 +408,7 @@ function updatePhysics(state: GameState, dt: number) {
                     }
                 }
             }
-            for (const chakra of state.chakras) {
+            for (const chakra of state.chakrasEffects.keys()) {
                 if (collide(chakra.collider, enemy.collider)) {
                     enemiesToRemove.add(enemy);
                 }
