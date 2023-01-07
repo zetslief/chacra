@@ -1,12 +1,11 @@
-using System.Net;
-using System.Net.Http.Headers;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHostedService<GameLoopService>();
 builder.Services.AddDbContext<Database>();
+builder.Services.AddSingleton<GameStateService>();
+builder.Services.AddHostedService<GameLoopService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(configuration =>
@@ -40,19 +39,14 @@ app.UseSwaggerUI(c =>
    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Chacra API v1");
 });
 
-app.Services.GetService<Database>()!.Database.EnsureCreated();
-
 app.MapGet("/", (Database db) => {
     return db.Enemies
         .Select(enemy => $"[{enemy.X}, {enemy.Y}]")
         .ToList();
 });
 
-app.MapPost("/setupState", (GameState state) => {
+app.MapPost("/setupState", (GameState state, GameStateService service) => {
+    service.SetState(state);
 });
 
 app.Run();
-
-public record Collider(float X, float Y, float Radius);
-public record Chakra(float X, float Y, Collider Collider);
-public record GameState(Chakra[] Charas);

@@ -43,6 +43,9 @@ public class EnemyModel : IPosition
     public float X { get; set; }
     public float Y { get; set; }
 
+    public float TargetX { get; set; }
+    public float TargetY { get; set; }
+
     [Required]
     public CircleCollider? Collider { get; set; }
 }
