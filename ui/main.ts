@@ -3,6 +3,7 @@ const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 
 const DEFAULT_RADIUS = 10;
+const DEFAULT_CLICK_RADIUS = 3;
 const LINE_WIDTH = 1;
 
 // MATHTYPE
@@ -129,13 +130,11 @@ type Ability = { active: boolean, type: AbilityType };
 type InputState = {
     click: Click | null,
     activatedAbility: AbilityType | undefined,
-    player: Vec2
 };
 
 type InputUpdate = {
-    click: Click | null
+    click: CircleCollider | null
     activatedAbility: AbilityType | undefined,
-    player: Vec2
 };
 
 function slotPosition(slot: Slot, arena: Arena, slotsCount: number): Point {
@@ -177,7 +176,7 @@ function setupState(): GameState {
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
     const enemies = new Map<Enemy, Effect[]>();
-    const inputState = { click: null, activatedAbility: undefined, player: vec2(0, 0) };
+    const inputState = { click: null, activatedAbility: undefined };
     return {
         player,
         enemySpawner,
@@ -343,9 +342,9 @@ function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
 // PROCESSING
 
 function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { click: null, activatedAbility: undefined, player: vec2(0, 0) };
+    let input: InputUpdate = { click: null, activatedAbility: undefined };
     if (inputState.click) {
-        input.click = inputState.click;
+        input.click = { radius: DEFAULT_CLICK_RADIUS, ...inputState.click };
         inputState.click = null;
     }
     if (inputState.activatedAbility) {
@@ -367,7 +366,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
     if (inputChange.click) {
         let clickProcessed = false;
         for (const chakra of state.chakras.keys()) {
-            if (insideCircle(chakra.collider, inputChange.click)) {
+            if (collide(chakra.collider, inputChange.click)) {
                 if (state.ability.active && state.ability.type === AbilityType.Crown) {
                     const effects = state.chakras.get(chakra)!;
                     const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
@@ -382,7 +381,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
             }
         }
         for (const [enemy, effects] of state.enemies) {
-            if (insideCircle(enemy.collider, inputChange.click)) {
+            if (collide(enemy.collider, inputChange.click)) {
                 if (state.ability.active && state.ability.type === AbilityType.ThirdEye) {
                     effects.push({ collider: enemy.collider});
                     enemy.target = { x: state.arena.x, y: state.arena.y };
