@@ -121,7 +121,6 @@ type ShieldEffect = Effect;
 type MirrorEffect = Effect;
 
 enum AbilityType {
-    None = 0,
     Crown = 1,
     ThirdEye = 2
 }
@@ -129,13 +128,13 @@ type Ability = { active: boolean, type: AbilityType };
 
 type InputState = {
     click: Click | null,
-    activatedAbility: AbilityType,
+    activatedAbility: AbilityType | undefined,
     player: Vec2
 };
 
 type InputUpdate = {
     click: Click | null
-    activatedAbility: AbilityType,
+    activatedAbility: AbilityType | undefined,
     player: Vec2
 };
 
@@ -172,13 +171,13 @@ function setupState(): GameState {
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
-    const ability = { active: false, type: AbilityType.None };
+    const ability = { active: false, type: AbilityType.Crown };
     const defaultSlotsNumber = 7;
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
     const chakras = generateChakras(slots, arena);
     const enemies = new Map<Enemy, Effect[]>();
-    const inputState = { click: null, activatedAbility: AbilityType.None, player: vec2(0, 0) };
+    const inputState = { click: null, activatedAbility: undefined, player: vec2(0, 0) };
     return {
         player,
         enemySpawner,
@@ -341,39 +340,42 @@ function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
 // PROCESSING
 
 function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { click: null, activatedAbility: AbilityType.None, player: vec2(0, 0) };
+    let input: InputUpdate = { click: null, activatedAbility: undefined, player: vec2(0, 0) };
     if (inputState.click) {
         input.click = inputState.click;
         inputState.click = null;
     }
-    if (inputState.activatedAbility != null) {
+    if (inputState.activatedAbility) {
         input.activatedAbility = inputState.activatedAbility;
+        inputState.activatedAbility = undefined;
     }
     return input;
 }
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
+    if (inputChange.activatedAbility) {
+        state.ability.active = inputChange.activatedAbility === state.ability.type;
+        state.ability.type = inputChange.activatedAbility;
+    }
     if (inputChange.click) {
         let clickProcessed = false;
         for (const chakra of state.chakras.keys()) {
             if (insideCircle(chakra.collider, inputChange.click)) {
-                if (inputChange.activatedAbility === AbilityType.Crown) {
+                if (state.ability.active && state.ability.type === AbilityType.Crown) {
                     const effects = state.chakras.get(chakra)!;
                     const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
                     const collider = { ...chakra.collider, radius };
                     effects.push({ collider });
-                    clickProcessed = true;
-                    break;
                 } else {
                     state.activeSlot = chakra.slot;
-                    clickProcessed = true;
-                    break;
                 }
+                clickProcessed = true;
+                break;
             }
         }
         for (const [enemy, effects] of state.enemies) {
             if (insideCircle(enemy.collider, inputChange.click)) {
-                if (inputChange.activatedAbility === AbilityType.ThirdEye) {
+                if (state.ability.active && state.ability.type === AbilityType.ThirdEye) {
                     effects.push({ collider: enemy.collider});
                     enemy.target = mul(enemy.target, -1);
                 }
