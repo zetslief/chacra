@@ -497,15 +497,30 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
-function connectBackend() {
-    fetch('http://localhost:5000/')
-    .then((response) => response.text().then(text => {
-        console.log(text);
-        setTimeout(connectBackend, 500);
-    }))
-    .catch((error) => {
-        console.error(error);
-    });
+function connectBackend(state: GameState) {
+    const baseUrl = 'http://localhost:5000/';
+    function updateState() {
+        fetch(baseUrl)
+        .then((response) => response.text().then(text => {
+            console.log(text);
+            setTimeout(updateState, 500);
+        }))
+        .catch((error) => {
+            console.error(error);
+        });
+    }
+    fetch(baseUrl + 'setupState', { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            arena: { x: state.arena.x, y: state.arena.y },
+            chakras: [...state.chakras.keys()].map(chakra => { return { x: chakra.collider.x, y: chakra.collider.y, collider: chakra.collider}})
+        }),
+    })
+    .then((_response) => updateState)
+    .catch((error) => console.error(error));
 }
 
 function main() {
@@ -513,7 +528,7 @@ function main() {
     const renderState = setupRenderState();
     const deltaTime = 1000 / 60;
     setupHandlers(state.inputState)
-    connectBackend();
+    connectBackend(state);
     requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
 }
 

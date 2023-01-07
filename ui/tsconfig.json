@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["dom", "es6"],
-    "module": "es6",
+    "target": "es2020",
+    "lib": ["dom", "es2020"],
+    "module": "es2020",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
