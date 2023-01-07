@@ -354,9 +354,14 @@ function processInput(inputState: InputState): InputUpdate {
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
     if (inputChange.activatedAbility) {
-        state.ability.active = inputChange.activatedAbility === state.ability.type;
+        if (state.ability.active && inputChange.activatedAbility === state.ability.type) {
+            state.ability.active = false;
+        } else {
+            state.ability.active = true;
+        }
         state.ability.type = inputChange.activatedAbility;
     }
+    console.log(state.ability);
     if (inputChange.click) {
         let clickProcessed = false;
         for (const chakra of state.chakras.keys()) {
@@ -377,7 +382,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
             if (insideCircle(enemy.collider, inputChange.click)) {
                 if (state.ability.active && state.ability.type === AbilityType.ThirdEye) {
                     effects.push({ collider: enemy.collider});
-                    enemy.target = mul(enemy.target, -1);
+                    enemy.target = { x: state.arena.x, y: state.arena.y };
                 }
                 clickProcessed = true;
                 break;
