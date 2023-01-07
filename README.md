@@ -18,7 +18,8 @@ Tower diffence with enemy spawner in the center:
 * Different types of enemies could be managed by different chakras.
 
 Chakras:
-* Crown: give a shield to a chakra.
+* `Crown`: give a shield to a chakra.
+* `Third Eye`: make an enemy to move in opposite direction.
 
 Restrications:
 * Each gamer have only 1 click to apply an action.
@@ -34,5 +35,6 @@ Restrications:
 
 ## In progress
 
-* Implement spell for the `crown` chakra.
+* Several types of `effects`. 
+* Several types of `chakras`.
 
