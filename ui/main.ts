@@ -66,7 +66,6 @@ function insideCircle(circle: CircleCollider, point: Point): boolean {
 type GameState = {
     player: Player,
     enemySpawner: EnemySpawner,
-    enemies: Enemy[],
     arena: Arena,
     activeSlot: Slot | null,
     slots: Slot[],
@@ -161,7 +160,6 @@ function setupState(): GameState {
     }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
-    const enemies: Enemy[] = [];
     const spell = null;
     const defaultSlotsNumber = 7;
     const activeSlot = null;
@@ -174,7 +172,6 @@ function setupState(): GameState {
     return {
         player,
         enemySpawner,
-        enemies,
         arena,
         spell,
         activeSlot,
@@ -382,9 +379,9 @@ function updatePhysics(state: GameState, dt: number) {
     }
     function handleEnemies(state: GameState, newEnemy: Enemy | null) {
         if (newEnemy) {
-            state.enemies.push(newEnemy);
+            state.enemiesEffects.set(newEnemy, []);
         }
-        for (const enemy of state.enemies) {
+        for (const enemy of state.enemiesEffects.keys()) {
             const defaultEnemySpeed = 10;
             const speed = defaultEnemySpeed;
             const dir = direction(enemy, enemy.target);
@@ -397,7 +394,7 @@ function updatePhysics(state: GameState, dt: number) {
     function handleCollisions(state: GameState) {
         const enemiesToRemove = new Set<Enemy>();
         const effectsToRemove = new Set<Effect>();
-        for (const enemy of state.enemies) {
+        for (const enemy of state.enemiesEffects.keys()) {
             if (state.spell) {
                 if (collide(state.spell.collider, enemy.collider)) {
                     state.spell = null;
@@ -419,7 +416,9 @@ function updatePhysics(state: GameState, dt: number) {
                 }
             }
         }
-        state.enemies = state.enemies.filter(enemy => !enemiesToRemove.has(enemy));
+        for(const enemyToRemove of enemiesToRemove) {
+            state.enemiesEffects.delete(enemyToRemove);
+        }
         for (const [chakra, effects] of state.chakrasEffects) {
             state.chakrasEffects.set(chakra, effects.filter(effect => !effectsToRemove.has(effect)));
         }
@@ -453,7 +452,9 @@ function draw(state: GameState, render: RenderState) {
     for (const effects of state.chakrasEffects.values()) {
         drawEffects(ctx, effects);
     }
-    drawEnemies(ctx, state.enemies);
+    for(const enemy of state.enemiesEffects.keys()) {
+        drawEnemy(ctx, enemy);
+    }
     drawPlayer(ctx, state.player)
     if (state.spell) {
         drawSpell(ctx, state.spell);

@@ -36,5 +36,4 @@ Restrications:
 ## In progress
 
 * Several types of `effects`. 
-* Several types of `chakras`.
 
