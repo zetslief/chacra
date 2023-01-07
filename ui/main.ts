@@ -336,9 +336,6 @@ function processInput(inputState: InputState): InputUpdate {
 }
 
 function applyInput(state: GameState, inputChange: InputUpdate) {
-    function spell(x: number, y: number): Spell {
-        return { x, y, collider: { x, y, radius: DEFAULT_RADIUS } };
-    }
     if (inputChange.click) {
         let slotActivated = false;
         for (const chakra of state.chakras.keys()) {
@@ -358,7 +355,9 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
             }
         }
         if (!slotActivated) {
-            state.spell = spell(inputChange.click.x, inputChange.click.y);
+            const x = inputChange.click.x;
+            const y = inputChange.click.y;
+            state.spell = { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
         }
     }
 }
