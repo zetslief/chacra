@@ -481,7 +481,7 @@ function connectBackend() {
                 state.enemies = new Map<Enemy, Effect[]>(enemies.map(
                     enemy => [enemy, []]
                 ));
-                setTimeout(() => updateState(state), 50);
+                setTimeout(() => updateState(state), 16);
             }))
             .catch((error) => {
                 console.error(error);

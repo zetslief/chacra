@@ -32,7 +32,7 @@ public class GameLoopService : BackgroundService
                 delay = 0;
                 continue;
             } 
-            if (delay - lastMoveTime > 50)
+            if (delay - lastMoveTime > 16)
             {
                 float dt = delay - lastMoveTime;
                 MoveEnemies(gameState.Enemies, dt);
@@ -49,10 +49,10 @@ public class GameLoopService : BackgroundService
         for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
         {
             var enemy = enemies[enemyIndex];
-            const float ENEMY_SPEED = 0.005f;
-            Vec2 direction = Direction(enemy.Target, enemy);
-            float x = enemy.X + ENEMY_SPEED * direction.X;
-            float y = enemy.Y + ENEMY_SPEED * direction.Y;
+            const float ENEMY_SPEED = 0.0002f;
+            Vec2 direction = Direction(enemy, enemy.Target);
+            float x = enemy.X + ENEMY_SPEED * direction.X * dt;
+            float y = enemy.Y + ENEMY_SPEED * direction.Y * dt;
             enemies[enemyIndex] = new Enemy(x, y, enemy.Target, new Collider(x, y, enemy.Collider.Radius));
         }
     }
