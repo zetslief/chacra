@@ -142,6 +142,15 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
     const size = Math.min(window.innerWidth, window.innerHeight);
     arena.x *= size;
     arena.y *= size;
+    chakras.forEach(chakra => {
+        console.log(chakra);
+        chakra.x *= size;
+        chakra.y *= size;
+        chakra.collider.x *= size;
+        chakra.collider.y *= size;
+        chakra.collider.radius *= size;
+        console.log(chakra);
+    });
     function slot(index: number): Slot {
         return { index };
     }
