@@ -17,23 +17,49 @@ public class GameLoopService : BackgroundService
         Console.WriteLine($"Clear database... {db.Enemies.Count()} enemies");
         ClearEnemies(db);
         int delay = 0;
+        int lastMoveTime = 0;
         while(!stoppingToken.IsCancellationRequested)
         {
+            GameState gameState = gameStateService.GetState(); 
             if (delay > 500)
             {
-                GameState gameState = gameStateService.GetState(); 
                 if (gameState.Enemies.Count < 10)
                 {
                     Console.WriteLine("create enemy");
                     SpawnEnemy(db, gameState);
                 }
+                lastMoveTime -= delay;
                 delay = 0;
+                continue;
             } 
-            else
+            if (delay - lastMoveTime > 50)
             {
-                delay += 10;
+                float dt = delay - lastMoveTime;
+                MoveEnemies(gameState.Enemies, dt);
+                lastMoveTime = delay;
             }
+            delay += 10;
             await Task.Delay(10);
+        }
+    }
+
+    private void MoveEnemies(List<Enemy> enemies, float dt)
+    {
+        Vec2 Direction(Position from, Position to)
+        {
+            float dx = to.X - from.X;
+            float dy = to.Y - from.Y;
+            float length = MathF.Sqrt(dx * dx + dy * dy);
+            return new Vec2(dx / length, dy / length);
+        }
+        for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
+        {
+            var enemy = enemies[enemyIndex];
+            const float ENEMY_SPEED = 0.005f;
+            Vec2 direction = Direction(enemy.target, enemy);
+            float x = enemy.X + ENEMY_SPEED * direction.X;
+            float y = enemy.Y + ENEMY_SPEED * direction.Y;
+            enemies[enemyIndex] = new Enemy(x, y, enemy.target, new Collider(x, y, enemy.Collider.Radius));
         }
     }
 
