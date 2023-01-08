@@ -2,8 +2,9 @@ const BLACK = "black";
 const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 
-const DEFAULT_RADIUS = 10;
-const DEFAULT_CLICK_RADIUS = 3;
+const DEFAULT_RADIUS = 0.01;
+const DEFAULT_CLICK_RADIUS = 0.003;
+const PLAYER_SIZE = 0.1;
 const LINE_WIDTH = 1;
 
 // MATHTYPE
@@ -137,19 +138,7 @@ type InputUpdate = {
 };
 
 function setupState(arena: Arena, chakras: Chakra[]): GameState {
-    const size = Math.min(window.innerWidth, window.innerHeight);
-    arena.x *= size;
-    arena.y *= size;
-    chakras.forEach(chakra => {
-        console.log(chakra);
-        chakra.x *= size;
-        chakra.y *= size;
-        chakra.collider.x *= size;
-        chakra.collider.y *= size;
-        chakra.collider.radius *= size;
-        console.log(chakra);
-    });
-    const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
+    const player = { x: arena.x, y: arena.y, size: PLAYER_SIZE, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
     const ability = { active: false, type: AbilityType.Crown };
@@ -239,14 +228,20 @@ function drawBackground(
 
 function drawPlayer(
     ctx: CanvasRenderingContext2D,
-    player: Player
+    player: Player,
+    scale: number
 ) {
-    fillCircle(ctx, player.x, player.y, player.size, PLAYER);
+    const x = player.x * scale;
+    const y = player.y * scale;
+    const size = player.size * scale;
+    fillCircle(ctx, x, y, size, PLAYER);
+    strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
 function drawSpell(
     ctx: CanvasRenderingContext2D,
-    spell: Spell
+    spell: Spell,
+    _scale: number,
 ) {
     strokeCircle(ctx, spell.x, spell.y, spell.collider.radius, "green", LINE_WIDTH);
     fillCircle(ctx, spell.x, spell.y, spell.collider.radius * 0.7, "green");
@@ -254,18 +249,32 @@ function drawSpell(
 
 function drawEnemy(
     ctx: CanvasRenderingContext2D,
-    enemy: Enemy
+    enemy: Enemy,
+    scale: number
 ) {
-    fillCircle(ctx, enemy.x, enemy.y, DEFAULT_RADIUS, "white");
-    strokeCircle(ctx, enemy.collider.x, enemy.collider.y, enemy.collider.radius, "gray", 1);
+    const x = enemy.x * scale;
+    const y = enemy.y * scale;
+    const radius = DEFAULT_RADIUS * scale;
+    fillCircle(ctx, x, y, radius, "white");
+    const colliderX = enemy.collider.x * scale;
+    const colliderY = enemy.collider.y * scale;
+    const colliderRadius = enemy.collider.radius * scale;
+    strokeCircle(ctx, colliderX, colliderY, colliderRadius, "gray", 1);
 }
 
 function drawChakra(
     ctx: CanvasRenderingContext2D,
     chakra: Chakra,
+    scale: number,
 ) {
-    fillCircle(ctx, chakra.x, chakra.y, DEFAULT_RADIUS, "black");
-    strokeCircle(ctx, chakra.collider.x, chakra.collider.y, chakra.collider.radius, "gray", 1);
+    const x = chakra.x * scale;
+    const y = chakra.y * scale;
+    const radius = DEFAULT_RADIUS * scale;
+    fillCircle(ctx, x, y, radius, "black");
+    const colliderX = chakra.collider.x * scale;
+    const colliderY = chakra.collider.y * scale;
+    const colliderRadius = chakra.collider.radius * scale;
+    strokeCircle(ctx, colliderX, colliderY, colliderRadius, "gray", 1);
 }
 
 
@@ -276,18 +285,19 @@ type Arena = {
 }
 function drawArena(
     ctx: CanvasRenderingContext2D,
-    arena: Arena
+    arena: Arena,
+    scale: number
 ) {
-    fillCircle(ctx, arena.x, arena.y, arena.radius, "orange");
+    fillCircle(ctx, arena.x * scale, arena.y * scale, arena.radius * scale, "orange");
 }
 
-function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
+function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[], scale: number) {
     for (const enemy of enemies) {
-        drawEnemy(ctx, enemy);
+        drawEnemy(ctx, enemy, scale);
     }
 }
 
-function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[]) {
+function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[], _scale: number) {
     for (const effect of effects) {
         const { x, y, radius } = effect.collider;
         strokeCircle(ctx, x, y, radius, "purple", LINE_WIDTH * 3);
@@ -430,18 +440,21 @@ function updatePhysics(state: GameState, dt: number) {
 function draw(state: GameState, render: RenderState) {
     const canvas = render.canvas;
     const ctx = render.ctx;
-    drawBackground(ctx, canvas.width, canvas.height);
-    drawArena(ctx, state.arena);
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    canvas.width = size;
+    canvas.height = size;
+    drawBackground(ctx, size, size);
+    drawArena(ctx, state.arena, size);
     for (const [chakra, effects] of state.chakras) {
-        drawChakra(ctx, chakra);
-        drawEffects(ctx, effects);
+        drawChakra(ctx, chakra, size);
+        drawEffects(ctx, effects, size);
     }
     for (const enemy of state.enemies.keys()) {
-        drawEnemy(ctx, enemy);
+        drawEnemy(ctx, enemy, size);
     }
-    drawPlayer(ctx, state.player)
+    drawPlayer(ctx, state.player, size)
     if (state.spell) {
-        drawSpell(ctx, state.spell);
+        drawSpell(ctx, state.spell, size);
     }
 }
 
@@ -464,6 +477,7 @@ function setupRenderState(): RenderState {
 
 function connectBackend() {
     const baseUrl = 'http://localhost:5000/';
+    const initializationUrl = baseUrl + 'initializeGameState';
     console.log("Initializing...");
     function updateState() {
         fetch(baseUrl)
@@ -476,7 +490,7 @@ function connectBackend() {
             });
     }
     console.log("Initializing...");
-    fetch(baseUrl + 'initializeGameState')
+    fetch(initializationUrl)
         .then(async (response) => {
             const text = await response.text();
             const result = JSON.parse(text);
