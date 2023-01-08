@@ -40,7 +40,7 @@ function normalize(v: Vec2) {
 }
 
 function direction(from: Point, to: Point): Vec2 {
-    const dst = Math.sqrt(distance(from, to));
+    const dst = distance(from, to);
     if (dst < 0.001) {
         console.warn("Small distance", dst);
         return vec2(0, 0);
@@ -478,7 +478,7 @@ function connectBackend() {
                 state.enemies = new Map<Enemy, Effect[]>(enemies.map(
                     enemy => [enemy, []]
                 ));
-                setTimeout(() => updateState(state), 500);
+                setTimeout(() => updateState(state), 50);
             }))
             .catch((error) => {
                 console.error(error);

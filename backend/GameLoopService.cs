@@ -36,6 +36,7 @@ public class GameLoopService : BackgroundService
             {
                 float dt = delay - lastMoveTime;
                 MoveEnemies(gameState.Enemies, dt);
+                CheckForCollisions(gameState.Chakras, gameState.Enemies);
                 lastMoveTime = delay;
             }
             delay += 10;
@@ -45,21 +46,51 @@ public class GameLoopService : BackgroundService
 
     private void MoveEnemies(List<Enemy> enemies, float dt)
     {
-        Vec2 Direction(Position from, Position to)
-        {
-            float dx = to.X - from.X;
-            float dy = to.Y - from.Y;
-            float length = MathF.Sqrt(dx * dx + dy * dy);
-            return new Vec2(dx / length, dy / length);
-        }
         for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
         {
             var enemy = enemies[enemyIndex];
             const float ENEMY_SPEED = 0.005f;
-            Vec2 direction = Direction(enemy.target, enemy);
+            Vec2 direction = Direction(enemy.Target, enemy);
             float x = enemy.X + ENEMY_SPEED * direction.X;
             float y = enemy.Y + ENEMY_SPEED * direction.Y;
-            enemies[enemyIndex] = new Enemy(x, y, enemy.target, new Collider(x, y, enemy.Collider.Radius));
+            enemies[enemyIndex] = new Enemy(x, y, enemy.Target, new Collider(x, y, enemy.Collider.Radius));
+        }
+    }
+
+    private static float Distance(Position a, Position b)
+    {
+        float dx = a.X - b.X;
+        float dy = a.Y - b.Y;
+        return MathF.Sqrt(dx * dx + dy * dy);
+    }
+
+    private static Vec2 Direction(Position from, Position to)
+    {
+        float dx = to.X - from.X;
+        float dy = to.Y - from.Y;
+        float length = MathF.Sqrt(dx * dx + dy * dy);
+        return new Vec2(dx / length, dy / length);
+    }
+
+    private bool Collide(Collider first, Collider second)
+    {
+        float distance = Distance(first, second);
+        return distance < (first.Radius + second.Radius);
+    }
+
+    private void CheckForCollisions(Chakra[] chakras, List<Enemy> enemies)
+    {
+        foreach(var chakra in chakras)
+        {
+            for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
+            {
+                Enemy enemy = enemies[enemyIndex];
+                if (Collide(chakra.Collider, enemy.Collider))
+                {
+                    enemies.Remove(enemy);
+                    --enemyIndex;
+                }
+            }
         }
     }
 

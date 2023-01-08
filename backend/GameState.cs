@@ -5,7 +5,7 @@ public record Collider(float X, float Y, float Radius) : Position(X, Y);
 
 public record Arena(float X, float Y, float Radius) : Position(X, Y);
 public record Chakra(float X, float Y, Collider Collider) : Position(X, Y);
-public record Enemy(float X, float Y, Position target, Collider Collider) : Position(X, Y);
+public record Enemy(float X, float Y, Position Target, Collider Collider) : Position(X, Y);
 
 public record GameState(Arena Arena, Chakra[] Chakras, List<Enemy> Enemies);
 
