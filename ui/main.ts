@@ -83,10 +83,6 @@ type GameState = {
 
 type Color = string | CanvasGradient | CanvasPattern;
 
-type Slot = {
-    index: number,
-};
-
 type Player = {
     x: number,
     y: number,
