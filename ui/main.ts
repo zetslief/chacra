@@ -256,6 +256,9 @@ function drawEnemy(
     const colliderY = enemy.collider.y * scale;
     const colliderRadius = enemy.collider.radius * scale;
     strokeCircle(ctx, colliderX, colliderY, colliderRadius, "gray", 1);
+    const targetX = enemy.target.x * scale;
+    const targetY = enemy.target.y * scale;
+    fillCircle(ctx, targetX, targetY, 2, "green");
 }
 
 function drawChakra(
