@@ -73,7 +73,6 @@ type GameState = {
     enemySpawner: EnemySpawner,
     arena: Arena,
     activeSlot: Slot | null,
-    slots: Slot[],
     chakrasArray: Chakra[],
     chakras: Map<Chakra, Effect[]>,
     enemies: Map<Enemy, Effect[]>,
@@ -151,23 +150,11 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
         chakra.collider.radius *= size;
         console.log(chakra);
     });
-    function slot(index: number): Slot {
-        return { index };
-    }
-    function generateSlots(count: number): Slot[] {
-        const result = [];
-        for (let index = 0; index < count; ++index) {
-            result.push(slot(index));
-        }
-        return result;
-    }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
     const ability = { active: false, type: AbilityType.Crown };
-    const defaultSlotsNumber = 7;
     const activeSlot = null;
-    const slots = generateSlots(defaultSlotsNumber);
     const enemies = new Map<Enemy, Effect[]>();
     const inputState = { click: null, activatedAbility: undefined };
     return {
@@ -177,7 +164,6 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
         spell,
         ability,
         activeSlot,
-        slots,
         chakrasArray: chakras,
         chakras: new Map<Chakra, Effect[]>(chakras.map(chakra => [chakra, []])),
         enemies,
