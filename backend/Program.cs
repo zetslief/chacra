@@ -45,6 +45,10 @@ app.MapGet("/", (GameStateService serivce) => {
         .ToArray();
 });
 
+app.MapPost("/inputUpdate", () => 
+{
+});
+
 app.MapGet("/initializeGameState", (GameStateService service) => {
     return service.GetState();
 });

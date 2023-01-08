@@ -57,14 +57,14 @@ public class GameLoopService : BackgroundService
         }
     }
 
-    private static float Distance(Position a, Position b)
+    private static float Distance(Point a, Point b)
     {
         float dx = a.X - b.X;
         float dy = a.Y - b.Y;
         return MathF.Sqrt(dx * dx + dy * dy);
     }
 
-    private static Vec2 Direction(Position from, Position to)
+    private static Vec2 Direction(Point from, Point to)
     {
         float dx = to.X - from.X;
         float dy = to.Y - from.Y;

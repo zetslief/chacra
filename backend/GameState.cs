@@ -1,11 +1,14 @@
 public record Vec2(float X, float Y);
-public record Position(float X, float Y): Vec2(X, Y);
+public record Point(float X, float Y): Vec2(X, Y);
 
-public record Collider(float X, float Y, float Radius) : Position(X, Y);
+public record Collider(float X, float Y, float Radius) : Point(X, Y);
 
-public record Arena(float X, float Y, float Radius) : Position(X, Y);
-public record Chakra(float X, float Y, Collider Collider) : Position(X, Y);
-public record Enemy(float X, float Y, Position Target, Collider Collider) : Position(X, Y);
+public record Arena(float X, float Y, float Radius) : Point(X, Y);
+public record Chakra(float X, float Y, Collider Collider) : Point(X, Y);
+public record Enemy(float X, float Y, Point Target, Collider Collider) : Point(X, Y);
+
+public enum AbilityType { Crown = 0, ThirdEye = 1 }
+public abstract record Ability(bool Enabled, AbilityType Type);
 
 public record GameState(Arena Arena, Chakra[] Chakras, List<Enemy> Enemies);
 
