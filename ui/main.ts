@@ -74,6 +74,7 @@ type GameState = {
     arena: Arena,
     activeSlot: Slot | null,
     slots: Slot[],
+    chakrasArray: Chakra[],
     chakras: Map<Chakra, Effect[]>,
     enemies: Map<Enemy, Effect[]>,
     spell: Spell | null,
@@ -111,7 +112,7 @@ type RenderState = {
     ctx: CanvasRenderingContext2D
 };
 
-type Chakra = { slot: Slot, collider: CircleCollider }
+type Chakra = Point & { collider: CircleCollider }
 type Click = Point;
 type Spell = Point & {
     collider: CircleCollider
@@ -179,6 +180,7 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
         ability,
         activeSlot,
         slots,
+        chakrasArray: chakras,
         chakras: new Map<Chakra, Effect[]>(chakras.map(chakra => [chakra, []])),
         enemies,
         inputState,
@@ -280,11 +282,8 @@ function drawEnemy(
 function drawChakra(
     ctx: CanvasRenderingContext2D,
     chakra: Chakra,
-    arena: Arena,
-    slotCount: number
 ) {
-    const { x, y } = slotPosition(chakra.slot, arena, slotCount);
-    fillCircle(ctx, x, y, DEFAULT_RADIUS, "black");
+    fillCircle(ctx, chakra.x, chakra.y, DEFAULT_RADIUS, "black");
     strokeCircle(ctx, chakra.collider.x, chakra.collider.y, chakra.collider.radius, "gray", 1);
 }
 
@@ -355,7 +354,8 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
                     const collider = { ...chakra.collider, radius };
                     effects.push({ collider });
                 } else {
-                    state.activeSlot = chakra.slot;
+                    // FIXME: activate `chakra` instead.
+                    // state.activeSlot = chakra.slot;
                 }
                 console.log("Clicked on chakra", chakra);
                 clickProcessed = true;
@@ -440,12 +440,12 @@ function updatePhysics(state: GameState, dt: number) {
     function createEnemy(): Enemy {
         const x = state.arena.x;
         const y = state.arena.y;
-        const targetSlotIndex = Math.floor(Math.random() * state.slots.length);
-        const targetSlot = state.slots[targetSlotIndex];
+        const targetChakraIndex = Math.floor(Math.random() * state.chakrasArray.length);
+        const targetChakra = state.chakrasArray[targetChakraIndex];
         return {
             x,
             y,
-            target: slotPosition(targetSlot, state.arena, state.slots.length),
+            target: { x: targetChakra.x, y: targetChakra.y },
             collider: { x, y, radius: DEFAULT_RADIUS }
         };
     }
@@ -463,7 +463,7 @@ function draw(state: GameState, render: RenderState) {
     drawArena(ctx, state.arena);
     drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
     for (const [chakra, effects] of state.chakras) {
-        drawChakra(ctx, chakra, state.arena, state.slots.length);
+        drawChakra(ctx, chakra);
         drawEffects(ctx, effects);
     }
     for(const enemy of state.enemies.keys()) {
@@ -508,7 +508,6 @@ function connectBackend() {
     fetch(baseUrl + 'initializeGameState')
         .then(async (response) => {
             const text = await response.text();
-            console.log(text);
             const result = JSON.parse(text);
             const state = setupState(result.arena, result.chakras);
             const renderState = setupRenderState();
