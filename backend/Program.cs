@@ -45,7 +45,7 @@ app.MapGet("/", (Database db) => {
         .ToArray();
 });
 
-app.MapPost("/initializeGameState", (GameStateService service) => {
+app.MapGet("/initializeGameState", (GameStateService service) => {
     return service.GetState();
 });
 
