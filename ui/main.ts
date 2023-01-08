@@ -138,17 +138,6 @@ type InputUpdate = {
     activatedAbility: AbilityType | undefined,
 };
 
-function slotPosition(slot: Slot, arena: Arena, slotsCount: number): Point {
-    const angleStep = (Math.PI * 2) / slotsCount;
-    const angleShift = 0;
-    const angle = angleStep * slot.index + angleShift;
-    const shiftX = (arena.radius * 0.8) * Math.cos(angle);
-    const shiftY = (arena.radius * 0.8) * Math.sin(angle);
-    const x = arena.x + shiftX;
-    const y = arena.y + shiftY;
-    return { x, y };
-}
-
 function setupState(arena: Arena, chakras: Chakra[]): GameState {
     const size = Math.min(window.innerWidth, window.innerHeight);
     arena.x *= size;
@@ -298,13 +287,6 @@ function drawArena(
     arena: Arena
 ) {
     fillCircle(ctx, arena.x, arena.y, arena.radius, "orange");
-}
-
-function drawActiveSlot(ctx: CanvasRenderingContext2D, slot: Slot | null, arena: Arena, slots: Slot[]) {
-    if (slot) {
-        const position = slotPosition(slot, arena, slots.length);
-        strokeCircle(ctx, position.x, position.y, DEFAULT_RADIUS * 1.1, "red", LINE_WIDTH);
-    }
 }
 
 function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
@@ -461,7 +443,6 @@ function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
     drawBackground(ctx, canvas.width, canvas.height);
     drawArena(ctx, state.arena);
-    drawActiveSlot(ctx, state.activeSlot, state.arena, state.slots);
     for (const [chakra, effects] of state.chakras) {
         drawChakra(ctx, chakra);
         drawEffects(ctx, effects);
