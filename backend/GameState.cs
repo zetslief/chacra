@@ -7,6 +7,7 @@ public class GameStateService
 {
     const float COLLIDER_SIZE = 0.01f;
     const int CHAKRAS_COUNT = 7;
+    const float CHAKRA_ARENA_SCALE = 0.9f;
     const float ARENA_X = 0.5f;
     const float ARENA_Y = 0.5f;
     const float ARENA_RADIUS = 0.45f;
@@ -26,7 +27,7 @@ public class GameStateService
 
     public static GameState DefaultState() => new (
         new Arena(ARENA_X, ARENA_Y, ARENA_RADIUS),
-        GenerateChakras(ARENA_X, ARENA_Y, ARENA_RADIUS, CHAKRAS_COUNT)
+        GenerateChakras(ARENA_X, ARENA_Y, ARENA_RADIUS * CHAKRA_ARENA_SCALE, CHAKRAS_COUNT)
     );
 
     private static Chakra[] GenerateChakras(float posX, float posY, float radius, int count)
