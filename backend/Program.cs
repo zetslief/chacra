@@ -42,11 +42,11 @@ app.UseSwaggerUI(c =>
 app.MapGet("/", (Database db) => {
     return db.Enemies
         .Select(enemy => $"[{enemy.X}, {enemy.Y}]")
-        .ToList();
+        .ToArray();
 });
 
-app.MapPost("/setupState", (GameState state, GameStateService service) => {
-    service.SetState(state);
+app.MapPost("/initializeGameState", (GameStateService service) => {
+    return service.GetState();
 });
 
 app.Run();

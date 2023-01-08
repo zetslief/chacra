@@ -38,12 +38,12 @@ public class GameLoopService : BackgroundService
 
     private void SpawnEnemy(Database db, GameState state)
     {
-        if (state.Charas.Length == 0)
+        if (state.Chakras.Length == 0)
         {
             return;
         }
-        int target = (int)(Random.Shared.NextDouble() * state.Charas.Length);
-        Chakra chakra = state.Charas[target];
+        int target = (int)(Random.Shared.NextDouble() * state.Chakras.Length);
+        Chakra chakra = state.Chakras[target];
         float x = state.Arena.X;
         float y = state.Arena.Y;
         db.Enemies.Add(new EnemyModel() { 
@@ -62,6 +62,6 @@ public class GameLoopService : BackgroundService
         {
             db.Enemies.Remove(enemy);
         }
-        db.SaveChangesAsync();
+        db.SaveChanges();
     }
 }
