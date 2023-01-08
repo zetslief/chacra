@@ -72,7 +72,6 @@ type GameState = {
     player: Player,
     enemySpawner: EnemySpawner,
     arena: Arena,
-    activeSlot: Slot | null,
     chakrasArray: Chakra[],
     chakras: Map<Chakra, Effect[]>,
     enemies: Map<Enemy, Effect[]>,
@@ -154,7 +153,6 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
     const ability = { active: false, type: AbilityType.Crown };
-    const activeSlot = null;
     const enemies = new Map<Enemy, Effect[]>();
     const inputState = { click: null, activatedAbility: undefined };
     return {
@@ -163,7 +161,6 @@ function setupState(arena: Arena, chakras: Chakra[]): GameState {
         arena,
         spell,
         ability,
-        activeSlot,
         chakrasArray: chakras,
         chakras: new Map<Chakra, Effect[]>(chakras.map(chakra => [chakra, []])),
         enemies,
@@ -330,9 +327,6 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
                     const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
                     const collider = { ...chakra.collider, radius };
                     effects.push({ collider });
-                } else {
-                    // FIXME: activate `chakra` instead.
-                    // state.activeSlot = chakra.slot;
                 }
                 console.log("Clicked on chakra", chakra);
                 clickProcessed = true;
