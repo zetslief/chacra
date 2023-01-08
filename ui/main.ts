@@ -475,8 +475,9 @@ function loop(game: GameState, render: RenderState, deltaTime: number) {
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    canvas.width = size;
+    canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
