@@ -1,6 +1,12 @@
-public record Collider(float X, float Y, float Radius);
-public record Chakra(float X, float Y, Collider Collider);
-public record Arena(float X, float Y, float Radius);
+public record Vec2(float X, float Y);
+public record Position(float X, float Y): Vec2(X, Y);
+
+public record Collider(float X, float Y, float Radius) : Position(X, Y);
+
+public record Arena(float X, float Y, float Radius) : Position(X, Y);
+public record Chakra(float X, float Y, Collider Collider) : Position(X, Y);
+public record Enemy(float X, float Y, Position target, Collider Collider) : Position(X, Y);
+
 public record GameState(Arena Arena, Chakra[] Chakras);
 
 public class GameStateService
