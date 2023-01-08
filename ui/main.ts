@@ -427,7 +427,7 @@ function updatePhysics(state: GameState, dt: number) {
         };
     }
     const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
-    handleEnemies(state, newEnemy);
+    // handleEnemies(state, newEnemy);
     handleCollisions(state);
 }
 
@@ -471,11 +471,14 @@ function setupRenderState(): RenderState {
 function connectBackend() {
     const baseUrl = 'http://localhost:5000/';
     const initializationUrl = baseUrl + 'initializeGameState';
-    function updateState() {
+    function updateState(state: GameState) {
         fetch(baseUrl)
             .then((response) => response.text().then(text => {
-                console.log(text);
-                setTimeout(updateState, 500);
+                const enemies: [] = JSON.parse(text);
+                state.enemies = new Map<Enemy, Effect[]>(enemies.map(
+                    enemy => [enemy, []]
+                ));
+                setTimeout(() => updateState(state), 500);
             }))
             .catch((error) => {
                 console.error(error);
@@ -491,7 +494,7 @@ function connectBackend() {
             const deltaTime = 1000 / 60;
             setupHandlers(state.inputState)
             requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
-            updateState();
+            updateState(state);
             console.log("State initialization finished...");
         })
         .catch((error) => console.error(error));
