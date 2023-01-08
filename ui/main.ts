@@ -148,8 +148,10 @@ function slotPosition(slot: Slot, arena: Arena, slotsCount: number): Point {
     return { x, y };
 }
 
-function setupState(): GameState {
-    const arena = { x: window.innerWidth / 2, y: window.innerHeight / 2, radius: (window.innerHeight / 2) * 0.97 };
+function setupState(arena: Arena, chakras: Chakra[]): GameState {
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    arena.x *= size;
+    arena.y *= size;
     function slot(index: number): Slot {
         return { index };
     }
@@ -160,13 +162,6 @@ function setupState(): GameState {
         }
         return result;
     }
-    function generateChakras(slots: Slot[], arena: Arena): Map<Chakra, []> {
-        return new Map(slots.map(slot => {
-            const { x, y } = slotPosition(slot, arena, slots.length);
-            const collider = { x, y, radius: DEFAULT_RADIUS };
-            return [{ slot, collider }, []];
-        }));
-    }
     const player = { x: arena.x, y: arena.y, size: 20, chakra: { timeout: 0 } };
     const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
     const spell = null;
@@ -174,7 +169,6 @@ function setupState(): GameState {
     const defaultSlotsNumber = 7;
     const activeSlot = null;
     const slots = generateSlots(defaultSlotsNumber);
-    const chakras = generateChakras(slots, arena);
     const enemies = new Map<Enemy, Effect[]>();
     const inputState = { click: null, activatedAbility: undefined };
     return {
@@ -185,7 +179,7 @@ function setupState(): GameState {
         ability,
         activeSlot,
         slots,
-        chakras,
+        chakras: new Map<Chakra, Effect[]>(chakras.map(chakra => [chakra, []])),
         enemies,
         inputState,
     };
@@ -497,39 +491,38 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
-function connectBackend(state: GameState) {
+function connectBackend() {
     const baseUrl = 'http://localhost:5000/';
+    console.log("Initializing...");
     function updateState() {
         fetch(baseUrl)
-        .then((response) => response.text().then(text => {
-            console.log(text);
-            setTimeout(updateState, 500);
-        }))
-        .catch((error) => {
-            console.error(error);
-        });
+            .then((response) => response.text().then(text => {
+                console.log(text);
+                setTimeout(updateState, 500);
+            }))
+            .catch((error) => {
+                console.error(error);
+            });
     }
-    fetch(baseUrl + 'setupState', { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            arena: { x: state.arena.x, y: state.arena.y },
-            chakras: [...state.chakras.keys()].map(chakra => { return { x: chakra.collider.x, y: chakra.collider.y, collider: chakra.collider}})
-        }),
-    })
-    .then((_response) => updateState)
-    .catch((error) => console.error(error));
+    console.log("Initializing...");
+    fetch(baseUrl + 'initializeGameState')
+        .then(async (response) => {
+            const text = await response.text();
+            console.log(text);
+            const result = JSON.parse(text);
+            const state = setupState(result.arena, result.chakras);
+            const renderState = setupRenderState();
+            const deltaTime = 1000 / 60;
+            setupHandlers(state.inputState)
+            requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
+            updateState();
+            console.log("State initialization finished...");
+        })
+        .catch((error) => console.error(error));
 }
 
 function main() {
-    const state = setupState();
-    const renderState = setupRenderState();
-    const deltaTime = 1000 / 60;
-    setupHandlers(state.inputState)
-    connectBackend(state);
-    requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
+    connectBackend();
 }
 
 main();
