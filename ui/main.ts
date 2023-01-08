@@ -336,7 +336,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         for (const [enemy, effects] of state.enemies) {
             if (collide(enemy.collider, inputChange.click)) {
                 if (state.ability.active && state.ability.type === AbilityType.ThirdEye) {
-                    effects.push({ collider: enemy.collider});
+                    effects.push({ collider: enemy.collider });
                     enemy.target = { x: state.arena.x, y: state.arena.y };
                 }
                 console.log("Clicked on enemy", enemy);
@@ -347,7 +347,7 @@ function applyInput(state: GameState, inputChange: InputUpdate) {
         if (!clickProcessed) {
             const x = inputChange.click.x;
             const y = inputChange.click.y;
-            state.spell = { x, y, collider: { x, y, radius: DEFAULT_RADIUS }};
+            state.spell = { x, y, collider: { x, y, radius: DEFAULT_RADIUS } };
         }
     }
 }
@@ -401,7 +401,7 @@ function updatePhysics(state: GameState, dt: number) {
                 }
             }
         }
-        for(const enemyToRemove of enemiesToRemove) {
+        for (const enemyToRemove of enemiesToRemove) {
             state.enemies.delete(enemyToRemove);
         }
         for (const [chakra, effects] of state.chakras) {
@@ -436,7 +436,7 @@ function draw(state: GameState, render: RenderState) {
         drawChakra(ctx, chakra);
         drawEffects(ctx, effects);
     }
-    for(const enemy of state.enemies.keys()) {
+    for (const enemy of state.enemies.keys()) {
         drawEnemy(ctx, enemy);
     }
     drawPlayer(ctx, state.player)
