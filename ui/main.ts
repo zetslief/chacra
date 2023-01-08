@@ -438,11 +438,8 @@ function updatePhysics(state: GameState, dt: number) {
 // MAIN
 
 function draw(state: GameState, render: RenderState) {
-    const canvas = render.canvas;
     const ctx = render.ctx;
-    const size = Math.min(window.innerWidth, window.innerHeight);
-    canvas.width = size;
-    canvas.height = size;
+    const size = Math.min(document.body.scrollHeight, document.body.scrollWidth);
     drawBackground(ctx, size, size);
     drawArena(ctx, state.arena, size);
     for (const [chakra, effects] of state.chakras) {
@@ -468,7 +465,7 @@ function loop(game: GameState, render: RenderState, deltaTime: number) {
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    const size = Math.min(window.innerWidth, window.innerHeight);
+    const size = Math.min(document.body.scrollWidth, document.body.scrollHeight);
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -478,7 +475,6 @@ function setupRenderState(): RenderState {
 function connectBackend() {
     const baseUrl = 'http://localhost:5000/';
     const initializationUrl = baseUrl + 'initializeGameState';
-    console.log("Initializing...");
     function updateState() {
         fetch(baseUrl)
             .then((response) => response.text().then(text => {
