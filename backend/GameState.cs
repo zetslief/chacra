@@ -7,7 +7,7 @@ public record Arena(float X, float Y, float Radius) : Position(X, Y);
 public record Chakra(float X, float Y, Collider Collider) : Position(X, Y);
 public record Enemy(float X, float Y, Position target, Collider Collider) : Position(X, Y);
 
-public record GameState(Arena Arena, Chakra[] Chakras);
+public record GameState(Arena Arena, Chakra[] Chakras, List<Enemy> Enemies);
 
 public class GameStateService
 {
@@ -33,7 +33,8 @@ public class GameStateService
 
     public static GameState DefaultState() => new (
         new Arena(ARENA_X, ARENA_Y, ARENA_RADIUS),
-        GenerateChakras(ARENA_X, ARENA_Y, ARENA_RADIUS * CHAKRA_ARENA_SCALE, CHAKRAS_COUNT)
+        GenerateChakras(ARENA_X, ARENA_Y, ARENA_RADIUS * CHAKRA_ARENA_SCALE, CHAKRAS_COUNT),
+        new List<Enemy>()
     );
 
     private static Chakra[] GenerateChakras(float posX, float posY, float radius, int count)

@@ -21,10 +21,11 @@ public class GameLoopService : BackgroundService
         {
             if (delay > 500)
             {
-                if (db.Enemies.Count() < 10)
+                GameState gameState = gameStateService.GetState(); 
+                if (gameState.Enemies.Count < 10)
                 {
                     Console.WriteLine("create enemy");
-                    SpawnEnemy(db, gameStateService.GetState());
+                    SpawnEnemy(db, gameState);
                 }
                 delay = 0;
             } 
@@ -36,7 +37,7 @@ public class GameLoopService : BackgroundService
         }
     }
 
-    private void SpawnEnemy(Database db, GameState state)
+    private void SpawnEnemy(Database _db, GameState state)
     {
         if (state.Chakras.Length == 0)
         {
@@ -46,14 +47,7 @@ public class GameLoopService : BackgroundService
         Chakra chakra = state.Chakras[target];
         float x = state.Arena.X;
         float y = state.Arena.Y;
-        db.Enemies.Add(new EnemyModel() { 
-            X = x,
-            Y = y,
-            TargetX = chakra.X,
-            TargetY = chakra.Y,
-            Collider = new() { X = x, Y = y, Radius = 10 }
-        });
-        db.SaveChanges();
+        state.Enemies.Add(new Enemy(x, y, chakra, new Collider(x, y, chakra.Collider.Radius)));
     }
 
     private void ClearEnemies(Database db)

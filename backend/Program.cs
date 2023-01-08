@@ -39,9 +39,9 @@ app.UseSwaggerUI(c =>
    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Chacra API v1");
 });
 
-app.MapGet("/", (Database db) => {
-    return db.Enemies
-        .Select(enemy => $"[{enemy.X}, {enemy.Y}]")
+app.MapGet("/", (GameStateService serivce) => {
+    return serivce.GetState()
+        .Enemies
         .ToArray();
 });
 
