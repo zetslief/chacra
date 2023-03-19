@@ -45,8 +45,9 @@ app.MapGet("/", (GameStateService serivce) => {
         .ToArray();
 });
 
-app.MapPost("/inputUpdate", () => 
+app.MapPost("/killEnemy/{enemy}", (Enemy enemy, GameStateService service) => 
 {
+    //service.QueueKilledEnemy(enemy);
 });
 
 app.MapGet("/initializeGameState", (GameStateService service) => {

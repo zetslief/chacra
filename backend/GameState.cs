@@ -1,3 +1,5 @@
+using System.Collections.Concurrent; 
+
 public record Vec2(float X, float Y);
 public record Point(float X, float Y): Vec2(X, Y);
 
@@ -23,6 +25,8 @@ public class GameStateService
 
     private readonly object sync = new();
     private GameState state = DefaultState();
+
+    public ConcurrentQueue<Enemy> DeadEnemy { get; } = new();
     
     public void SetState(GameState state)
     {
@@ -32,6 +36,11 @@ public class GameStateService
     public GameState GetState()
     {
         return this.state;
+    }
+
+    public void QueueKilledEnemy(Enemy enemy)
+    {
+        DeadEnemy.Enqueue(enemy);
     }
 
     public static GameState DefaultState() => new (

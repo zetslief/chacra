@@ -1,3 +1,4 @@
+
 public class GameLoopService : BackgroundService
 {
     private readonly IServiceScopeFactory serviceScopeFactory;
@@ -21,80 +22,33 @@ public class GameLoopService : BackgroundService
         while(!stoppingToken.IsCancellationRequested)
         {
             GameState gameState = gameStateService.GetState(); 
+            bool dbChanged = false;
+            while (gameStateService.DeadEnemy.TryDequeue(out var enemy))
+            {
+                DeleteEnemy(db, enemy);
+                dbChanged = true;
+            }
             if (delay > 500)
             {
                 if (gameState.Enemies.Count < 10)
                 {
-                    Console.WriteLine("create enemy");
                     SpawnEnemy(db, gameState);
+                    dbChanged = true;
                 }
                 lastMoveTime -= delay;
                 delay = 0;
                 continue;
             } 
-            if (delay - lastMoveTime > 16)
+            if (dbChanged)
             {
-                float dt = delay - lastMoveTime;
-                MoveEnemies(gameState.Enemies, dt);
-                CheckForCollisions(gameState.Chakras, gameState.Enemies);
-                lastMoveTime = delay;
+                db.SaveChanges();
             }
             delay += 10;
             await Task.Delay(10);
         }
     }
 
-    private void MoveEnemies(List<Enemy> enemies, float dt)
-    {
-        for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
-        {
-            var enemy = enemies[enemyIndex];
-            const float ENEMY_SPEED = 0.0002f;
-            Vec2 direction = Direction(enemy, enemy.Target);
-            float x = enemy.X + ENEMY_SPEED * direction.X * dt;
-            float y = enemy.Y + ENEMY_SPEED * direction.Y * dt;
-            enemies[enemyIndex] = new Enemy(x, y, enemy.Target, new Collider(x, y, enemy.Collider.Radius));
-        }
-    }
-
-    private static float Distance(Point a, Point b)
-    {
-        float dx = a.X - b.X;
-        float dy = a.Y - b.Y;
-        return MathF.Sqrt(dx * dx + dy * dy);
-    }
-
-    private static Vec2 Direction(Point from, Point to)
-    {
-        float dx = to.X - from.X;
-        float dy = to.Y - from.Y;
-        float length = MathF.Sqrt(dx * dx + dy * dy);
-        return new Vec2(dx / length, dy / length);
-    }
-
-    private bool Collide(Collider first, Collider second)
-    {
-        float distance = Distance(first, second);
-        return distance < (first.Radius + second.Radius);
-    }
-
-    private void CheckForCollisions(Chakra[] chakras, List<Enemy> enemies)
-    {
-        foreach(var chakra in chakras)
-        {
-            for(int enemyIndex = 0; enemyIndex < enemies.Count; ++enemyIndex)
-            {
-                Enemy enemy = enemies[enemyIndex];
-                if (Collide(chakra.Collider, enemy.Collider))
-                {
-                    enemies.Remove(enemy);
-                    --enemyIndex;
-                }
-            }
-        }
-    }
-
-    private void SpawnEnemy(Database _db, GameState state)
+    private void SpawnEnemy(Database db, GameState state)
     {
         if (state.Chakras.Length == 0)
         {
@@ -104,7 +58,15 @@ public class GameLoopService : BackgroundService
         Chakra chakra = state.Chakras[target];
         float x = state.Arena.X;
         float y = state.Arena.Y;
+        Console.WriteLine($"Spawn Enemy {x} {y}");
         state.Enemies.Add(new Enemy(x, y, chakra, new Collider(x, y, chakra.Collider.Radius)));
+    }
+
+    private void DeleteEnemy(Database db, Enemy enemy)
+    {
+        Console.WriteLine($"Delete Enemy ({enemy.X}, {enemy.Y})");
+        var model = db.Enemies.First(e => e.X == enemy.X && e.Y == enemy.Y);
+        db.Enemies.Remove(model);
     }
 
     private void ClearEnemies(Database db)
