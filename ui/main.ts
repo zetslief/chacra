@@ -474,7 +474,7 @@ function setupRenderState(): RenderState {
 function connectBackend() {
     const baseUrl = 'http://localhost:5000/';
     const initializationUrl = baseUrl + 'initializeGameState';
-    function updateState() {
+    function updateState(state: GameState) {
         fetch(baseUrl)
             .then((response) => response.text().then(text => {
                 const enemies: [] = JSON.parse(text);
@@ -497,7 +497,7 @@ function connectBackend() {
             const deltaTime = 1000 / 60;
             setupHandlers(state.inputState)
             requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
-            updateState();
+            updateState(state);
             console.log("State initialization finished...");
         })
         .catch((error) => console.error(error));
