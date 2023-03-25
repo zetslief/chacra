@@ -201,7 +201,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
 
 function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
-    const size = Math.min(document.body.scrollHeight, document.body.scrollWidth);
+    const size = Math.min(render.canvas.width, render.canvas.height);
     drawBackground(ctx, size, size);
     for (let player of state.players)
     {
@@ -210,14 +210,14 @@ function draw(state: GameState, render: RenderState) {
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
-    requestAnimationFrame(() => loop(game, input, render, dt));
     updatePhysics(game, input, dt);
     draw(game, render);
+    requestAnimationFrame(() => loop(game, input, render, dt));
 }
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    const size = Math.min(document.body.scrollWidth, document.body.scrollHeight);
+    const size = Math.min(window.innerWidth, window.innerHeight);
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;

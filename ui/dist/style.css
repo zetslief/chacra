@@ -1,9 +1,10 @@
-body {
+* {
     margin: 0px;
     padding: 0px;
-    background-color: grey;
 }
 
 canvas {
-    height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
