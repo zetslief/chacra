@@ -70,35 +70,14 @@ function insideCircle(circle: CircleCollider, point: Point): boolean {
 // GAME
 
 type GameState = {
-    player: Player,
-    enemySpawner: EnemySpawner,
-    arena: Arena,
-    chakrasArray: Chakra[],
-    chakras: Map<Chakra, Effect[]>,
-    enemies: Map<Enemy, Effect[]>,
-    spell: Spell | null,
-    ability: Ability,
-    inputState: InputState
+    players: Player[],
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
 
 type Player = {
-    x: number,
-    y: number,
-    size: number,
-}
-
-type EnemyFactory = () => Enemy;
-
-type EnemySpawner = Point & {
-    nextIndex: number,
-    delay: number,
-    delayLeft: number,
-};
-
-type Enemy = Point & {
-    target: Point,
+    name: string
+    position: Point,
     collider: CircleCollider
 };
 
@@ -107,66 +86,28 @@ type RenderState = {
     ctx: CanvasRenderingContext2D
 };
 
-type Chakra = Point & { collider: CircleCollider }
 type Click = Point;
-type Spell = Point & {
-    collider: CircleCollider
-};
-
-type Effect = { collider: CircleCollider };
-type ShieldEffect = Effect;
-type MirrorEffect = Effect;
-
-enum AbilityType {
-    Crown = 1,
-    ThirdEye = 2
-}
-type Ability = { active: boolean, type: AbilityType };
 
 type InputState = {
     click: Click | null,
-    activatedAbility: AbilityType | undefined,
+    dx: number,
+    dy: number
 };
 
-type InputUpdate = {
-    click: CircleCollider | null
-    activatedAbility: AbilityType | undefined,
-};
-
-function setupState(arena: Arena, chakras: Chakra[]): GameState {
-    const player = { x: arena.x, y: arena.y, size: PLAYER_SIZE, chakra: { timeout: 0 } };
-    const enemySpawner = { x: arena.x, y: arena.y, nextIndex: 0, delay: 0.5, delayLeft: 1 };
-    const spell = null;
-    const ability = { active: false, type: AbilityType.Crown };
-    const enemies = new Map<Enemy, Effect[]>();
-    const inputState = { click: null, activatedAbility: undefined };
-    return {
-        player,
-        enemySpawner,
-        arena,
-        spell,
-        ability,
-        chakrasArray: chakras,
-        chakras: new Map<Chakra, Effect[]>(chakras.map(chakra => [chakra, []])),
-        enemies,
-        inputState,
-    };
-}
-
-function setupHandlers(inputState: InputState) {
+function setupHandlers(input: InputState) {
     document.onclick = (e) => {
-        inputState.click = { x: e.pageX, y: e.pageY };
+        input.click = { x: e.pageX, y: e.pageY };
     };
     document.onkeydown = (e) => {
         if (e.isComposing || e.keyCode === 229) {
             return;
         }
         const key = e.code.toUpperCase();
-        if (key === "DIGIT1") {
-            inputState.activatedAbility = AbilityType.Crown;
+        if (key === "ARROWUP") {
+            input.dy = -1;
         }
-        if (key === "DIGIT2") {
-            inputState.activatedAbility = AbilityType.ThirdEye;
+        if (key === "ARROWDOWN") {
+            input.dy = 1;
         }
     };
 }
@@ -227,211 +168,33 @@ function drawPlayer(
     player: Player,
     scale: number
 ) {
-    const x = player.x * scale;
-    const y = player.y * scale;
-    const size = player.size * scale;
+    const x = player.position.x * scale;
+    const y = player.position.y * scale;
+    const size = player.collider.radius * scale;
     fillCircle(ctx, x, y, size, PLAYER);
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
-function drawSpell(
-    ctx: CanvasRenderingContext2D,
-    spell: Spell,
-    _scale: number,
-) {
-    strokeCircle(ctx, spell.x, spell.y, spell.collider.radius, "green", LINE_WIDTH);
-    fillCircle(ctx, spell.x, spell.y, spell.collider.radius * 0.7, "green");
-}
-
-function drawEnemy(
-    ctx: CanvasRenderingContext2D,
-    enemy: Enemy,
-    scale: number
-) {
-    const x = enemy.x * scale;
-    const y = enemy.y * scale;
-    const radius = DEFAULT_RADIUS * scale;
-    fillCircle(ctx, x, y, radius, "white");
-    const colliderX = enemy.collider.x * scale;
-    const colliderY = enemy.collider.y * scale;
-    const colliderRadius = enemy.collider.radius * scale;
-    strokeCircle(ctx, colliderX, colliderY, colliderRadius, "gray", 1);
-    const targetX = enemy.target.x * scale;
-    const targetY = enemy.target.y * scale;
-    fillCircle(ctx, targetX, targetY, 2, "green");
-}
-
-function drawChakra(
-    ctx: CanvasRenderingContext2D,
-    chakra: Chakra,
-    scale: number,
-) {
-    const x = chakra.x * scale;
-    const y = chakra.y * scale;
-    const radius = DEFAULT_RADIUS * scale;
-    fillCircle(ctx, x, y, radius, "black");
-    const colliderX = chakra.collider.x * scale;
-    const colliderY = chakra.collider.y * scale;
-    const colliderRadius = chakra.collider.radius * scale;
-    strokeCircle(ctx, colliderX, colliderY, colliderRadius, "gray", 1);
-}
-
-
-type Arena = {
-    x: number,
-    y: number,
-    radius: number
-}
-function drawArena(
-    ctx: CanvasRenderingContext2D,
-    arena: Arena,
-    scale: number
-) {
-    fillCircle(ctx, arena.x * scale, arena.y * scale, arena.radius * scale, "orange");
-}
-
-function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[], scale: number) {
-    for (const enemy of enemies) {
-        drawEnemy(ctx, enemy, scale);
-    }
-}
-
-function drawEffects(ctx: CanvasRenderingContext2D, effects: Effect[], _scale: number) {
-    for (const effect of effects) {
-        const { x, y, radius } = effect.collider;
-        strokeCircle(ctx, x, y, radius, "purple", LINE_WIDTH * 3);
-    }
-}
-
 // PROCESSING
 
-function processInput(inputState: InputState): InputUpdate {
-    let input: InputUpdate = { click: null, activatedAbility: undefined };
-    if (inputState.click) {
-        input.click = { radius: DEFAULT_CLICK_RADIUS, ...inputState.click };
-        inputState.click = null;
+function updatePhysics(game: GameState, input: InputState, dt: number) {
+    function movePlayer(player: Player, dx: number, dy: number) {
+        const step = 0.001;
+        const {x, y} = player.position;
+        player.position = vec2(x + dx * step * dt, y + dy * step * dt);
+        player.collider.x = player.position.x;
+        player.collider.y = player.position.y;
     }
-    if (inputState.activatedAbility) {
-        input.activatedAbility = inputState.activatedAbility;
-        inputState.activatedAbility = undefined;
-    }
-    return input;
-}
-
-function applyInput(state: GameState, inputChange: InputUpdate) {
-    if (inputChange.activatedAbility) {
-        if (state.ability.active && inputChange.activatedAbility === state.ability.type) {
-            state.ability.active = false;
-        } else {
-            state.ability.active = true;
-        }
-        state.ability.type = inputChange.activatedAbility;
-    }
-    if (inputChange.click) {
-        let clickProcessed = false;
-        for (const chakra of state.chakras.keys()) {
-            if (collide(chakra.collider, inputChange.click)) {
-                if (state.ability.active && state.ability.type === AbilityType.Crown) {
-                    const effects = state.chakras.get(chakra)!;
-                    const radius = chakra.collider.radius * (1.0 + 0.4 * (effects.length + 1));
-                    const collider = { ...chakra.collider, radius };
-                    effects.push({ collider });
-                }
-                console.log("Clicked on chakra", chakra);
-                clickProcessed = true;
-                break;
+    function processInput(game: GameState, input: InputState) {
+        if (input.dx != 0 || input.dy != 0) {
+            for (const player of game.players) {
+                movePlayer(player, input.dx, input.dy)
             }
-        }
-        for (const [enemy, effects] of state.enemies) {
-            if (collide(enemy.collider, inputChange.click)) {
-                if (state.ability.active && state.ability.type === AbilityType.ThirdEye) {
-                    effects.push({ collider: enemy.collider });
-                    enemy.target = { x: state.arena.x, y: state.arena.y };
-                }
-                console.log("Clicked on enemy", enemy);
-                clickProcessed = true;
-                break;
-            }
-        }
-        if (!clickProcessed) {
-            const x = inputChange.click.x;
-            const y = inputChange.click.y;
-            state.spell = { x, y, collider: { x, y, radius: DEFAULT_RADIUS } };
+            input.dx = 0;
+            input.dy = 0;
         }
     }
-}
-
-function updatePhysics(state: GameState, dt: number) {
-    function updateEnemySpawner(enemySpawner: EnemySpawner, enemyFactory: EnemyFactory, dt: number): Enemy | null {
-        if (enemySpawner.delayLeft < 0) {
-            enemySpawner.delayLeft = enemySpawner.delay;
-            const newEnemy = enemyFactory();
-            return newEnemy;
-        }
-        enemySpawner.delayLeft -= dt;
-        return null;
-    }
-    function handleEnemies(state: GameState, newEnemy: Enemy | null) {
-        if (newEnemy) {
-            state.enemies.set(newEnemy, []);
-        }
-        for (const enemy of state.enemies.keys()) {
-            const defaultEnemySpeed = 10;
-            const speed = defaultEnemySpeed;
-            const dir = direction(enemy, enemy.target);
-            enemy.x = enemy.x + dir.x * speed * dt;
-            enemy.y = enemy.y + dir.y * speed * dt;
-            enemy.collider.x = enemy.x;
-            enemy.collider.y = enemy.y;
-        }
-    }
-    function handleCollisions(state: GameState) {
-        const enemiesToRemove = new Set<Enemy>();
-        const effectsToRemove = new Set<Effect>();
-        for (const enemy of state.enemies.keys()) {
-            if (state.spell) {
-                if (collide(state.spell.collider, enemy.collider)) {
-                    state.spell = null;
-                    enemiesToRemove.add(enemy);
-                    break;
-                }
-            }
-            for (const [_chakra, effects] of state.chakras) {
-                for (const effect of effects) {
-                    if (collide(effect.collider, enemy.collider)) {
-                        enemiesToRemove.add(enemy);
-                        effectsToRemove.add(effect);
-                    }
-                }
-            }
-            for (const chakra of state.chakras.keys()) {
-                if (collide(chakra.collider, enemy.collider)) {
-                    enemiesToRemove.add(enemy);
-                }
-            }
-        }
-        for (const enemyToRemove of enemiesToRemove) {
-            state.enemies.delete(enemyToRemove);
-        }
-        for (const [chakra, effects] of state.chakras) {
-            state.chakras.set(chakra, effects.filter(effect => !effectsToRemove.has(effect)));
-        }
-    }
-    function createEnemy(): Enemy {
-        const x = state.arena.x;
-        const y = state.arena.y;
-        const targetChakraIndex = Math.floor(Math.random() * state.chakrasArray.length);
-        const targetChakra = state.chakrasArray[targetChakraIndex];
-        return {
-            x,
-            y,
-            target: { x: targetChakra.x, y: targetChakra.y },
-            collider: { x, y, radius: DEFAULT_RADIUS }
-        };
-    }
-    const newEnemy = updateEnemySpawner(state.enemySpawner, createEnemy, dt);
-    handleEnemies(state, newEnemy);
-    handleCollisions(state);
+    processInput(game, input);
 }
 
 // MAIN
@@ -440,25 +203,15 @@ function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
     const size = Math.min(document.body.scrollHeight, document.body.scrollWidth);
     drawBackground(ctx, size, size);
-    drawArena(ctx, state.arena, size);
-    for (const [chakra, effects] of state.chakras) {
-        drawChakra(ctx, chakra, size);
-        drawEffects(ctx, effects, size);
-    }
-    for (const enemy of state.enemies.keys()) {
-        drawEnemy(ctx, enemy, size);
-    }
-    drawPlayer(ctx, state.player, size)
-    if (state.spell) {
-        drawSpell(ctx, state.spell, size);
+    for (let player of state.players)
+    {
+        drawPlayer(ctx, player, size);
     }
 }
 
-function loop(game: GameState, render: RenderState, deltaTime: number) {
-    requestAnimationFrame(() => loop(game, render, deltaTime));
-    const update = processInput(game.inputState);
-    applyInput(game, update);
-    updatePhysics(game, deltaTime);
+function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
+    requestAnimationFrame(() => loop(game, input, render, dt));
+    updatePhysics(game, input, dt);
     draw(game, render);
 }
 
@@ -471,40 +224,25 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
-function connectBackend() {
-    const baseUrl = 'http://localhost:5000/';
-    const initializationUrl = baseUrl + 'initializeGameState';
-    function updateState(state: GameState) {
-        fetch(baseUrl)
-            .then((response) => response.text().then(text => {
-                const enemies: [] = JSON.parse(text);
-                state.enemies = new Map<Enemy, Effect[]>(enemies.map(
-                    enemy => [enemy, []]
-                ));
-                setTimeout(() => updateState(state), 16);
-            }))
-            .catch((error) => {
-                console.error(error);
-            });
-    }
-    console.log("Initializing...");
-    fetch(initializationUrl)
-        .then(async (response) => {
-            const text = await response.text();
-            const result = JSON.parse(text);
-            const state = setupState(result.arena, result.chakras);
-            const renderState = setupRenderState();
-            const deltaTime = 1000 / 60;
-            setupHandlers(state.inputState)
-            requestAnimationFrame(() => loop(state, renderState, deltaTime * 0.001));
-            updateState(state);
-            console.log("State initialization finished...");
-        })
-        .catch((error) => console.error(error));
-}
-
 function main() {
-    connectBackend();
+    function player(name: string, position: Point) {
+        const radius = 0.1;
+        return { name, position, collider: { x: position.x, y: position.y, radius }};
+    }
+    function defaultState(): GameState {
+        return {
+            players: [
+                player("Left", vec2(0, 0.5)),
+                player("Right", vec2(1, 0.5)),
+            ]
+        }
+    }
+    const state = defaultState();
+    const renderer = setupRenderState();
+    const input = { click: null, dx: 0, dy: 0 };
+    setupHandlers(input);
+    const dt = (1000 / 16);
+    loop(state, input, renderer, dt);
 }
 
 main();

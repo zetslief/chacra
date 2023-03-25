@@ -15,7 +15,6 @@ public class GameLoopService : BackgroundService
             ?? throw new InvalidOperationException("Failed to get database!");
         GameStateService gameStateService = serviceScope.ServiceProvider.GetService<GameStateService>()
             ?? throw new InvalidOperationException("Failed to get GameStateService");
-        Console.WriteLine($"Clear database... {db.Enemies.Count()} enemies");
         ClearEnemies(db);
         int delay = 0;
         int lastMoveTime = 0;
@@ -71,6 +70,7 @@ public class GameLoopService : BackgroundService
 
     private void ClearEnemies(Database db)
     {
+        Console.WriteLine($"Clear database... {db.Enemies.Count()} enemies");
         foreach(var enemy in db.Enemies)
         {
             db.Enemies.Remove(enemy);
