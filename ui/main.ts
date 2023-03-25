@@ -175,6 +175,13 @@ function drawPlayer(
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
+function drawCollider(ctx: CanvasRenderingContext2D, collider: CircleCollider, scale: number) {
+    const x = collider.x * scale;
+    const y = collider.y * scale;
+    const size = collider.radius * scale;
+    strokeCircle(ctx, x, y, size, "lightgreen", LINE_WIDTH * 2);
+}
+
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
@@ -206,6 +213,7 @@ function draw(state: GameState, render: RenderState) {
     for (let player of state.players)
     {
         drawPlayer(ctx, player, size);
+        drawCollider(ctx, player.collider, size);
     }
 }
 
