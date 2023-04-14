@@ -66,9 +66,25 @@ type CircleCollider = Point & {
     radius: number
 }
 
-function collide(first: CircleCollider, second: CircleCollider): boolean {
+type LineCollider = {
+    A: Point,
+    B: Point
+}
+
+function collideCC(first: CircleCollider, second: CircleCollider): boolean {
     const diff = sub(first, second);
     return len(diff) < (first.radius + second.radius);
+}
+
+function collideCL(rect: LineCollider, circle: CircleCollider): boolean {
+    console.error("Rect x Circle collistions are not implemented", rect, circle);
+    // x^2 + y^2 = r^2
+    // y^2 = r^2 - x^2
+    // y = kx + b
+    // (kx + b)^2 = r^2 - x^2
+    // (kx)^2 + 2kxb + b^2 = r^2 - x^2
+    // ((k^2 + 1)x)^2 + 2kxb = r^2 + b^2
+    return false;
 }
 
 function insideCircle(circle: CircleCollider, point: Point): boolean {
