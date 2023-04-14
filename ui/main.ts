@@ -78,6 +78,7 @@ type Color = string | CanvasGradient | CanvasPattern;
 type Player = {
     name: string
     position: Point,
+    size: number,
     collider: CircleCollider
 };
 
@@ -157,28 +158,30 @@ function strokeCircle(
 
 function drawBackground(
     ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number
+    scale: Vec2,
 ) {
-    drawRect(ctx, 0, 0, width, height, BACKGROUND);
+    drawRect(ctx, 0, 0, scale.x, scale.y, BACKGROUND);
 }
 
 function drawPlayer(
     ctx: CanvasRenderingContext2D,
+    scale: Vec2,
     player: Player,
-    scale: number
 ) {
-    const x = player.position.x * scale;
-    const y = player.position.y * scale;
-    const size = player.collider.radius * scale;
+    const x = player.position.x * scale.x;
+    const y = player.position.y * scale.y;
+    const size = player.size * scale.y;
     fillCircle(ctx, x, y, size, PLAYER);
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
-function drawCollider(ctx: CanvasRenderingContext2D, collider: CircleCollider, scale: number) {
-    const x = collider.x * scale;
-    const y = collider.y * scale;
-    const size = collider.radius * scale;
+function drawCollider(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    collider: CircleCollider) {
+    const x = collider.x * scale.x;
+    const y = collider.y * scale.y;
+    const size = collider.radius * scale.y;
     strokeCircle(ctx, x, y, size, "lightgreen", LINE_WIDTH * 2);
 }
 
@@ -208,12 +211,12 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
 
 function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
-    const size = Math.min(render.canvas.width, render.canvas.height);
-    drawBackground(ctx, size, size);
+    const scale = vec2(render.canvas.width, render.canvas.height);
+    drawBackground(ctx, scale);
     for (let player of state.players)
     {
-        drawPlayer(ctx, player, size);
-        drawCollider(ctx, player.collider, size);
+        drawPlayer(ctx, scale, player);
+        drawCollider(ctx, scale, player.collider);
     }
 }
 
@@ -225,17 +228,16 @@ function loop(game: GameState, input: InputState,  render: RenderState, dt: numb
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    const size = Math.min(window.innerWidth, window.innerHeight);
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
 
 function main() {
-    function player(name: string, position: Point) {
-        const radius = 0.1;
-        return { name, position, collider: { x: position.x, y: position.y, radius }};
+    function player(name: string, position: Point): Player {
+        const [size, radius] = [0.1, 0.1];
+        return { name, position, size, collider: { x: position.x, y: position.y, radius }};
     }
     function defaultState(): GameState {
         return {
