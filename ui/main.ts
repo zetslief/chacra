@@ -1,6 +1,7 @@
 const BLACK = "black";
 const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
+const BALL = "#33dd33";
 
 const DEFAULT_RADIUS = 0.01;
 const DEFAULT_CLICK_RADIUS = 0.003;
@@ -17,8 +18,12 @@ function vec2(x: number, y: number): Vec2 {
     return { x, y };
 }
 
-function mul(vec: Vec2, value: number) {
+function smul(vec: Vec2, value: number): Vec2 {
     return { x: vec.x * value, y: vec.y * value };
+}
+
+function vmul(left: Vec2, right: Vec2): Vec2 {
+    return { x: left.x * right.x, y: left.y * right.y };
 }
 
 function len(vec: Vec2): number {
@@ -33,6 +38,10 @@ function distance(from: Point, to: Point): number {
 
 function sub(left: Vec2, right: Vec2): Vec2 {
     return { x: left.x - right.x, y: left.y - right.y };
+}
+
+function sum(left: Vec2, right: Vec2): Vec2 {
+    return { x: left.x + right.x, y: left.y + right.y };
 }
 
 function normalize(v: Vec2) {
@@ -71,6 +80,8 @@ function insideCircle(circle: CircleCollider, point: Point): boolean {
 
 type GameState = {
     players: Player[],
+    ball: Ball,
+    ballDirection: Vec2
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
@@ -81,6 +92,12 @@ type Player = {
     size: number,
     collider: CircleCollider
 };
+
+type Ball = {
+    position: Point,
+    size: number,
+    collider: CircleCollider
+}
 
 type RenderState = {
     canvas: HTMLCanvasElement,
@@ -175,6 +192,18 @@ function drawPlayer(
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
+function drawBall(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    ball: Ball,
+) {
+    const x = ball.position.x * scale.x;
+    const y = ball.position.y * scale.y;
+    const size = ball.size * scale.y;
+    fillCircle(ctx, x, y, size, BALL);
+    strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
+}
+
 function drawCollider(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
@@ -195,6 +224,18 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         player.collider.x = player.position.x;
         player.collider.y = player.position.y;
     }
+    function moveBall(ball: Ball, direction: Vec2, dt: number) {
+        const step = 0.00005;
+        ball.position = sum(ball.position, smul(smul(direction, dt), step));
+        ball.collider.x = ball.position.x;
+        ball.collider.y = ball.position.y;
+        if (ball.position.x - ball.size / 2 <= 0 || ball.position.x + ball.size / 2 >= 1) {
+            direction.x = -direction.x;
+        }
+        if (ball.position.y - ball.size / 2 <= 0 || ball.position.y + ball.size / 2 >= 1) {
+            direction.y = -direction.y;
+        }
+    }
     function processInput(game: GameState, input: InputState) {
         if (input.dx != 0 || input.dy != 0) {
             for (const player of game.players) {
@@ -205,6 +246,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
     }
     processInput(game, input);
+    moveBall(game.ball, game.ballDirection, dt);
 }
 
 // MAIN
@@ -218,6 +260,8 @@ function draw(state: GameState, render: RenderState) {
         drawPlayer(ctx, scale, player);
         drawCollider(ctx, scale, player.collider);
     }
+    drawBall(ctx, scale, state.ball); 
+    drawCollider(ctx, scale, state.ball.collider); 
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
@@ -239,12 +283,18 @@ function main() {
         const [size, radius] = [0.1, 0.1];
         return { name, position, size, collider: { x: position.x, y: position.y, radius }};
     }
+    function ball(position: Point): Ball {
+        const [size, radius] = [0.1, 0.1];
+        return { position, size, collider: { x: position.x, y: position.y, radius }};
+    }
     function defaultState(): GameState {
         return {
             players: [
                 player("Left", vec2(0, 0.5)),
                 player("Right", vec2(1, 0.5)),
-            ]
+            ],
+            ball: ball(vec2(0.5, 0.5)),
+            ballDirection: vec2(1.0, 0.0)
         }
     }
     const state = defaultState();
