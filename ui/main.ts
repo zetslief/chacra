@@ -71,6 +71,35 @@ type LineCollider = {
     B: Point
 }
 
+function line_k(a: Point, b: Point): number | undefined {
+    return a.x == b.x 
+        ? undefined
+        : (b.y - a.y) / (b.x - a.x);
+}
+
+function line_c(a: Point, b: Point): number | undefined {
+    return a.x == b.x
+        ? undefined
+        : (b.y*a.x - a.y*b.x) / (a.x - b.x);
+}
+
+function colliderLL(first: LineCollider, second: LineCollider): boolean {
+    function ordered(a: number, b: number): [number, number] {
+        return a < b ? [a, b] : [b, a];
+    }
+    const [ax1, bx1] = ordered(first.A.x, first.B.x);
+    const [ax2, bx2] = ordered(second.A.x, second.B.x);
+    if (bx1 < ax2 || ax1 > bx2) {
+        return false;
+    }
+    const [ay1, by1] = ordered(first.A.y, first.B.y);
+    const [ay2, by2] = ordered(second.A.y, second.B.y);
+    if (by1 < ay2 || ay1 > by2) {
+        return false;
+    }
+    return true;
+}
+
 function collideCC(first: CircleCollider, second: CircleCollider): boolean {
     const diff = sub(first, second);
     return len(diff) < (first.radius + second.radius);
@@ -78,12 +107,6 @@ function collideCC(first: CircleCollider, second: CircleCollider): boolean {
 
 function collideCL(rect: LineCollider, circle: CircleCollider): boolean {
     console.error("Rect x Circle collistions are not implemented", rect, circle);
-    // x^2 + y^2 = r^2
-    // y^2 = r^2 - x^2
-    // y = kx + b
-    // (kx + b)^2 = r^2 - x^2
-    // (kx)^2 + 2kxb + b^2 = r^2 - x^2
-    // ((k^2 + 1)x)^2 + 2kxb = r^2 + b^2
     return false;
 }
 
