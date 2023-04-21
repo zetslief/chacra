@@ -1,3 +1,9 @@
+import {
+    Vec2, Point, vec2,
+    smul, sum,
+    CircleCollider
+} from './lib/math';
+
 const BLACK = "black";
 const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
@@ -7,113 +13,6 @@ const DEFAULT_RADIUS = 0.01;
 const DEFAULT_CLICK_RADIUS = 0.003;
 const PLAYER_SIZE = 0.1;
 const LINE_WIDTH = 1;
-
-// MATHTYPE
-
-interface Vec2 { x: number, y: number };
-interface Direction extends Vec2 { };
-interface Point extends Vec2 { };
-
-function vec2(x: number, y: number): Vec2 {
-    return { x, y };
-}
-
-function smul(vec: Vec2, value: number): Vec2 {
-    return { x: vec.x * value, y: vec.y * value };
-}
-
-function vmul(left: Vec2, right: Vec2): Vec2 {
-    return { x: left.x * right.x, y: left.y * right.y };
-}
-
-function len(vec: Vec2): number {
-    return distance(vec2(0, 0), vec);
-}
-
-function distance(from: Point, to: Point): number {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-function sub(left: Vec2, right: Vec2): Vec2 {
-    return { x: left.x - right.x, y: left.y - right.y };
-}
-
-function sum(left: Vec2, right: Vec2): Vec2 {
-    return { x: left.x + right.x, y: left.y + right.y };
-}
-
-function normalize(v: Vec2) {
-    return direction(vec2(0, 0), v);
-}
-
-function direction(from: Point, to: Point): Vec2 {
-    const dst = distance(from, to);
-    if (dst < 0.001) {
-        console.warn("Small distance", dst);
-        return vec2(0, 0);
-    }
-    return vec2(
-        (to.x - from.x) / dst,
-        (to.y - from.y) / dst
-    );
-}
-
-// COLLISIONS
-
-type CircleCollider = Point & {
-    radius: number
-}
-
-type LineCollider = {
-    A: Point,
-    B: Point
-}
-
-function line_k(a: Point, b: Point): number | undefined {
-    return a.x == b.x 
-        ? undefined
-        : (b.y - a.y) / (b.x - a.x);
-}
-
-function line_c(a: Point, b: Point): number | undefined {
-    return a.x == b.x
-        ? undefined
-        : (b.y*a.x - a.y*b.x) / (a.x - b.x);
-}
-
-function colliderLL(first: LineCollider, second: LineCollider): boolean {
-    function ordered(a: number, b: number): [number, number] {
-        return a < b ? [a, b] : [b, a];
-    }
-    const [ax1, bx1] = ordered(first.A.x, first.B.x);
-    const [ax2, bx2] = ordered(second.A.x, second.B.x);
-    if (bx1 < ax2 || ax1 > bx2) {
-        return false;
-    }
-    const [ay1, by1] = ordered(first.A.y, first.B.y);
-    const [ay2, by2] = ordered(second.A.y, second.B.y);
-    if (by1 < ay2 || ay1 > by2) {
-        return false;
-    }
-    return true;
-}
-
-function collideCC(first: CircleCollider, second: CircleCollider): boolean {
-    const diff = sub(first, second);
-    return len(diff) < (first.radius + second.radius);
-}
-
-function collideCL(rect: LineCollider, circle: CircleCollider): boolean {
-    console.error("Rect x Circle collistions are not implemented", rect, circle);
-    return false;
-}
-
-function insideCircle(circle: CircleCollider, point: Point): boolean {
-    const diff = sub(circle, point);
-    return len(diff) <= circle.radius;
-}
 
 // GAME
 
