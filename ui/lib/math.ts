@@ -6,6 +6,10 @@ export function vec2(x: number, y: number): Vec2 {
     return { x, y };
 }
 
+export function point(x: number, y: number): Point {
+    return { x, y }
+}
+
 export function smul(vec: Vec2, value: number): Vec2 {
     return { x: vec.x * value, y: vec.y * value };
 }
