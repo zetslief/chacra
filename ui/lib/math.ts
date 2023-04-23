@@ -59,8 +59,12 @@ export type CircleCollider = Point & {
 }
 
 export type LineCollider = {
-    A: Point,
-    B: Point
+    a: Point,
+    b: Point
+}
+
+function lineCollider(a: Point, b: Point) {
+    return { a, b }
 }
 
 export function line_k(a: Point, b: Point): number | undefined {
@@ -79,13 +83,13 @@ export function collideLL(first: LineCollider, second: LineCollider): boolean {
     function ordered(a: number, b: number): [number, number] {
         return a < b ? [a, b] : [b, a];
     }
-    const [ax1, bx1] = ordered(first.A.x, first.B.x);
-    const [ax2, bx2] = ordered(second.A.x, second.B.x);
+    const [ax1, bx1] = ordered(first.a.x, first.b.x);
+    const [ax2, bx2] = ordered(second.a.x, second.b.x);
     if (bx1 < ax2 || ax1 > bx2) {
         return false;
     }
-    const [ay1, by1] = ordered(first.A.y, first.B.y);
-    const [ay2, by2] = ordered(second.A.y, second.B.y);
+    const [ay1, by1] = ordered(first.a.y, first.b.y);
+    const [ay2, by2] = ordered(second.a.y, second.b.y);
     if (by1 < ay2 || ay1 > by2) {
         return false;
     }
