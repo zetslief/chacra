@@ -21,10 +21,22 @@ function lineDataset(): [string, Point, Point, Point, Point, boolean][] {
     ]
 }
 
+let failed = 0;
+let passed = 0;
 for (const [name, A1, B1, A2, B2, collide] of lineDataset()) {
     const line1 = { a: A1, b: B1 };
     const line2 = { a: A2, b: B2 };
-    if (collideLL(line1, line2) != collide) {
-        console.error("Incorrect collision", name,  line1, line2);
+    if (collideLL(line1, line2) == collide) {
+        passed += 1;
+    } else {
+        console.error("Incorrect collision", name, collide);
+        console.error(line1);
+        console.error(line2);
+        failed += 1;
     }
+}
+if (failed != 0) {
+    console.error("FAILED: ", failed, " PASSED: ", passed);
+} else {
+    console.log("FAILED: ", failed, " PASSED: ", passed);
 }

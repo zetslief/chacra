@@ -67,33 +67,86 @@ function lineCollider(a: Point, b: Point) {
     return { a, b }
 }
 
-export function line_k(a: Point, b: Point): number | undefined {
-    return a.x == b.x 
-        ? undefined
-        : (b.y - a.y) / (b.x - a.x);
-}
-
-export function line_c(a: Point, b: Point): number | undefined {
-    return a.x == b.x
-        ? undefined
-        : (b.y*a.x - a.y*b.x) / (a.x - b.x);
+type KC = [ k: number, c: number ];
+export function line_k_c(a: Point, b: Point): KC | undefined {
+    if (a.x == b.x) {
+        return undefined;
+    }
+    const k = (b.y - a.y) / (b.x - a.x);
+    const c = (b.y*a.x - a.y*b.x) / (a.x - b.x);
+    return [k, c];
 }
 
 export function collideLL(first: LineCollider, second: LineCollider): boolean {
+    type ABKC = [number, number, number, number, number, number];
+    type ABK = [number, number, number, number, number];
+    type ABC = [number, number, number, number, number];
+    type AB = [number, number, number, number];
+    function line_line(first: ABKC, second: ABKC): boolean {
+        const [ax1, ay1, bx1, by1, k1, c1] = first;
+        const [ax2, ay2, bx2, by2, k2, c2] = second;
+        const x = (c2 - c1) / (k1 - k2);
+        const y = k1 * x + c1;
+        return (ax1 <= x && bx1 >= x && ay1 <= y && by1 >= y)
+            && (ax2 <= x && bx2 >= x && ay2 <= y && by2 >= y);
+    }
+    function line_horizontal(first: ABKC, second: AB): boolean {
+        const [ax1, ay1, bx1, by1, k1, c1] = first;
+        const [ax2, ay2, bx2, by2] = second;
+        // y = kx + c
+        // x = (y - c) / k
+        const y = ay2; 
+        const x = (y - c1) / k1;
+        return (ax1 <= x && bx1 >= x && ay1 <= y && by1 >= y)
+            && (ax2 <= x && bx2 >= x && ay2 <= y && by2 >= y);
+    }
+    function line_vertical(first: ABKC, second: AB): boolean {
+        const [ax1, ay1, bx1, by1, k1, c1] = first;
+        const [ax2, ay2, bx2, by2] = second;
+        const x = ax2;
+        const y = k1 * x + c1;
+        return (ax1 <= x && bx1 >= x && ay1 <= y && by1 >= y)
+            && (ax2 <= x && bx2 >= x && ay2 <= y && by2 >= y);
+    }
+    function parallel(first: AB, second: AB): boolean {
+        const [ax1, ay1, bx1, by1] = first;
+        const [ax2, ay2, bx2, by2] = second;
+        return (ay1 == ay2) 
+            && ((ax1 >= ax2 && ax1 <= bx2) || (bx1 >= ax2 && bx1 <= bx2));
+    }
+
     function ordered(a: number, b: number): [number, number] {
         return a < b ? [a, b] : [b, a];
     }
     const [ax1, bx1] = ordered(first.a.x, first.b.x);
     const [ax2, bx2] = ordered(second.a.x, second.b.x);
-    if (bx1 < ax2 || ax1 > bx2) {
-        return false;
-    }
     const [ay1, by1] = ordered(first.a.y, first.b.y);
     const [ay2, by2] = ordered(second.a.y, second.b.y);
-    if (by1 < ay2 || ay1 > by2) {
-        return false;
+    const kc1 = line_k_c(first.a, first.b);
+    const kc2 = line_k_c(second.a, second.b);
+
+    if (kc1 && kc2) {
+        if (kc1[0] == kc2[0]) {
+            const l1: AB = [ax1, ay1, bx1, by1];
+            const l2: AB = [ax2, ay2, bx2, by2];
+            return parallel(l1, l2);
+        } else {
+            const l1: ABKC = [ax1, ay1, bx1, by1, ...kc1];
+            const l2: ABKC = [ax2, ay2, bx2, by2, ...kc2];
+            return line_line(l1, l2);
+        }
+    } else if (kc1) {
+        const l1: ABKC = [ax1, ay1, bx1, by1, ...kc1];
+        const l2: AB = [ax2, ay2, bx2, by2];
+        return line_vertical(l1, l2);
+    } else if (kc2) {
+        const l2: ABKC = [ax2, ay2, bx2, by2, ...kc2];
+        const l1: AB = [ax1, ay1, bx1, by1];
+        return line_vertical(l2, l1);
+    } else {
+        return (ax1 == ax2) 
+            && ((ay1 >= ay2 && ay1 <= by2) || (by1 >= ay2 && by1 <= by2)); 
     }
-    return true;
 }
 
 export function collideCC(first: CircleCollider, second: CircleCollider): boolean {
