@@ -1,7 +1,8 @@
 import {
     Vec2, Point, vec2,
     smul, sum,
-    CircleCollider
+    CircleCollider,
+    LineCollider, collideLL
 } from './lib/math';
 
 const BLACK = "black";
@@ -155,6 +156,11 @@ function drawCollider(
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
+    const left: LineCollider = { a: vec2(0, 0), b: vec2(0.5, 1) }
+    const top: LineCollider = { a: vec2(0, 1), b: vec2(1, 1) }
+    const right: LineCollider = { a: vec2(1, 0), b: vec2(1, 1) }
+    const bottom: LineCollider = { a: vec2(0, 0), b: vec2(1, 0) }
+
     function movePlayer(player: Player, dx: number, dy: number) {
         const step = 0.001;
         const {x, y} = player.position;
@@ -167,10 +173,18 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         ball.position = sum(ball.position, smul(smul(direction, dt), step));
         ball.collider.x = ball.position.x;
         ball.collider.y = ball.position.y;
-        if (ball.position.x - ball.size / 2 <= 0 || ball.position.x + ball.size / 2 >= 1) {
+        const ballHLine = {
+            a: vec2(ball.position.x - ball.size / 2, ball.position.y),
+            b: vec2(ball.collider.x + ball.size / 2, ball.position.y),
+        }
+        const ballVLine = {
+            a: vec2(ball.position.x, ball.position.y + ball.size / 2),
+            b: vec2(ball.collider.x, ball.position.y - ball.size / 2),
+        }
+        if (collideLL(left, ballHLine) || collideLL(right, ballHLine)) {
             direction.x = -direction.x;
         }
-        if (ball.position.y - ball.size / 2 <= 0 || ball.position.y + ball.size / 2 >= 1) {
+        if (collideLL(top, ballVLine) || collideLL(bottom, ballVLine)) {
             direction.y = -direction.y;
         }
     }
