@@ -143,7 +143,7 @@ function drawBall(
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
 
-function drawCollider(
+function drawColliderC(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
     collider: CircleCollider) {
@@ -226,10 +226,10 @@ function draw(state: GameState, render: RenderState) {
     for (let player of state.players)
     {
         drawPlayer(ctx, scale, player);
-        drawCollider(ctx, scale, player.collider);
+        drawColliderC(ctx, scale, player.collider);
     }
     drawBall(ctx, scale, state.ball); 
-    drawCollider(ctx, scale, state.ball.collider); 
+    drawColliderC(ctx, scale, state.ball.collider); 
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
