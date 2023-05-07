@@ -153,6 +153,22 @@ function drawCollider(
     strokeCircle(ctx, x, y, size, "lightgreen", LINE_WIDTH * 2);
 }
 
+function drawColliderL(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    collider: LineCollider) {
+    const ax = collider.a.x * scale.x;
+    const ay = collider.a.y * scale.y;
+    const bx = collider.b.x * scale.x;
+    const by = collider.b.y * scale.y;
+    ctx.beginPath();
+    ctx.strokeStyle = "lightgreen";
+    ctx.lineWidth = LINE_WIDTH;
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.stroke();
+}
+
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
