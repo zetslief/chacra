@@ -1,7 +1,7 @@
 import {
     Vec2, Point, vec2,
-    smul, sum,
-    CircleCollider,
+    smul, sum, sub,
+    CircleCollider, collideCC,
     LineCollider, collideLL
 } from './lib/math';
 
@@ -126,7 +126,7 @@ function drawPlayer(
 ) {
     const x = player.position.x * scale.x;
     const y = player.position.y * scale.y;
-    const size = player.size * scale.y;
+    const size = player.size * scale.x;
     fillCircle(ctx, x, y, size, PLAYER);
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
@@ -138,7 +138,7 @@ function drawBall(
 ) {
     const x = ball.position.x * scale.x;
     const y = ball.position.y * scale.y;
-    const size = ball.size * scale.y;
+    const size = ball.size * scale.x;
     fillCircle(ctx, x, y, size, BALL);
     strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
@@ -149,8 +149,8 @@ function drawColliderC(
     collider: CircleCollider) {
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const size = collider.radius * scale.y;
-    strokeCircle(ctx, x, y, size, "lightgreen", LINE_WIDTH * 2);
+    const size = collider.radius * scale.x;
+    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 2);
 }
 
 function drawColliderL(
@@ -163,7 +163,7 @@ function drawColliderL(
     const by = collider.b.y * scale.y;
     ctx.beginPath();
     ctx.strokeStyle = "lightgreen";
-    ctx.lineWidth = LINE_WIDTH;
+    ctx.lineWidth = LINE_WIDTH * 2;
     ctx.moveTo(ax, ay);
     ctx.lineTo(bx, by);
     ctx.stroke();
@@ -172,7 +172,7 @@ function drawColliderL(
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
-    const left: LineCollider = { a: vec2(0, 0), b: vec2(0.5, 1) }
+    const left: LineCollider = { a: vec2(0, 0), b: vec2(0, 1) }
     const top: LineCollider = { a: vec2(0, 1), b: vec2(1, 1) }
     const right: LineCollider = { a: vec2(1, 0), b: vec2(1, 1) }
     const bottom: LineCollider = { a: vec2(0, 0), b: vec2(1, 0) }
@@ -190,18 +190,28 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         ball.collider.x = ball.position.x;
         ball.collider.y = ball.position.y;
         const ballHLine = {
-            a: vec2(ball.position.x - ball.size / 2, ball.position.y),
-            b: vec2(ball.collider.x + ball.size / 2, ball.position.y),
+            a: vec2(ball.collider.x - ball.collider.radius, ball.collider.y),
+            b: vec2(ball.collider.x + ball.collider.radius, ball.collider.y),
         }
         const ballVLine = {
-            a: vec2(ball.position.x, ball.position.y + ball.size / 2),
-            b: vec2(ball.collider.x, ball.position.y - ball.size / 2),
+            a: vec2(ball.collider.x, ball.collider.y + ball.collider.radius),
+            b: vec2(ball.collider.x, ball.collider.y - ball.collider.radius),
         }
         if (collideLL(left, ballHLine) || collideLL(right, ballHLine)) {
             direction.x = -direction.x;
         }
         if (collideLL(top, ballVLine) || collideLL(bottom, ballVLine)) {
             direction.y = -direction.y;
+        }
+    }
+    function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2) {
+        if (collideCC(ball.collider, player)) {
+            direction.x = -direction.x;
+            if (ball.collider.y <= player.y) {
+                direction.y = (ball.collider.y - player.y) / (ball.collider.radius + player.radius)
+            } else {
+                direction.y = (ball.collider.y - player.y) / (ball.collider.radius + player.radius)
+            }
         }
     }
     function processInput(game: GameState, input: InputState) {
@@ -215,6 +225,9 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     }
     processInput(game, input);
     moveBall(game.ball, game.ballDirection, dt);
+    for (const player of game.players) {
+        collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
+    }
 }
 
 // MAIN
@@ -230,6 +243,11 @@ function draw(state: GameState, render: RenderState) {
     }
     drawBall(ctx, scale, state.ball); 
     drawColliderC(ctx, scale, state.ball.collider); 
+    ctx.beginPath();
+    ctx.moveTo(0.1 * scale.x, 0.5 * scale.y);
+    ctx.lineTo(0.9 * scale.x, 0.5 * scale.y);
+    ctx.strokeStyle = "red";
+    ctx.stroke()
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
