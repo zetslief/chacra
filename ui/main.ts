@@ -173,11 +173,6 @@ function drawColliderL(
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
-    const left: LineCollider = { a: vec2(0, 0), b: vec2(0, 1) }
-    const top: LineCollider = { a: vec2(0, 1), b: vec2(1, 1) }
-    const right: LineCollider = { a: vec2(1, 0), b: vec2(1, 1) }
-    const bottom: LineCollider = { a: vec2(0, 0), b: vec2(1, 0) }
-
     function movePlayer(player: Player, dx: number, dy: number) {
         const step = 0.001;
         const {x, y} = player.position;
@@ -185,7 +180,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         player.collider.x = player.position.x;
         player.collider.y = player.position.y;
     }
-    function moveBall(ball: Ball, direction: Vec2, dt: number) {
+    function moveBall(ball: Ball, walls: LineCollider[], direction: Vec2, dt: number) {
         const step = 0.00005;
         ball.position = sum(ball.position, smul(smul(direction, dt), step));
         ball.collider.x = ball.position.x;
@@ -198,10 +193,10 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             a: vec2(ball.collider.x, ball.collider.y + ball.collider.radius),
             b: vec2(ball.collider.x, ball.collider.y - ball.collider.radius),
         }
-        if (collideLL(left, ballHLine) || collideLL(right, ballHLine)) {
+        if (collideLL(walls[0], ballHLine) || collideLL(walls[2], ballHLine)) {
             direction.x = -direction.x;
         }
-        if (collideLL(top, ballVLine) || collideLL(bottom, ballVLine)) {
+        if (collideLL(walls[1], ballVLine) || collideLL(walls[3], ballVLine)) {
             direction.y = -direction.y;
         }
     }
@@ -225,7 +220,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
     }
     processInput(game, input);
-    moveBall(game.ball, game.ballDirection, dt);
+    moveBall(game.ball, game.walls, game.ballDirection, dt);
     for (const player of game.players) {
         collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
     }
@@ -244,11 +239,9 @@ function draw(state: GameState, render: RenderState) {
     }
     drawBall(ctx, scale, state.ball); 
     drawColliderC(ctx, scale, state.ball.collider); 
-    ctx.beginPath();
-    ctx.moveTo(0.1 * scale.x, 0.5 * scale.y);
-    ctx.lineTo(0.9 * scale.x, 0.5 * scale.y);
-    ctx.strokeStyle = "red";
-    ctx.stroke()
+    for (const wall of state.walls) {
+        drawColliderL(ctx, scale, wall);
+    }
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
@@ -305,7 +298,7 @@ function main() {
     const renderer = setupRenderState();
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
-    const dt = (1000 / 16);
+    const dt = (1000 / 30);
     loop(state, input, renderer, dt);
 }
 
