@@ -20,6 +20,7 @@ const LINE_WIDTH = 1;
 type GameState = {
     players: Player[],
     ball: Ball,
+    walls: LineCollider[]
     ballDirection: Vec2
 }
 
@@ -251,15 +252,23 @@ function draw(state: GameState, render: RenderState) {
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
+    const start = Date.now();
     updatePhysics(game, input, dt);
     draw(game, render);
-    requestAnimationFrame(() => loop(game, input, render, dt));
+    const stop = Date.now();
+    const duration = stop - start;
+    if (dt - duration < 0) {
+        loop(game, input, render, dt);
+    } else {
+        setTimeout(() => loop(game, input, render, dt), (dt - duration));
+    }
 }
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    canvas.width = size;
+    canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
@@ -273,6 +282,14 @@ function main() {
         const [size, radius] = [0.1, 0.1];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
+    function walls(): LineCollider[] {
+        return [
+            { a: vec2(0, 0), b: vec2(0, 1) },
+            { a: vec2(0, 1), b: vec2(1, 1) },
+            { a: vec2(1, 1), b: vec2(1, 0) },
+            { a: vec2(1, 0), b: vec2(0, 0) },
+        ]
+    }
     function defaultState(): GameState {
         return {
             players: [
@@ -280,6 +297,7 @@ function main() {
                 player("Right", vec2(1, 0.5)),
             ],
             ball: ball(vec2(0.5, 0.5)),
+            walls: walls(),
             ballDirection: vec2(1.0, 0.0)
         }
     }
