@@ -1,11 +1,20 @@
 * {
-    margin: 0px;
-    padding: 0px;
-    background-color: grey;
+  background-color: black;
+}
+
+body {
+  background-color: green;
+  margin: 1vh;
+  height: 98vh;
+  width: auto;
+}
+
+#container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: black;
 }
 
 canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
 }
