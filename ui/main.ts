@@ -5,7 +5,6 @@ import {
     LineCollider, collideLL
 } from './lib/math';
 
-const BLACK = "black";
 const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 const BALL = "#33dd33";
@@ -13,7 +12,7 @@ const BALL = "#33dd33";
 const BALL_RADIUS = 0.020;
 const PLAYER_RADIUS = 0.05;
 const BOOSTER_RADIUS = 0.020;
-const LINE_WIDTH = 0.02;
+const LINE_WIDTH = 1.00;
 
 // GAME
 
@@ -179,8 +178,8 @@ function drawColliderL(
     const bx = collider.b.x * scale.x;
     const by = collider.b.y * scale.y;
     ctx.beginPath();
-    ctx.strokeStyle = "lightgreen";
     ctx.lineWidth = LINE_WIDTH * 2;
+    ctx.strokeStyle = "lightgreen";
     ctx.moveTo(ax, ay);
     ctx.lineTo(bx, by);
     ctx.stroke();
@@ -274,10 +273,10 @@ function draw(state: GameState, render: RenderState) {
         drawColliderC(ctx, scale, player.collider);
     }
     drawBall(ctx, scale, state.ball); 
+    drawColliderC(ctx, scale, state.ball.collider); 
     for (const booster of state.boosters) {
         drawBooster(ctx, scale, booster);
     }
-    drawColliderC(ctx, scale, state.ball.collider); 
     for (const wall of state.walls) {
         drawColliderL(ctx, scale, wall);
     }
