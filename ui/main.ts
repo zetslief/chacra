@@ -226,6 +226,19 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             }
         }
     }
+    function collideBallAndBooster(ball: Ball, booster: Booster, player: Player): boolean {
+        if (collideCC(ball.collider, booster.collider)) {
+            if (booster.name == "biggerPlayer") {
+                player.size *= 1.5;
+                player.collider.radius *= 1.5;
+            } else {
+                ball.size *= 1.5;
+                ball.collider.radius *= 1.5;
+            }
+            return true;
+        }
+        return false;
+    }
     function processInput(game: GameState, input: InputState) {
         if (input.dx != 0 || input.dy != 0) {
             for (const player of game.players) {
@@ -240,6 +253,15 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     for (const player of game.players) {
         collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
     }
+    const randomPlayer = game.players[Math.floor(Math.random() * 2)]
+    let boosters = []
+    for (const booster of game.boosters) {
+        const collided = collideBallAndBooster(game.ball, booster, randomPlayer);
+        if (!collided) {
+            boosters.push(booster);
+        }
+    }
+    game.boosters = boosters;
 }
 
 function draw(state: GameState, render: RenderState) {
