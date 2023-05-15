@@ -28,7 +28,7 @@ type GameState = {
 
 type Color = string | CanvasGradient | CanvasPattern;
 
-type Booster =  { name: string, color: Color };
+type Booster =  { name: string, color: Color, collider: CircleCollider };
 type BoostSpawner = (dt: number, boosters: Booster[]) => void;
 
 type Player = {
@@ -159,6 +159,17 @@ function drawColliderC(
     strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 2);
 }
 
+function drawBooster(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    booster: Booster) {
+    const collider = booster.collider;
+    const x = collider.x * scale.x;
+    const y = collider.y * scale.y;
+    const size = collider.radius * scale.x;
+    fillCircle(ctx, x, y, size, booster.color);
+}
+
 function drawColliderL(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
@@ -241,6 +252,9 @@ function draw(state: GameState, render: RenderState) {
         drawColliderC(ctx, scale, player.collider);
     }
     drawBall(ctx, scale, state.ball); 
+    for (const booster in state.boosters) {
+        drawBooster(ctx, scale, booster);
+    }
     drawColliderC(ctx, scale, state.ball.collider); 
     for (const wall of state.walls) {
         drawColliderL(ctx, scale, wall);
@@ -249,6 +263,7 @@ function draw(state: GameState, render: RenderState) {
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
     const start = Date.now();
+    game.boostSpawner(dt, game.boosters);
     updatePhysics(game, input, dt);
     draw(game, render);
     const stop = Date.now();
