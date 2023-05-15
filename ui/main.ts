@@ -10,7 +10,8 @@ const BACKGROUND = "#3333dd";
 const PLAYER = "#ff3333";
 const BALL = "#33dd33";
 
-const DEFAULT_RADIUS = 0.01;
+const BALL_RADIUS = 0.020;
+const PLAYER_RADIUS = 0.05;
 const DEFAULT_CLICK_RADIUS = 0.003;
 const PLAYER_SIZE = 0.1;
 const LINE_WIDTH = 1;
@@ -181,7 +182,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         player.collider.y = player.position.y;
     }
     function moveBall(ball: Ball, walls: LineCollider[], direction: Vec2, dt: number) {
-        const step = 0.00005;
+        const step = 0.0003;
         ball.position = sum(ball.position, smul(smul(direction, dt), step));
         ball.collider.x = ball.position.x;
         ball.collider.y = ball.position.y;
@@ -269,11 +270,11 @@ function setupRenderState(): RenderState {
 
 function main() {
     function player(name: string, position: Point): Player {
-        const [size, radius] = [0.1, 0.1];
+        const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
         return { name, position, size, collider: { x: position.x, y: position.y, radius }};
     }
     function ball(position: Point): Ball {
-        const [size, radius] = [0.1, 0.1];
+        const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
     function walls(): LineCollider[] {
