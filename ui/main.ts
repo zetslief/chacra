@@ -28,7 +28,7 @@ type GameState = {
 
 type Color = string | CanvasGradient | CanvasPattern;
 
-type Booster =  { [key: string] : Color }
+type Booster =  { name: string, color: Color };
 type BoostSpawner = (dt: number, boosters: Booster[]) => void;
 
 type Player = {
@@ -271,7 +271,24 @@ function setupRenderState(): RenderState {
 }
 
 function boostSpawner(): BoostSpawner {
-    return (dt, boosters) => {};
+    function randomBooster(): Booster {
+        const knownBoosters = [
+            { name: "biggerPlayer", color: "purple" },
+            { name: "biggerBall", color: "lightgreen" }
+        ];
+        const index = Math.floor(Math.random() * knownBoosters.length);
+        return knownBoosters[index];
+    }
+
+    const boosterDelay = 1000;
+    let timeLeft = boosterDelay;
+    return (dt, boosters) => {
+        timeLeft -= dt;
+        if (timeLeft < 0) {
+            boosters.push(randomBooster());
+            timeLeft = boosterDelay;
+        }
+    };
 }
 
 function main() {
