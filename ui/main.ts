@@ -12,8 +12,7 @@ const BALL = "#33dd33";
 
 const BALL_RADIUS = 0.020;
 const PLAYER_RADIUS = 0.05;
-const DEFAULT_CLICK_RADIUS = 0.003;
-const PLAYER_SIZE = 0.1;
+const BOOSTER_RADIUS = 0.030;
 const LINE_WIDTH = 1;
 
 // GAME
@@ -21,11 +20,16 @@ const LINE_WIDTH = 1;
 type GameState = {
     players: Player[],
     ball: Ball,
-    walls: LineCollider[]
-    ballDirection: Vec2
+    walls: LineCollider[],
+    ballDirection: Vec2,
+    boosters: Booster[],
+    boostSpawner: BoostSpawner,
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
+
+type Booster =  { [key: string] : Color }
+type BoostSpawner = (dt: number, boosters: Booster[]) => void;
 
 type Player = {
     name: string
@@ -227,8 +231,6 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     }
 }
 
-// MAIN
-
 function draw(state: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
@@ -268,6 +270,10 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
+function boostSpawner(): BoostSpawner {
+    return (dt, boosters) => {};
+}
+
 function main() {
     function player(name: string, position: Point): Player {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
@@ -293,7 +299,9 @@ function main() {
             ],
             ball: ball(vec2(0.5, 0.5)),
             walls: walls(),
-            ballDirection: vec2(1.0, 0.0)
+            ballDirection: vec2(1.0, 0.0),
+            boosters: [],
+            boostSpawner: boostSpawner()
         }
     }
     const state = defaultState();
@@ -304,5 +312,5 @@ function main() {
     loop(state, input, renderer, dt);
 }
 
-main();
+window.onload = main;
 
