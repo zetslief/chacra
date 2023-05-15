@@ -12,8 +12,8 @@ const BALL = "#33dd33";
 
 const BALL_RADIUS = 0.020;
 const PLAYER_RADIUS = 0.05;
-const BOOSTER_RADIUS = 0.030;
-const LINE_WIDTH = 1;
+const BOOSTER_RADIUS = 0.020;
+const LINE_WIDTH = 0.02;
 
 // GAME
 
@@ -292,11 +292,11 @@ function boostSpawner(): BoostSpawner {
             { name: "biggerBall", color: "lightgreen" }
         ];
         const index = Math.floor(Math.random() * knownBoosters.length);
-        const offset = 0.1;
+        const offset = 0.2;
         return {
             collider: {
-                x: offset + Math.random() * offset,
-                y: offset + Math.random() * offset,
+                x: offset + Math.random() * (1 - offset),
+                y: offset + Math.random() * (1 - offset),
                 radius: BOOSTER_RADIUS
             },
             ...knownBoosters[index]
