@@ -252,7 +252,7 @@ function draw(state: GameState, render: RenderState) {
         drawColliderC(ctx, scale, player.collider);
     }
     drawBall(ctx, scale, state.ball); 
-    for (const booster in state.boosters) {
+    for (const booster of state.boosters) {
         drawBooster(ctx, scale, booster);
     }
     drawColliderC(ctx, scale, state.ball.collider); 
@@ -292,7 +292,15 @@ function boostSpawner(): BoostSpawner {
             { name: "biggerBall", color: "lightgreen" }
         ];
         const index = Math.floor(Math.random() * knownBoosters.length);
-        return knownBoosters[index];
+        const offset = 0.1;
+        return {
+            collider: {
+                x: offset + Math.random() * offset,
+                y: offset + Math.random() * offset,
+                radius: BOOSTER_RADIUS
+            },
+            ...knownBoosters[index]
+        };
     }
 
     const boosterDelay = 1000;
