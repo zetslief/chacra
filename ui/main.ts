@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum, sub,
+    smul, sum,
     CircleCollider, collideCC,
     LineCollider, collideLL
 } from './lib/math';
@@ -17,6 +17,7 @@ const LINE_WIDTH = 1.00;
 // GAME
 
 type GameState = {
+    numberOfPlayers: number,
     players: Player[],
     ball: Ball,
     walls: LineCollider[],
@@ -353,7 +354,9 @@ function main() {
         ]
     }
     function defaultState(): GameState {
+        const numberOfPlayers = 2;
         return {
+            numberOfPlayers,
             players: [
                 player("Left", vec2(0, 0.5)),
                 player("Right", vec2(1, 0.5)),
