@@ -36,6 +36,10 @@ export function sum(left: Vec2, right: Vec2): Vec2 {
     return { x: left.x + right.x, y: left.y + right.y };
 }
 
+export function ssum(vec: Vec2, scalar: number) {
+    return { x: vec.x + scalar, y: vec.y + scalar };
+}
+
 export function normalize(v: Vec2) {
     return direction(vec2(0, 0), v);
 }

@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum, normalize,
+    smul, sum, ssum, normalize,
     CircleCollider, collideCC,
     LineCollider, collideLL
 } from './lib/math';
@@ -179,7 +179,7 @@ function drawColliderL(
     const bx = collider.b.x * scale.x;
     const by = collider.b.y * scale.y;
     ctx.beginPath();
-    ctx.lineWidth = LINE_WIDTH * 2;
+    ctx.lineWidth = LINE_WIDTH * 10;
     ctx.strokeStyle = "lightgreen";
     ctx.moveTo(ax, ay);
     ctx.lineTo(bx, by);
@@ -344,10 +344,12 @@ function main() {
         for (let index = 0; index < numberOfWalls; index +=1)
         {
             const pivot = vec2(Math.cos(angle), Math.sin(angle));
-            const wallLength = Math.sin(angle / 2); 
+            const wallLength = Math.sin(angleStep / 2); 
             const [posNormal, negNormal] = calculateNormals(pivot, angle);
-            const a = sum(pivot, smul(posNormal, wallLength));
-            const b = sum(pivot, smul(negNormal, wallLength));
+            let a = sum(pivot, smul(posNormal, wallLength));
+            let b = sum(pivot, smul(negNormal, wallLength));
+            a = ssum(smul(a, 0.5), 0.5);
+            b = ssum(smul(b, 0.5), 0.5);
 
             walls.push({ a, b });
             angle += angleStep;
@@ -363,7 +365,7 @@ function main() {
                 player("Right", vec2(1, 0.5)),
             ],
             ball: ball(vec2(0.5, 0.5)),
-            walls: walls(numberOfPlayers),
+            walls: walls(4),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner()
