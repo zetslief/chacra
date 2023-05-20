@@ -267,6 +267,7 @@ function draw(state: GameState, render: RenderState) {
     for (const wall of state.walls) {
         drawColliderL(ctx, scale, wall);
     }
+    strokeCircle(ctx, 0.5 * scale.x, 0.5 * scale.y, scale.x / 2, "orange", 5);
 }
 
 function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
@@ -331,29 +332,33 @@ function main() {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
-    function walls(numberOfWalls: number): LineCollider[] {
-        function calculateNormals(vec: Vec2, angle: number): [Vec2, Vec2] {
-            return [
-                normalize(vec2(Math.cos(angle + Math.PI / 2), Math.sin(angle + Math.PI / 2))),
-                normalize(vec2(Math.cos(angle - Math.PI / 2), Math.sin(angle - Math.PI / 2)))
-            ];
-        }
-        let walls = [];
-        let angle = 0;
-        const angleStep = (Math.PI * 2) / numberOfWalls;
-        for (let index = 0; index < numberOfWalls; index +=1)
+    type Pivot = Point & { angle: number };
+    function pivots(numberOfPivots: number): Pivot[] {
+        let pivots = [];
+        let angle = Math.PI / 4;
+        const angleStep = (Math.PI * 2) / numberOfPivots;
+        for (let index = 0; index < numberOfPivots; index +=1)
         {
-            const pivot = vec2(Math.cos(angle), Math.sin(angle));
-            const wallLength = Math.sin(angleStep / 2); 
-            const [posNormal, negNormal] = calculateNormals(pivot, angle);
-            let a = sum(pivot, smul(posNormal, wallLength));
-            let b = sum(pivot, smul(negNormal, wallLength));
-            a = ssum(smul(a, 0.5), 0.5);
-            b = ssum(smul(b, 0.5), 0.5);
-
-            walls.push({ a, b });
+            let pivot = vec2(Math.cos(angle), Math.sin(angle));
+            pivot = ssum(smul(pivot, 0.5), 0.5);
+            pivots.push({ angle, ...pivot });
             angle += angleStep;
         }
+        return pivots;
+    }
+    function walls(pivots: Pivot[]): LineCollider[] {
+        let walls = [];
+        for (let index = 0; index < pivots.length - 1; index += 1)
+        {
+            const pivot = pivots[index];
+            const nextPivot = pivots[index + 1];
+
+            const a = pivot;
+            const b = nextPivot;
+
+            walls.push({ a, b });
+        }
+        walls.push({ a: pivots[pivots.length - 1], b: pivots[0] });
         return walls;
     }
     function defaultState(): GameState {
@@ -365,7 +370,7 @@ function main() {
                 player("Right", vec2(1, 0.5)),
             ],
             ball: ball(vec2(0.5, 0.5)),
-            walls: walls(4),
+            walls: walls(pivots(6)),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner()
