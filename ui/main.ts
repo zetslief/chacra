@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum,
+    smul, sum, normalize,
     CircleCollider, collideCC,
     LineCollider, collideLL
 } from './lib/math';
@@ -196,25 +196,11 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         player.collider.x = player.position.x;
         player.collider.y = player.position.y;
     }
-    function moveBall(ball: Ball, walls: LineCollider[], direction: Vec2, dt: number) {
+    function moveBall(ball: Ball, direction: Vec2, dt: number) {
         const step = 0.0003;
         ball.position = sum(ball.position, smul(smul(direction, dt), step));
         ball.collider.x = ball.position.x;
         ball.collider.y = ball.position.y;
-        const ballHLine = {
-            a: vec2(ball.collider.x - ball.collider.radius, ball.collider.y),
-            b: vec2(ball.collider.x + ball.collider.radius, ball.collider.y),
-        }
-        const ballVLine = {
-            a: vec2(ball.collider.x, ball.collider.y + ball.collider.radius),
-            b: vec2(ball.collider.x, ball.collider.y - ball.collider.radius),
-        }
-        if (collideLL(walls[0], ballHLine) || collideLL(walls[2], ballHLine)) {
-            direction.x = -direction.x;
-        }
-        if (collideLL(walls[1], ballVLine) || collideLL(walls[3], ballVLine)) {
-            direction.y = -direction.y;
-        }
     }
     function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2) {
         if (collideCC(ball.collider, player)) {
@@ -249,7 +235,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
     }
     processInput(game, input);
-    moveBall(game.ball, game.walls, game.ballDirection, dt);
+    moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
     }
@@ -345,13 +331,28 @@ function main() {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
-    function walls(): LineCollider[] {
-        return [
-            { a: vec2(0, 0), b: vec2(0, 1) },
-            { a: vec2(0, 1), b: vec2(1, 1) },
-            { a: vec2(1, 1), b: vec2(1, 0) },
-            { a: vec2(1, 0), b: vec2(0, 0) },
-        ]
+    function walls(numberOfWalls: number): LineCollider[] {
+        function calculateNormals(vec: Vec2, angle: number): [Vec2, Vec2] {
+            return [
+                normalize(vec2(Math.cos(angle + Math.PI / 2), Math.sin(angle + Math.PI / 2))),
+                normalize(vec2(Math.cos(angle - Math.PI / 2), Math.sin(angle - Math.PI / 2)))
+            ];
+        }
+        let walls = [];
+        let angle = 0;
+        const angleStep = (Math.PI * 2) / numberOfWalls;
+        for (let index = 0; index < numberOfWalls; index +=1)
+        {
+            const pivot = vec2(Math.cos(angle), Math.sin(angle));
+            const wallLength = Math.sin(angle / 2); 
+            const [posNormal, negNormal] = calculateNormals(pivot, angle);
+            const a = sum(pivot, smul(posNormal, wallLength));
+            const b = sum(pivot, smul(negNormal, wallLength));
+
+            walls.push({ a, b });
+            angle += angleStep;
+        }
+        return walls;
     }
     function defaultState(): GameState {
         const numberOfPlayers = 2;
@@ -362,7 +363,7 @@ function main() {
                 player("Right", vec2(1, 0.5)),
             ],
             ball: ball(vec2(0.5, 0.5)),
-            walls: walls(),
+            walls: walls(numberOfPlayers),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner()
