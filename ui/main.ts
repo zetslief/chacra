@@ -324,18 +324,14 @@ function boostSpawner(): BoostSpawner {
 }
 
 function main() {
-    function player(name: string, position: Point): Player {
-        const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
-        return { name, position, size, collider: { x: position.x, y: position.y, radius }};
-    }
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
     type Pivot = Point & { angle: number };
-    function pivots(numberOfPivots: number): Pivot[] {
+    function calculatePivots(numberOfPivots: number): Pivot[] {
         let pivots = [];
-        let angle = Math.PI / 4;
+        let angle = 0;
         const angleStep = (Math.PI * 2) / numberOfPivots;
         for (let index = 0; index < numberOfPivots; index +=1)
         {
@@ -345,6 +341,17 @@ function main() {
             angle += angleStep;
         }
         return pivots;
+    }
+    function players(pivots: Pivot[]): Player[] {
+        const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
+        let index = 0;
+        let players = []
+        for (const pivot of pivots) {
+            const name = "Player" + index;
+            const position = { x: pivot.x, y: pivot.y }; index += 1;
+            players.push({ name, position, size, collider: { radius, ...position }});
+        }
+        return players;
     }
     function walls(pivots: Pivot[]): LineCollider[] {
         let walls = [];
@@ -362,15 +369,13 @@ function main() {
         return walls;
     }
     function defaultState(): GameState {
-        const numberOfPlayers = 2;
+        const numberOfPlayers = 6;
+        const pivots = calculatePivots(numberOfPlayers);
         return {
             numberOfPlayers,
-            players: [
-                player("Left", vec2(0, 0.5)),
-                player("Right", vec2(1, 0.5)),
-            ],
+            players: players(pivots),
             ball: ball(vec2(0.5, 0.5)),
-            walls: walls(pivots(6)),
+            walls: walls(pivots),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner()
