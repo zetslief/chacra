@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum, ssum, normalize,
+    smul, sum, ssum,
     CircleCollider, collideCC,
     LineCollider, collideLL
 } from './lib/math';
@@ -239,7 +239,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     for (const player of game.players) {
         collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
     }
-    const randomPlayer = game.players[Math.floor(Math.random() * 2)]
+    const randomPlayer = game.players[Math.floor(Math.random() * game.players.length)]
     let boosters = []
     for (const booster of game.boosters) {
         const collided = collideBallAndBooster(game.ball, booster, randomPlayer);
