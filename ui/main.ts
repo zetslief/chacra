@@ -14,6 +14,9 @@ const PLAYER_RADIUS = 0.05;
 const BOOSTER_RADIUS = 0.020;
 const LINE_WIDTH = 1.00;
 
+const PLAYERS_COUNT = 6;
+const BOOSTER_SCALE = 1.1;
+
 // GAME
 
 type GameState = {
@@ -227,11 +230,11 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     function collideBallAndBooster(ball: Ball, booster: Booster, player: Player): boolean {
         if (collideCC(ball.collider, booster.collider)) {
             if (booster.name == "biggerPlayer") {
-                player.size *= 1.1;
-                player.collider.radius *= 1.1;
+                player.size *= BOOSTER_SCALE;
+                player.collider.radius *= BOOSTER_SCALE;
             } else {
-                ball.size *= 1.1;
-                ball.collider.radius *= 1.1;
+                ball.size *= BOOSTER_SCALE;
+                ball.collider.radius *= BOOSTER_SCALE;
             }
             return true;
         }
@@ -288,7 +291,7 @@ function loop(
     game: GameState,
     input: InputState,
     render: RenderState,
-    view: PerformanceView,
+    view: PerfView,
     dt: number) {
     const start = Date.now();
     game.boostSpawner(dt, game.boosters);
@@ -392,7 +395,7 @@ function main() {
         return walls;
     }
     function defaultState(): GameState {
-        const numberOfPlayers = 6;
+        const numberOfPlayers = PLAYERS_COUNT;
         const pivots = calculatePivots(numberOfPlayers);
         return {
             numberOfPlayers,
@@ -409,10 +412,10 @@ function main() {
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
     const dt = (1000 / 30);
-    loop(state, input, renderer, new PerformanceView(), dt);
+    loop(state, input, renderer, new PerfView(), dt);
 }
 
-class PerformanceView {
+class PerfView {
     private readonly _dt: HTMLElement;
     private readonly _physics: HTMLElement;
     private readonly _frame: HTMLElement;
