@@ -349,24 +349,24 @@ function boostSpawner(): BoostSpawner {
     };
 }
 
+type Pivot = Point & { angle: number };
+function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
+    let pivots = [];
+    let angle = startAngle;
+    for (let index = 0; index < pivotCount; index +=1)
+    {
+        let pivot = vec2(Math.cos(angle), Math.sin(angle));
+        pivot = ssum(smul(pivot, 0.5), 0.5);
+        pivots.push({ angle, ...pivot });
+        angle += angleStep;
+    }
+    return pivots;
+}
+
 function main() {
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
-    }
-    type Pivot = Point & { angle: number };
-    function calculatePivots(numberOfPivots: number): Pivot[] {
-        let pivots = [];
-        let angle = 0;
-        const angleStep = (Math.PI * 2) / numberOfPivots;
-        for (let index = 0; index < numberOfPivots; index +=1)
-        {
-            let pivot = vec2(Math.cos(angle), Math.sin(angle));
-            pivot = ssum(smul(pivot, 0.5), 0.5);
-            pivots.push({ angle, ...pivot });
-            angle += angleStep;
-        }
-        return pivots;
     }
     function players(pivots: Pivot[]): Player[] {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
@@ -396,7 +396,7 @@ function main() {
     }
     function defaultState(): GameState {
         const numberOfPlayers = PLAYERS_COUNT;
-        const pivots = calculatePivots(numberOfPlayers);
+        const pivots = calculatePivots(0, (Math.PI * 2) / numberOfPlayers, numberOfPlayers);
         return {
             numberOfPlayers,
             players: players(pivots),
