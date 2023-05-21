@@ -2,7 +2,7 @@ import {
     Vec2, Point, vec2,
     smul, sum, ssum,
     CircleCollider, collideCC,
-    LineCollider, collideLL
+    LineCollider
 } from './lib/math';
 
 const BACKGROUND = "#33ddff";
@@ -288,7 +288,7 @@ function loop(
     game: GameState,
     input: InputState,
     render: RenderState,
-    view: View,
+    view: PerformanceView,
     dt: number) {
     const start = Date.now();
     game.boostSpawner(dt, game.boosters);
@@ -409,10 +409,10 @@ function main() {
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
     const dt = (1000 / 30);
-    loop(state, input, renderer, new View(), dt);
+    loop(state, input, renderer, new PerformanceView(), dt);
 }
 
-class View {
+class PerformanceView {
     private readonly _dt: HTMLElement;
     private readonly _physics: HTMLElement;
     private readonly _frame: HTMLElement;
