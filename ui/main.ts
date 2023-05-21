@@ -396,10 +396,12 @@ function main() {
     }
     function defaultState(): GameState {
         const numberOfPlayers = PLAYERS_COUNT;
-        const pivots = calculatePivots(0, (Math.PI * 2) / numberOfPlayers, numberOfPlayers);
+        const sectionAngle = (Math.PI * 2) / numberOfPlayers
+        const pivots = calculatePivots(0, sectionAngle, numberOfPlayers);
+        const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
         return {
             numberOfPlayers,
-            players: players(pivots),
+            players: players(playerPivots),
             ball: ball(vec2(0.5, 0.5)),
             walls: walls(pivots),
             ballDirection: vec2(1.0, 0.0),
