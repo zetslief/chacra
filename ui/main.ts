@@ -5,8 +5,8 @@ import {
     LineCollider, collideLL
 } from './lib/math';
 
-const BACKGROUND = "#3333dd";
-const PLAYER = "#ff3333";
+const BACKGROUND = "#33ddff";
+const PLAYER = "#dddd33";
 const BALL = "#33dd33";
 
 const BALL_RADIUS = 0.020;
@@ -215,11 +215,11 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     function collideBallAndBooster(ball: Ball, booster: Booster, player: Player): boolean {
         if (collideCC(ball.collider, booster.collider)) {
             if (booster.name == "biggerPlayer") {
-                player.size *= 1.5;
-                player.collider.radius *= 1.5;
+                player.size *= 1.1;
+                player.collider.radius *= 1.1;
             } else {
-                ball.size *= 1.5;
-                ball.collider.radius *= 1.5;
+                ball.size *= 1.1;
+                ball.collider.radius *= 1.1;
             }
             return true;
         }

@@ -1,5 +1,5 @@
 * {
-  background-color: black;
+  background-color: grey;
 }
 
 body {
@@ -13,8 +13,30 @@ body {
   height: 100%;
   display: flex;
   justify-content: center;
-  background-color: black;
+  background-color: orange;
 }
 
 canvas {
+}
+
+#stats {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.column > * {
+  border-style: dotted;
+  border-color: green;
+  border-width: 1px;
+}
+
+#labels {
+  flex-grow: 2;
 }
