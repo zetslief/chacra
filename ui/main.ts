@@ -270,17 +270,28 @@ function draw(state: GameState, render: RenderState) {
     strokeCircle(ctx, 0.5 * scale.x, 0.5 * scale.y, scale.x / 2, "orange", 5);
 }
 
-function loop(game: GameState, input: InputState,  render: RenderState, dt: number) {
+let previousFrame = Date.now();
+
+function loop(
+    game: GameState,
+    input: InputState,
+    render: RenderState,
+    view: View,
+    dt: number) {
     const start = Date.now();
     game.boostSpawner(dt, game.boosters);
     updatePhysics(game, input, dt);
     draw(game, render);
     const stop = Date.now();
     const duration = stop - start;
+    view.dt = dt;
+    view.physics = duration;
+    view.frame = start - previousFrame;
+    previousFrame = start;
     if (dt - duration < 0) {
-        loop(game, input, render, dt);
+        loop(game, input, render, view, dt);
     } else {
-        setTimeout(() => loop(game, input, render, dt), (dt - duration));
+        setTimeout(() => loop(game, input, render, view, dt), (dt - duration));
     }
 }
 
@@ -386,8 +397,32 @@ function main() {
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
     const dt = (1000 / 30);
-    loop(state, input, renderer, dt);
+    loop(state, input, renderer, new View(), dt);
 }
+
+class View {
+    private readonly _dt: HTMLElement;
+    private readonly _physics: HTMLElement;
+    private readonly _frame: HTMLElement;
+
+    constructor() {
+        this._dt = document.getElementById("dt")!;
+        this._physics = document.getElementById("physics")!;
+        this._frame = document.getElementById("frame")!;
+    }
+
+    set dt(value: number) {
+        this._dt.innerHTML = value.toString();
+    }
+
+    set physics(value: number) {
+        this._physics.innerHTML = value.toString();
+    }
+
+    set frame(value: number) {
+        this._frame.innerHTML = value.toString();
+    }
+};
 
 window.onload = main;
 
