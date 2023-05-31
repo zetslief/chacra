@@ -14,7 +14,7 @@ const PLAYER_RADIUS = 0.05;
 const BOOSTER_RADIUS = 0.020;
 const LINE_WIDTH = 1.00;
 
-const PLAYERS_COUNT = 6;
+const PLAYERS_COUNT = 2;
 const BOOSTER_SCALE = 1.1;
 
 // GAME
@@ -70,10 +70,10 @@ function setupHandlers(input: InputState) {
         }
         const key = e.code.toUpperCase();
         if (key === "ARROWUP") {
-            input.dy = -1;
+            input.dy = 1;
         }
         if (key === "ARROWDOWN") {
-            input.dy = 1;
+            input.dy = -1;
         }
     };
 }
@@ -193,9 +193,12 @@ function drawColliderL(
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
     function movePlayer(player: Player, dx: number, dy: number) {
-        const step = 0.001;
-        const {x, y} = player.position;
-        player.position = vec2(x + dx * step * dt, y + dy * step * dt);
+        const step = (Math.PI / 2) * dt * 0.001 * dy;
+        const position = smul(ssum(player.position, -0.5), 2);
+        const angle = Math.atan2(position.y, position.x) + step;
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        player.position = ssum(smul(vec2(x, y), 0.5), 0.5);
         player.collider.x = player.position.x;
         player.collider.y = player.position.y;
     }
