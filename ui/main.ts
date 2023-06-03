@@ -269,7 +269,12 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             boosters.push(booster);
         }
     }
+    game.players = game.players.filter(player => !player.dead);
     game.boosters = boosters;
+    if (game.ballOwner.dead) {
+        const randomPlayerIndex = Math.floor(Math.random() * game.players.length);
+        game.ballOwner = game.players[randomPlayerIndex];
+    }
 }
 
 function draw(game: GameState, render: RenderState) {
@@ -330,7 +335,7 @@ function boostSpawner(): BoostSpawner {
         const knownBoosters = [
             { name: "biggerPlayer", color: "purple", weight: 65 },
             { name: "biggerBall", color: "lightgreen", weight: 30 },
-            { name: "deathBomb", color: "darkRed", weight: 10 },
+            { name: "deathBall", color: "darkRed", weight: 10 },
         ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
@@ -412,10 +417,11 @@ function main() {
         const pivots = calculatePivots(0, sectionAngle, numberOfPlayers);
         const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
         const players = createPlayers(playerPivots);
+        const randomPlayerIndex = Math.floor(Math.random() * players.length);
         return {
             numberOfPlayers,
             players,
-            ballOwner: players[0], 
+            ballOwner: players[randomPlayerIndex],
             ball: ball(vec2(0.5, 0.5)),
             walls: walls(pivots),
             ballDirection: vec2(1.0, 0.0),
