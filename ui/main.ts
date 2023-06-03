@@ -162,11 +162,12 @@ function drawBall(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
     ball: Ball,
+    color: Color,
 ) {
     const x = ball.position.x * scale.x;
     const y = ball.position.y * scale.y;
     const size = ball.size * scale.x;
-    fillCircle(ctx, x, y, size, BALL);
+    fillCircle(ctx, x, y, size, color);
     strokeCircle(ctx, x, y, size, "green", LINE_WIDTH);
 }
 
@@ -290,12 +291,11 @@ function draw(game: GameState, render: RenderState) {
         drawColliderC(ctx, scale, player.collider);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
-    drawBall(ctx, scale, game.ball); 
+    drawBall(ctx, scale, game.ball, game.ballOwner.color); 
     drawColliderC(ctx, scale, game.ball.collider); 
     for (const booster of game.boosters) {
         drawBooster(ctx, scale, booster);
     }
-    strokeCircle(ctx, 0.5 * scale.x, 0.5 * scale.y, scale.x / 2, "orange", 5);
 }
 
 let previousFrame = Date.now();
@@ -421,7 +421,7 @@ function main() {
     function defaultState(): GameState {
         const numberOfPlayers = PLAYERS_COUNT;
         const sectionAngle = (Math.PI * 2) / numberOfPlayers
-        const pivots = calculatePivots(0, sectionAngle, numberOfPlayers);
+        const wallPivots = calculatePivots(0, sectionAngle, numberOfPlayers);
         const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
         const players = createPlayers(playerPivots);
         const randomPlayerIndex = Math.floor(Math.random() * players.length);
@@ -430,7 +430,7 @@ function main() {
             players,
             ballOwner: players[randomPlayerIndex],
             ball: ball(vec2(0.5, 0.5)),
-            walls: walls(pivots),
+            walls: walls(wallPivots),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner()
