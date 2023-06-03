@@ -5,7 +5,7 @@ import {
     LineCollider
 } from './lib/math';
 
-const BACKGROUND = "#33ddff";
+const BACKGROUND = "#111122";
 const PLAYER = "#dddd33";
 const BALL = "#33dd33";
 
@@ -157,7 +157,7 @@ function drawBallOwner(
     const x = player.position.x * scale.x;
     const y = player.position.y * scale.y;
     const size = player.size * scale.x * 1.1;
-    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 6);
+    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 3);
 }
 
 
@@ -431,12 +431,12 @@ function main() {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
         let players = []
         for (const pivot of pivots) {
-            const index: number = players.length + 1;
+            const index: number = players.length;
             const name = "Player" + index;
-            const redLevel = Math.floor(index * (255 / pivots.length));
-            const colorValue = (redLevel << 16) + (redLevel * 2 << 8) + 200; 
-            const color = "#" + colorValue.toString(16);
-            console.log(color);
+            const red = Math.floor((index / pivots.length) * 255) / 2;
+            const green = Math.floor(Math.max(Math.random() * red, 50));
+            const blue = Math.floor(Math.max(Math.random() * 200, 80));
+            const color = "rgb(" + red + ", " + green * 2 + ", " + blue + ")";
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
             players.push({ name, position, size, color, collider: { radius, ...position }, dead});
