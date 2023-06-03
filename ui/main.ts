@@ -22,6 +22,7 @@ const BOOSTER_SCALE = 1.1;
 type GameState = {
     numberOfPlayers: number,
     players: Player[],
+    ballOwner: Player,
     ball: Ball,
     walls: LineCollider[],
     ballDirection: Vec2,
@@ -138,8 +139,19 @@ function drawPlayer(
     const y = player.position.y * scale.y;
     const size = player.size * scale.x;
     fillCircle(ctx, x, y, size, PLAYER);
-    strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
 }
+
+function drawBallOwner(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    player: Player,
+) {
+    const x = player.position.x * scale.x;
+    const y = player.position.y * scale.y;
+    const size = player.size * scale.x * 1.1;
+    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 2);
+}
+
 
 function drawBall(
     ctx: CanvasRenderingContext2D,
@@ -150,7 +162,7 @@ function drawBall(
     const y = ball.position.y * scale.y;
     const size = ball.size * scale.x;
     fillCircle(ctx, x, y, size, BALL);
-    strokeCircle(ctx, x, y, size, "darkred", LINE_WIDTH);
+    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH);
 }
 
 function drawColliderC(
@@ -172,22 +184,6 @@ function drawBooster(
     const y = collider.y * scale.y;
     const size = collider.radius * scale.x;
     fillCircle(ctx, x, y, size, booster.color);
-}
-
-function drawColliderL(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    collider: LineCollider) {
-    const ax = collider.a.x * scale.x;
-    const ay = collider.a.y * scale.y;
-    const bx = collider.b.x * scale.x;
-    const by = collider.b.y * scale.y;
-    ctx.beginPath();
-    ctx.lineWidth = LINE_WIDTH * 10;
-    ctx.strokeStyle = "lightgreen";
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(bx, by);
-    ctx.stroke();
 }
 
 // PROCESSING
@@ -221,7 +217,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         ball.collider.x = ball.position.x;
         ball.collider.y = ball.position.y;
     }
-    function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2) {
+    function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
         if (collideCC(ball.collider, player)) {
             direction.x = -direction.x;
             if (ball.collider.y <= player.y) {
@@ -229,7 +225,9 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             } else {
                 direction.y = (ball.collider.y - player.y) / (ball.collider.radius + player.radius)
             }
+            return true;
         }
+        return false;
     }
     function collideBallAndBooster(ball: Ball, booster: Booster, player: Player): boolean {
         if (collideCC(ball.collider, booster.collider)) {
@@ -258,12 +256,15 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     processInput(game, input);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
-        collideBallAndPlayer(game.ball, player.collider, game.ballDirection);
+        if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection))
+        {
+            game.ballOwner = player;
+            break;
+        }
     }
-    const randomPlayer = game.players[Math.floor(Math.random() * game.players.length)]
     let boosters = []
     for (const booster of game.boosters) {
-        const collided = collideBallAndBooster(game.ball, booster, randomPlayer);
+        const collided = collideBallAndBooster(game.ball, booster, game.ballOwner);
         if (!collided) {
             boosters.push(booster);
         }
@@ -271,18 +272,19 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     game.boosters = boosters;
 }
 
-function draw(state: GameState, render: RenderState) {
+function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
-    for (let player of state.players)
+    for (let player of game.players)
     {
         drawPlayer(ctx, scale, player);
         drawColliderC(ctx, scale, player.collider);
     }
-    drawBall(ctx, scale, state.ball); 
-    drawColliderC(ctx, scale, state.ball.collider); 
-    for (const booster of state.boosters) {
+    drawBallOwner(ctx, scale, game.ballOwner);
+    drawBall(ctx, scale, game.ball); 
+    drawColliderC(ctx, scale, game.ball.collider); 
+    for (const booster of game.boosters) {
         drawBooster(ctx, scale, booster);
     }
     strokeCircle(ctx, 0.5 * scale.x, 0.5 * scale.y, scale.x / 2, "orange", 5);
@@ -409,9 +411,11 @@ function main() {
         const sectionAngle = (Math.PI * 2) / numberOfPlayers
         const pivots = calculatePivots(0, sectionAngle, numberOfPlayers);
         const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
+        const players = createPlayers(playerPivots);
         return {
             numberOfPlayers,
-            players: createPlayers(playerPivots),
+            players,
+            ballOwner: players[0], 
             ball: ball(vec2(0.5, 0.5)),
             walls: walls(pivots),
             ballDirection: vec2(1.0, 0.0),
@@ -423,7 +427,7 @@ function main() {
     const renderer = setupRenderState();
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
-    const dt = (1000 / 30);
+    const dt = (1000 / 60);
     loop(state, input, renderer, new PerfView(), dt);
 }
 
