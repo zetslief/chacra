@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum, sub, ssum, normalize,
+    smul, sum, sub, ssum, normalize, len,
     CircleCollider, collideCC,
     LineCollider
 } from './lib/math';
@@ -33,12 +33,14 @@ type GameState = {
     ballDirection: Vec2,
     boosters: Booster[],
     boostSpawner: BoostSpawner,
+    boostShuffler: BoostShuffler,
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
 
 type Booster =  { name: string, color: Color, collider: CircleCollider };
 type BoostSpawner = (dt: number, boosters: Booster[]) => void;
+type BoostShuffler = (dt: number, boosters: Booster[]) => void;
 
 type Player = {
     name: string
@@ -370,6 +372,35 @@ function boostSpawner(): BoostSpawner {
     };
 }
 
+function boostShuffler(): BoostShuffler {
+    let initialized = false;
+    const destinationMap = new Map<Booster, Point>();
+    return (dt, boosters) => {
+        if (!initialized) {
+            for (const booster of boosters) {
+                destinationMap.set(booster, smul(booster.collider, -1));
+            }
+        }
+        for (const booster of boosters) {
+            if (!destinationMap.has(booster)) {
+                destinationMap.delete(booster);
+            }
+        }
+        for (const [booster, destination] of destinationMap.entries()) {
+            const step = 0.003;
+            const direction = normalize(sub(destination, booster.collider));
+            booster.collider = {
+                radius: booster.collider.radius,
+                ...sum(booster.collider, smul(direction, step * dt))
+            };
+            // TODO: remove this mutation from the loop!
+            if (len(sub(booster.collider, destination)) < 0.001) {
+                destinationMap.delete(booster);
+            }
+        }
+    }
+}
+
 type Pivot = Point & { angle: number };
 function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
     let pivots = [];
@@ -433,7 +464,8 @@ function main() {
             walls: walls(wallPivots),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
-            boostSpawner: boostSpawner()
+            boostSpawner: boostSpawner(),
+            boostShuffler: boostShuffler(),
         }
     }
     const state = defaultState();
