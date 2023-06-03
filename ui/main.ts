@@ -17,6 +17,10 @@ const LINE_WIDTH = 1.00;
 const PLAYERS_COUNT = 12;
 const BOOSTER_SCALE = 1.1;
 
+const BIGGER_PLAYER_WEIGHT = 60;
+const BIGGER_BALL_WEIGHT = 30
+const DEATH_BALL_WEIGHT = 10;
+
 // GAME
 
 type GameState = {
@@ -333,9 +337,9 @@ function setupRenderState(): RenderState {
 function boostSpawner(): BoostSpawner {
     function randomBooster(): Booster {
         const knownBoosters = [
-            { name: "biggerPlayer", color: "purple", weight: 65 },
-            { name: "biggerBall", color: "lightgreen", weight: 30 },
-            { name: "deathBall", color: "darkRed", weight: 10 },
+            { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
+            { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
+            { name: "deathBall", color: "darkRed", weight: DEATH_BALL_WEIGHT },
         ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
