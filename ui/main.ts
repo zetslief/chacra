@@ -19,6 +19,7 @@ const BOOSTER_SCALE = 1.1;
 
 const BIGGER_PLAYER_WEIGHT = 60;
 const BIGGER_BALL_WEIGHT = 30
+const SHUFFLE_BOOSTERS_WEIGHT = 30
 const DEATH_BALL_WEIGHT = 10;
 
 // GAME
@@ -154,7 +155,7 @@ function drawBallOwner(
     const x = player.position.x * scale.x;
     const y = player.position.y * scale.y;
     const size = player.size * scale.x * 1.1;
-    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 6);
+    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 6);
 }
 
 
@@ -168,7 +169,7 @@ function drawBall(
     const y = ball.position.y * scale.y;
     const size = ball.size * scale.x;
     fillCircle(ctx, x, y, size, color);
-    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH);
+    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
 }
 
 function drawColliderC(
@@ -288,11 +289,9 @@ function draw(game: GameState, render: RenderState) {
     for (let player of game.players)
     {
         drawPlayer(ctx, scale, player);
-        drawColliderC(ctx, scale, player.collider);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
     drawBall(ctx, scale, game.ball, game.ballOwner.color); 
-    drawColliderC(ctx, scale, game.ball.collider); 
     for (const booster of game.boosters) {
         drawBooster(ctx, scale, booster);
     }
@@ -338,6 +337,7 @@ function boostSpawner(): BoostSpawner {
         const knownBoosters = [
             { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
             { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
+            { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
             { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
         ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
