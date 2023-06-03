@@ -14,7 +14,7 @@ const PLAYER_RADIUS = 0.05;
 const BOOSTER_RADIUS = 0.020;
 const LINE_WIDTH = 1.00;
 
-const PLAYERS_COUNT = 2;
+const PLAYERS_COUNT = 12;
 const BOOSTER_SCALE = 1.1;
 
 // GAME
