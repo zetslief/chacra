@@ -251,16 +251,26 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
         return false;
     }
-    function processInput(game: GameState, input: InputState) {
+    function processInput(players: Player[], input: InputState) {
+        if (players.length == 0) {
+            return;
+        }
         if (input.dx != 0 || input.dy != 0) {
-            for (const player of game.players) {
-                movePlayer(player, input.dx, input.dy)
-            }
+            movePlayer(players[0], input.dx, input.dy)
             input.dx = 0;
             input.dy = 0;
         }
+        let index = 1;
+        while (index < players.length) {
+            if (Math.random() > 0.95) {
+                const dx = Math.round((Math.random() - 0.5) * 2);
+                const dy = Math.round((Math.random() - 0.5) * 2);
+                movePlayer(players[index], dx, dy);
+            }
+            index += 1;
+        }
     }
-    processInput(game, input);
+    processInput(game.players, input);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection))
