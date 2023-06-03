@@ -199,7 +199,7 @@ function drawBooster(
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
     function movePlayer(player: Player, dx: number, dy: number) {
-        const step = (Math.PI / 2) * dt * 0.001 * dy;
+        const step = (Math.PI / 2) * dt * dy;
         const position = smul(ssum(player.position, -0.5), 2);
         const angle = Math.atan2(position.y, position.x) + step;
         const x = Math.cos(angle);
@@ -209,7 +209,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         player.collider.y = player.position.y;
     }
     function moveBall(ball: Ball, direction: Vec2, dt: number) {
-        const step = 0.0003;
+        const step = 0.20;
         ball.position = sum(ball.position, smul(smul(direction, dt), step));
         if (ball.position.x > 1) {
             ball.position.x -= 1;
@@ -235,7 +235,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
         return false;
     }
-    function collideBallAndBooster(ball: Ball, booster: Booster, player: Player): boolean {
+    function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
         if (collideCC(ball.collider, booster.collider)) {
             if (booster.name == "biggerPlayer") {
                 player.size *= BOOSTER_SCALE;
@@ -243,6 +243,8 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             } else if (booster.name == "biggerBall") {
                 ball.size *= BOOSTER_SCALE;
                 ball.collider.radius *= BOOSTER_SCALE;
+            } else if (booster.name == "shuffleBoosters") {
+                game.boostShuffler = boostShuffler();
             } else if (booster.name == "deathBall") {
                 player.dead = true;
             }
@@ -269,9 +271,10 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             break;
         }
     }
+    game.boostShuffler(dt, game.boosters);
     let boosters = []
     for (const booster of game.boosters) {
-        const collided = collideBallAndBooster(game.ball, booster, game.ballOwner);
+        const collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
         if (!collided) {
             boosters.push(booster);
         }
@@ -312,15 +315,15 @@ function loop(
     updatePhysics(game, input, dt);
     draw(game, render);
     const stop = Date.now();
-    const duration = stop - start;
+    const duration = (stop - start) / 1000;
     view.dt = dt;
-    view.physics = duration;
+    view.physics = duration * 1000;
     view.frame = start - previousFrame;
     previousFrame = start;
     if (dt - duration < 0) {
         loop(game, input, render, view, dt);
     } else {
-        setTimeout(() => loop(game, input, render, view, dt), (dt - duration));
+        setTimeout(() => loop(game, input, render, view, dt), (dt - duration) * 1000);
     }
 }
 
@@ -361,7 +364,7 @@ function boostSpawner(): BoostSpawner {
         return { collider, ...knownBoosters[knownBoosters.length - 1] };
     }
 
-    const boosterDelay = 1000;
+    const boosterDelay = 1;
     let timeLeft = boosterDelay;
     return (dt, boosters) => {
         timeLeft -= dt;
@@ -378,8 +381,12 @@ function boostShuffler(): BoostShuffler {
     return (dt, boosters) => {
         if (!initialized) {
             for (const booster of boosters) {
-                destinationMap.set(booster, smul(booster.collider, -1));
+                let destination = smul(ssum(booster.collider, -0.5), 2) 
+                destination = smul(destination, -1);
+                destination = ssum(smul(destination, 0.5), 0.5);
+                destinationMap.set(booster, destination);
             }
+            initialized = true;
         }
         for (const booster of boosters) {
             if (!destinationMap.has(booster)) {
@@ -387,14 +394,14 @@ function boostShuffler(): BoostShuffler {
             }
         }
         for (const [booster, destination] of destinationMap.entries()) {
-            const step = 0.003;
+            const step = 0.10 * dt;
             const direction = normalize(sub(destination, booster.collider));
             booster.collider = {
                 radius: booster.collider.radius,
-                ...sum(booster.collider, smul(direction, step * dt))
+                ...sum(booster.collider, smul(direction, step))
             };
             // TODO: remove this mutation from the loop!
-            if (len(sub(booster.collider, destination)) < 0.001) {
+            if (len(sub(booster.collider, destination)) < 0.0050) {
                 destinationMap.delete(booster);
             }
         }
@@ -472,7 +479,7 @@ function main() {
     const renderer = setupRenderState();
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
-    const dt = (1000 / 30);
+    const dt = (1000 / 30) / 1000;
     loop(state, input, renderer, new PerfView(), dt);
 }
 
