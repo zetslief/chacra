@@ -38,7 +38,8 @@ type Player = {
     name: string
     position: Point,
     size: number,
-    collider: CircleCollider
+    collider: CircleCollider,
+    dead: boolean
 };
 
 type Ball = {
@@ -235,9 +236,11 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             if (booster.name == "biggerPlayer") {
                 player.size *= BOOSTER_SCALE;
                 player.collider.radius *= BOOSTER_SCALE;
-            } else {
+            } else if (booster.name == "biggerBall") {
                 ball.size *= BOOSTER_SCALE;
                 ball.collider.radius *= BOOSTER_SCALE;
+            } else if (booster.name == "deathBall") {
+                player.dead = true;
             }
             return true;
         }
@@ -282,9 +285,6 @@ function draw(state: GameState, render: RenderState) {
     for (const booster of state.boosters) {
         drawBooster(ctx, scale, booster);
     }
-    for (const wall of state.walls) {
-        drawColliderL(ctx, scale, wall);
-    }
     strokeCircle(ctx, 0.5 * scale.x, 0.5 * scale.y, scale.x / 2, "orange", 5);
 }
 
@@ -326,19 +326,27 @@ function setupRenderState(): RenderState {
 function boostSpawner(): BoostSpawner {
     function randomBooster(): Booster {
         const knownBoosters = [
-            { name: "biggerPlayer", color: "purple" },
-            { name: "biggerBall", color: "lightgreen" }
+            { name: "biggerPlayer", color: "purple", weight: 65 },
+            { name: "biggerBall", color: "lightgreen", weight: 30 },
+            { name: "deathBomb", color: "darkRed", weight: 10 },
         ];
-        const index = Math.floor(Math.random() * knownBoosters.length);
+        const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
+        const selectedWeight = Math.floor(Math.random() * totalWeight);
         const offset = 0.2;
-        return {
-            collider: {
-                x: offset + Math.random() * (1 - offset),
-                y: offset + Math.random() * (1 - offset),
-                radius: BOOSTER_RADIUS
-            },
-            ...knownBoosters[index]
+        const collider = {
+            x: offset + Math.random() * (1 - offset),
+            y: offset + Math.random() * (1 - offset),
+            radius: BOOSTER_RADIUS
         };
+        let weightCounter = 0;
+        for (let index = 0; index < knownBoosters.length; ++index) {
+            const booster = knownBoosters[index];
+            weightCounter += booster.weight;
+            if (weightCounter > selectedWeight) {
+                return { collider, ...booster };
+            }
+        }
+        return { collider, ...knownBoosters[knownBoosters.length - 1] };
     }
 
     const boosterDelay = 1000;
@@ -371,14 +379,15 @@ function main() {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius }};
     }
-    function players(pivots: Pivot[]): Player[] {
+    function createPlayers(pivots: Pivot[]): Player[] {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
         let index = 0;
         let players = []
         for (const pivot of pivots) {
             const name = "Player" + index;
             const position = { x: pivot.x, y: pivot.y }; index += 1;
-            players.push({ name, position, size, collider: { radius, ...position }});
+            const dead = false;
+            players.push({ name, position, size, collider: { radius, ...position }, dead});
         }
         return players;
     }
@@ -388,10 +397,8 @@ function main() {
         {
             const pivot = pivots[index];
             const nextPivot = pivots[index + 1];
-
             const a = pivot;
             const b = nextPivot;
-
             walls.push({ a, b });
         }
         walls.push({ a: pivots[pivots.length - 1], b: pivots[0] });
@@ -404,7 +411,7 @@ function main() {
         const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
         return {
             numberOfPlayers,
-            players: players(playerPivots),
+            players: createPlayers(playerPivots),
             ball: ball(vec2(0.5, 0.5)),
             walls: walls(pivots),
             ballDirection: vec2(1.0, 0.0),
@@ -445,4 +452,3 @@ class PerfView {
 };
 
 window.onload = main;
-
