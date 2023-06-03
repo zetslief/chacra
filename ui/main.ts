@@ -1,6 +1,6 @@
 import {
     Vec2, Point, vec2,
-    smul, sum, ssum,
+    smul, sum, sub, ssum, normalize,
     CircleCollider, collideCC,
     LineCollider
 } from './lib/math';
@@ -153,7 +153,7 @@ function drawBallOwner(
     const x = player.position.x * scale.x;
     const y = player.position.y * scale.y;
     const size = player.size * scale.x * 1.1;
-    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 2);
+    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 6);
 }
 
 
@@ -223,12 +223,9 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     }
     function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
         if (collideCC(ball.collider, player)) {
-            direction.x = -direction.x;
-            if (ball.collider.y <= player.y) {
-                direction.y = (ball.collider.y - player.y) / (ball.collider.radius + player.radius)
-            } else {
-                direction.y = (ball.collider.y - player.y) / (ball.collider.radius + player.radius)
-            }
+            const newDirection = normalize(sub(ball.collider, player));
+            direction.x = newDirection.x;
+            direction.y = newDirection.y;
             return true;
         }
         return false;
@@ -263,6 +260,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection))
         {
             game.ballOwner = player;
+            game.ballDirection = normalize(game.ballDirection);
             break;
         }
     }
@@ -339,7 +337,7 @@ function boostSpawner(): BoostSpawner {
         const knownBoosters = [
             { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
             { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
-            { name: "deathBall", color: "darkRed", weight: DEATH_BALL_WEIGHT },
+            { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
         ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
