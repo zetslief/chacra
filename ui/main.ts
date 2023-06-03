@@ -6,7 +6,6 @@ import {
 } from './lib/math';
 
 const BACKGROUND = "#111122";
-const PLAYER = "#dddd33";
 const BALL = "#33dd33";
 
 const BALL_RADIUS = 0.020;
@@ -17,9 +16,9 @@ const LINE_WIDTH = 1.00;
 const PLAYERS_COUNT = 12;
 const BOOSTER_SCALE = 1.1;
 
-const BIGGER_PLAYER_WEIGHT = 60;
+const BIGGER_PLAYER_WEIGHT = 40;
 const BIGGER_BALL_WEIGHT = 30
-const SHUFFLE_BOOSTERS_WEIGHT = 30
+const SHUFFLE_BOOSTERS_WEIGHT = 20
 const DEATH_BALL_WEIGHT = 10;
 
 // GAME
@@ -244,7 +243,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
                 ball.size *= BOOSTER_SCALE;
                 ball.collider.radius *= BOOSTER_SCALE;
             } else if (booster.name == "shuffleBoosters") {
-                game.boostShuffler = boostShuffler();
+                game.boostShuffler = createBoostShuffler();
             } else if (booster.name == "deathBall") {
                 player.dead = true;
             }
@@ -282,8 +281,10 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
     game.players = game.players.filter(player => !player.dead);
     game.boosters = boosters;
     if (game.ballOwner.dead) {
-        const randomPlayerIndex = Math.floor(Math.random() * game.players.length);
-        game.ballOwner = game.players[randomPlayerIndex];
+        if (game.players.length > 0) {
+            const randomPlayerIndex = Math.floor(Math.random() * game.players.length);
+            game.ballOwner = game.players[randomPlayerIndex];
+        }
     }
 }
 
@@ -375,7 +376,7 @@ function boostSpawner(): BoostSpawner {
     };
 }
 
-function boostShuffler(): BoostShuffler {
+function createBoostShuffler(): BoostShuffler {
     let initialized = false;
     const destinationMap = new Map<Booster, Point>();
     return (dt, boosters) => {
@@ -433,7 +434,7 @@ function main() {
         for (const pivot of pivots) {
             const index: number = players.length;
             const name = "Player" + index;
-            const red = Math.floor((index / pivots.length) * 255) / 2;
+            const red = Math.floor((index / pivots.length) * 255);
             const green = Math.floor(Math.max(Math.random() * red, 50));
             const blue = Math.floor(Math.max(Math.random() * 200, 80));
             const color = "rgb(" + red + ", " + green * 2 + ", " + blue + ")";
@@ -472,7 +473,7 @@ function main() {
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             boostSpawner: boostSpawner(),
-            boostShuffler: boostShuffler(),
+            boostShuffler: createBoostShuffler(),
         }
     }
     const state = defaultState();
