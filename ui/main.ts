@@ -44,6 +44,7 @@ type Player = {
     position: Point,
     size: number,
     collider: CircleCollider,
+    color: Color,
     dead: boolean
 };
 
@@ -142,7 +143,7 @@ function drawPlayer(
     const x = player.position.x * scale.x;
     const y = player.position.y * scale.y;
     const size = player.size * scale.x;
-    fillCircle(ctx, x, y, size, PLAYER);
+    fillCircle(ctx, x, y, size, player.color);
 }
 
 function drawBallOwner(
@@ -390,13 +391,17 @@ function main() {
     }
     function createPlayers(pivots: Pivot[]): Player[] {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
-        let index = 0;
         let players = []
         for (const pivot of pivots) {
+            const index: number = players.length + 1;
             const name = "Player" + index;
-            const position = { x: pivot.x, y: pivot.y }; index += 1;
+            const redLevel = Math.floor(index * (255 / pivots.length));
+            const colorValue = (redLevel << 16) + (redLevel * 2 << 8) + 200; 
+            const color = "#" + colorValue.toString(16);
+            console.log(color);
+            const position = { x: pivot.x, y: pivot.y };
             const dead = false;
-            players.push({ name, position, size, collider: { radius, ...position }, dead});
+            players.push({ name, position, size, color, collider: { radius, ...position }, dead});
         }
         return players;
     }
@@ -435,7 +440,7 @@ function main() {
     const renderer = setupRenderState();
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
-    const dt = (1000 / 60);
+    const dt = (1000 / 30);
     loop(state, input, renderer, new PerfView(), dt);
 }
 
