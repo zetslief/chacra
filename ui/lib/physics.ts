@@ -174,7 +174,7 @@ export function createBoostShuffler(): BoostShuffler {
 
 function createObstacle(): Obstacle {
     let position = vec2(Math.random(), Math.random());
-    position = smul(position, 0.7);
+    position = ssum(smul(position, 0.64), 0.5 - 0.64 / 2);
     return {
         lifeCounter: 3,
         radius: OBSTACLE_RADIUS,
