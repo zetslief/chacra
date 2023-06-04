@@ -189,6 +189,18 @@ function draw(game: GameState, render: RenderState) {
     }
 }
 
+function drawFinalScreen(game: GameState, render: RenderState) {
+    const ctx = render.ctx;
+    const scale = vec2(render.canvas.width, render.canvas.height);
+    const text = game.players[0].name + " won!";
+    ctx.fillStyle = "rgba(100, 100, 255, 0.50)";
+    ctx.fillRect(0, 0, scale.x, scale.y);
+    ctx.fillStyle = "gold"; 
+    ctx.font = Math.round(scale.y / 10) + "px serif";
+    const textWidth = ctx.measureText(text).width;
+    ctx.fillText(text, scale.x / 2 - textWidth / 2, scale.y / 2);
+}
+
 let previousFrame = Date.now();
 
 function loop(
@@ -198,9 +210,14 @@ function loop(
     view: PerfView,
     dt: number) {
     const start = Date.now();
-    game.boostSpawner(dt, game.boosters);
-    updatePhysics(game, input, dt);
-    draw(game, render);
+    if (game.players.length == 1) {
+        draw(game, render);
+        drawFinalScreen(game, render);
+    } else {
+        game.boostSpawner(dt, game.boosters);
+        updatePhysics(game, input, dt);
+        draw(game, render);
+    }
     const stop = Date.now();
     const duration = (stop - start) / 1000;
     view.dt = dt * 1000;
