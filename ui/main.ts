@@ -7,6 +7,7 @@ import {
 
 const BACKGROUND = "#111122";
 const BALL = "#33dd33";
+const OBSTACLE_COLOR = "cyan";
 
 const BALL_RADIUS = 0.020;
 const PLAYER_RADIUS = 0.05;
@@ -187,6 +188,19 @@ function drawBooster(
     fillCircle(ctx, x, y, size, booster.color);
 }
 
+function drawObstacle(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    obstacle: Obstacle) {
+    const collider = obstacle;
+    const x = collider.x * scale.x;
+    const y = collider.y * scale.y;
+    const size = collider.radius * scale.x;
+    strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
+    strokeCircle(ctx, x, y, size / 3, OBSTACLE_COLOR, LINE_WIDTH);
+    fillCircle(ctx, x, y, size / 6, OBSTACLE_COLOR);
+}
+
 // PROCESSING
 
 function updatePhysics(game: GameState, input: InputState, dt: number) {
@@ -315,6 +329,9 @@ function draw(game: GameState, render: RenderState) {
         drawPlayer(ctx, scale, player);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
+    if (game.obstacle) {
+        drawObstacle(ctx, scale, game.obstacle);
+    }
     drawBall(ctx, scale, game.ball, game.ballOwner.color); 
     for (const booster of game.boosters) {
         drawBooster(ctx, scale, booster);
