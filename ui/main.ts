@@ -20,9 +20,9 @@ const BOOSTER_SCALE = 1.1;
 
 const BIGGER_PLAYER_WEIGHT = 40;
 const BIGGER_BALL_WEIGHT = 30
-const SHUFFLE_BOOSTERS_WEIGHT = 20
+const SHUFFLE_BOOSTERS_WEIGHT = 10
 const DEATH_BALL_WEIGHT = 10;
-const OBSTACLE_WEIGHT = 10;
+const OBSTACLE_WEIGHT = 20;
 
 // GAME
 
@@ -36,7 +36,7 @@ type GameState = {
     boosters: Booster[],
     boostSpawner: BoostSpawner,
     boostShuffler: BoostShuffler,
-    obstacle: Obstacle | null
+    obstacles: Obstacle[]
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
@@ -252,7 +252,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             } else if (booster.name == "shuffleBoosters") {
                 game.boostShuffler = createBoostShuffler();
             } else if (booster.name == "obstacle") {
-                game.obstacle = createObstacle();
+                game.obstacles.push(createObstacle());
             } else if (booster.name == "deathBall") {
                 player.dead = true;
             }
@@ -261,18 +261,14 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         return false;
     }
     function collideBallAndObstacle(game: GameState, ball: Ball) {
-        if (!game.obstacle) {
-            return;
-        }
-        if (collideCC(ball.collider, game.obstacle)) {
-            const newDirection = normalize(sub(ball.collider, game.obstacle));
-            game.ballDirection = newDirection; 
-            if (game.obstacle.lifeCounter == 1) {
-                game.obstacle = null;
-            } else {
-                game.obstacle.lifeCounter -= 1;
+        for (const obstacle of game.obstacles) {
+            if (collideCC(ball.collider, obstacle)) {
+                const newDirection = normalize(sub(ball.collider, obstacle));
+                game.ballDirection = newDirection; 
+                obstacle.lifeCounter -= 1;
             }
         }
+        game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
     }
     function processInput(players: Player[], input: InputState) {
         if (players.length == 0) {
@@ -331,8 +327,8 @@ function draw(game: GameState, render: RenderState) {
         drawPlayer(ctx, scale, player);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
-    if (game.obstacle) {
-        drawObstacle(ctx, scale, game.obstacle);
+    for (const obstacle of game.obstacles) {
+        drawObstacle(ctx, scale, obstacle);
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color); 
     for (const booster of game.boosters) {
@@ -455,7 +451,7 @@ function createObstacle(): Obstacle {
     return {
         lifeCounter: 3,
         radius: OBSTACLE_RADIUS,
-        ...vec2(0.5, 0.5)
+        ...position
     };
 }
 
@@ -524,7 +520,7 @@ function main() {
             boosters: [],
             boostSpawner: boostSpawner(),
             boostShuffler: createBoostShuffler(),
-            obstacle: null
+            obstacles: []
         }
     }
     const state = defaultState();
