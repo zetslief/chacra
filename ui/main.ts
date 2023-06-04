@@ -197,8 +197,12 @@ function drawObstacle(
     const y = collider.y * scale.y;
     const size = collider.radius * scale.x;
     strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
-    strokeCircle(ctx, x, y, size / 3, OBSTACLE_COLOR, LINE_WIDTH);
-    fillCircle(ctx, x, y, size / 6, OBSTACLE_COLOR);
+    const textHeight= Math.round(size / 2);
+    ctx.font = textHeight + "px serif";
+    ctx.strokeStyle = OBSTACLE_COLOR; 
+    const text = obstacle.lifeCounter.toString();
+    const metrics = ctx.measureText(text);
+    ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
 }
 
 // PROCESSING
@@ -447,7 +451,6 @@ type Obstacle = CircleCollider & { lifeCounter: number };
 function createObstacle(): Obstacle {
     let position = vec2(Math.random(), Math.random());
     position = smul(position, 0.7);
-    position = ssum(smul(position, 0.5), 0.5);
     return {
         lifeCounter: 3,
         radius: OBSTACLE_RADIUS,
