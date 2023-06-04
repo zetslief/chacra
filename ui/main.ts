@@ -255,37 +255,28 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
         return false;
     }
+    function processBooster(game: GameState, boosterName: string, player: Player) {
+        if (boosterName == "biggerPlayer") {
+            player.size *= BOOSTER_SCALE;
+            player.collider.radius *= BOOSTER_SCALE;
+        } else if (boosterName == "biggerBall") {
+            game.ball.size *= BOOSTER_SCALE;
+            game.ball.collider.radius *= BOOSTER_SCALE;
+        } else if (boosterName == "shuffleBoosters") {
+            game.boostShuffler = createBoostShuffler();
+        } else if (boosterName == "obstacle") {
+            game.obstacles.push(createObstacle());
+        } else if (boosterName == "deathBall") {
+            player.dead = true;
+        }
+    }
     function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
         while (game.requestedBoosters.length > 0) {
-            const current = game.requestedBoosters.pop()!;
-            if (current.name == "biggerPlayer") {
-                player.size *= BOOSTER_SCALE;
-                player.collider.radius *= BOOSTER_SCALE;
-            } else if (current.name == "biggerBall") {
-                ball.size *= BOOSTER_SCALE;
-                ball.collider.radius *= BOOSTER_SCALE;
-            } else if (current.name == "shuffleBoosters") {
-                game.boostShuffler = createBoostShuffler();
-            } else if (current.name == "obstacle") {
-                game.obstacles.push(createObstacle());
-            } else if (current.name == "deathBall") {
-                player.dead = true;
-            }
+            const requestedBooster = game.requestedBoosters.pop()!;
+            processBooster(game, requestedBooster.name, player);
         }
         if (collideCC(ball.collider, booster.collider)) {
-            if (booster.name == "biggerPlayer") {
-                player.size *= BOOSTER_SCALE;
-                player.collider.radius *= BOOSTER_SCALE;
-            } else if (booster.name == "biggerBall") {
-                ball.size *= BOOSTER_SCALE;
-                ball.collider.radius *= BOOSTER_SCALE;
-            } else if (booster.name == "shuffleBoosters") {
-                game.boostShuffler = createBoostShuffler();
-            } else if (booster.name == "obstacle") {
-                game.obstacles.push(createObstacle());
-            } else if (booster.name == "deathBall") {
-                player.dead = true;
-            }
+            processBooster(game, booster.name, player);
             return true;
         }
         return false;
