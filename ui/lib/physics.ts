@@ -21,7 +21,7 @@ import {
 
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
-    function movePlayer(player: Player, dx: number, dy: number) {
+    function movePlayer(player: Player, _dx: number, dy: number) {
         const step = (Math.PI / 2) * dt * dy;
         const position = smul(ssum(player.position, -0.5), 2);
         const angle = Math.atan2(position.y, position.x) + step;
@@ -104,13 +104,11 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
             input.dy = 0;
         }
         let index = 1;
-        while (index < players.length) {
-            if (Math.random() > 0.95) {
-                const dx = Math.round((Math.random() - 0.5) * 2);
-                const dy = Math.round((Math.random() - 0.5) * 2);
-                movePlayer(players[index], dx, dy);
+        if (Math.random() > 0.00) {
+            while (index < players.length) {
+                movePlayer(players[index], 1, 1);
+                index += 1;
             }
-            index += 1;
         }
     }
     processInput(game.players, input);
