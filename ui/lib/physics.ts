@@ -21,96 +21,6 @@ import {
 
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
-    function movePlayer(player: Player, _dx: number, dy: number) {
-        const step = (Math.PI / 2) * dt * dy;
-        const position = smul(ssum(player.position, -0.5), 2);
-        const angle = Math.atan2(position.y, position.x) + step;
-        const x = Math.cos(angle);
-        const y = Math.sin(angle);
-        player.position = ssum(smul(vec2(x, y), 0.5), 0.5);
-        player.collider.x = player.position.x;
-        player.collider.y = player.position.y;
-    }
-    function moveBall(ball: Ball, direction: Vec2, dt: number) {
-        const step = 0.20;
-        ball.position = sum(ball.position, smul(smul(direction, dt), step));
-        if (ball.position.x > 1) {
-            ball.position.x -= 1;
-        }
-        if (ball.position.x < 0) {
-            ball.position.x += 1;
-        }
-        if (ball.position.y > 1) {
-            ball.position.y -= 1;
-        }
-        if (ball.position.y < 0) {
-            ball.position.y += 1;
-        }
-        ball.collider.x = ball.position.x;
-        ball.collider.y = ball.position.y;
-    }
-    function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
-        if (collideCC(ball.collider, player)) {
-            const newDirection = normalize(sub(ball.collider, player));
-            direction.x = newDirection.x;
-            direction.y = newDirection.y;
-            return true;
-        }
-        return false;
-    }
-    function processBooster(game: GameState, boosterName: string, player: Player) {
-        if (boosterName == "biggerPlayer") {
-            player.size *= BOOSTER_SCALE;
-            player.collider.radius *= BOOSTER_SCALE;
-        } else if (boosterName == "biggerBall") {
-            game.ball.size *= BOOSTER_SCALE;
-            game.ball.collider.radius *= BOOSTER_SCALE;
-        } else if (boosterName == "shuffleBoosters") {
-            game.boostShuffler = createBoostShuffler();
-        } else if (boosterName == "obstacle") {
-            game.obstacles.push(createObstacle());
-        } else if (boosterName == "deathBall") {
-            player.dead = true;
-        }
-    }
-    function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
-        while (game.requestedBoosters.length > 0) {
-            const requestedBooster = game.requestedBoosters.pop()!;
-            processBooster(game, requestedBooster.name, player);
-        }
-        if (collideCC(ball.collider, booster.collider)) {
-            processBooster(game, booster.name, player);
-            return true;
-        }
-        return false;
-    }
-    function collideBallAndObstacle(game: GameState, ball: Ball) {
-        for (const obstacle of game.obstacles) {
-            if (collideCC(ball.collider, obstacle)) {
-                const newDirection = normalize(sub(ball.collider, obstacle));
-                game.ballDirection = newDirection;
-                obstacle.lifeCounter -= 1;
-            }
-        }
-        game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
-    }
-    function processInput(players: Player[], input: InputState) {
-        if (players.length == 0) {
-            return;
-        }
-        if (input.dx != 0 || input.dy != 0) {
-            movePlayer(players[0], input.dx, input.dy)
-            input.dx = 0;
-            input.dy = 0;
-        }
-        let index = 1;
-        if (Math.random() > 0.00) {
-            while (index < players.length) {
-                movePlayer(players[index], 1, 1);
-                index += 1;
-            }
-        }
-    }
     processInput(game.players, input);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
@@ -180,4 +90,101 @@ function createObstacle(): Obstacle {
         radius: OBSTACLE_RADIUS,
         ...position
     };
+}
+
+function movePlayer(player: Player, _dx: number, dy: number) {
+    const step = (Math.PI / 2) * dt * dy;
+    const position = smul(ssum(player.position, -0.5), 2);
+    const angle = Math.atan2(position.y, position.x) + step;
+    const x = Math.cos(angle);
+    const y = Math.sin(angle);
+    player.position = ssum(smul(vec2(x, y), 0.5), 0.5);
+    player.collider.x = player.position.x;
+    player.collider.y = player.position.y;
+}
+
+function moveBall(ball: Ball, direction: Vec2, dt: number) {
+    const step = 0.20;
+    ball.position = sum(ball.position, smul(smul(direction, dt), step));
+    if (ball.position.x > 1) {
+        ball.position.x -= 1;
+    }
+    if (ball.position.x < 0) {
+        ball.position.x += 1;
+    }
+    if (ball.position.y > 1) {
+        ball.position.y -= 1;
+    }
+    if (ball.position.y < 0) {
+        ball.position.y += 1;
+    }
+    ball.collider.x = ball.position.x;
+    ball.collider.y = ball.position.y;
+}
+
+function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
+    if (collideCC(ball.collider, player)) {
+        const newDirection = normalize(sub(ball.collider, player));
+        direction.x = newDirection.x;
+        direction.y = newDirection.y;
+        return true;
+    }
+    return false;
+}
+
+function processBooster(game: GameState, boosterName: string, player: Player) {
+    if (boosterName == "biggerPlayer") {
+        player.size *= BOOSTER_SCALE;
+        player.collider.radius *= BOOSTER_SCALE;
+    } else if (boosterName == "biggerBall") {
+        game.ball.size *= BOOSTER_SCALE;
+        game.ball.collider.radius *= BOOSTER_SCALE;
+    } else if (boosterName == "shuffleBoosters") {
+        game.boostShuffler = createBoostShuffler();
+    } else if (boosterName == "obstacle") {
+        game.obstacles.push(createObstacle());
+    } else if (boosterName == "deathBall") {
+        player.dead = true;
+    }
+}
+
+function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
+    while (game.requestedBoosters.length > 0) {
+        const requestedBooster = game.requestedBoosters.pop()!;
+        processBooster(game, requestedBooster.name, player);
+    }
+    if (collideCC(ball.collider, booster.collider)) {
+        processBooster(game, booster.name, player);
+        return true;
+    }
+    return false;
+}
+
+function collideBallAndObstacle(game: GameState, ball: Ball) {
+    for (const obstacle of game.obstacles) {
+        if (collideCC(ball.collider, obstacle)) {
+            const newDirection = normalize(sub(ball.collider, obstacle));
+            game.ballDirection = newDirection;
+            obstacle.lifeCounter -= 1;
+        }
+    }
+    game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
+}
+
+function processInput(players: Player[], input: InputState) {
+    if (players.length == 0) {
+        return;
+    }
+    if (input.dx != 0 || input.dy != 0) {
+        movePlayer(players[0], input.dx, input.dy)
+        input.dx = 0;
+        input.dy = 0;
+    }
+    let index = 1;
+    if (Math.random() > 0.00) {
+        while (index < players.length) {
+            movePlayer(players[index], 1, 1);
+            index += 1;
+        }
+    }
 }
