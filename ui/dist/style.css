@@ -19,6 +19,13 @@ body {
 canvas {
 }
 
+#ui {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 #stats {
   display: flex;
   flex-direction: row;
@@ -39,4 +46,9 @@ canvas {
 
 #labels {
   flex-grow: 2;
+}
+
+#boosters {
+  display: flex;
+  justify-content: space-around;
 }
