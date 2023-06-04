@@ -211,12 +211,18 @@ function loop(
     dt: number) {
     const start = Date.now();
     if (game.players.length == 1) {
+        if (input.click) {
+            input.click = null;
+            main();
+            return;
+        }
         draw(game, render);
         drawFinalScreen(game, render);
     } else {
         game.boostSpawner(dt, game.boosters);
         updatePhysics(game, input, dt);
         draw(game, render);
+        input.click = null;
     }
     const stop = Date.now();
     const duration = (stop - start) / 1000;
@@ -376,6 +382,10 @@ class PerfView {
 class BoostersView {
     constructor(onKnownBoosterTrigger: (knownBooster: KnownBooster) => void) {
         const boosters = document.getElementById("boosters")!;
+        const children = boosters.children;
+        while (children.length > 0) {
+            children[0].remove();
+        }
         const divBoosterMap = new Map<HTMLButtonElement, KnownBooster>();
         for (var booster of KNOWN_BOOSTERS) {
             const boosterButton = document.createElement("button");
