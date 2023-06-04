@@ -5,7 +5,7 @@ import {
     Ball,
     Booster, BoostShuffler,
     Obstacle
-} from './lib/types';
+} from './types';
 
 import {
     BOOSTER_SCALE,
@@ -17,7 +17,7 @@ import {
     vec2, smul, sum, sub, ssum, normalize, len,
     CircleCollider,
     collideCC,
-} from './lib/math';
+} from './math';
 
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {

@@ -2,7 +2,7 @@ import {
     Vec2, Point,
     CircleCollider,
     LineCollider
-} from './lib/math';
+} from './math';
 
 export type GameState = {
     numberOfPlayers: number,

@@ -20,12 +20,12 @@ import {
     BALL_RADIUS,
     PLAYER_RADIUS,
     PLAYERS_COUNT
-} from './configuration';
+} from './lib/configuration';
 
 import {
     updatePhysics,
     createBoostShuffler
-} from './physics';
+} from './lib/physics';
 
 export type RenderState = {
     canvas: HTMLCanvasElement,
