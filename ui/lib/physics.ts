@@ -21,7 +21,7 @@ import {
 
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
-    processInput(game.players, input);
+    processInput(game.players, input, dt);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
@@ -92,7 +92,7 @@ function createObstacle(): Obstacle {
     };
 }
 
-function movePlayer(player: Player, _dx: number, dy: number) {
+function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
     const step = (Math.PI / 2) * dt * dy;
     const position = smul(ssum(player.position, -0.5), 2);
     const angle = Math.atan2(position.y, position.x) + step;
@@ -171,19 +171,19 @@ function collideBallAndObstacle(game: GameState, ball: Ball) {
     game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
 }
 
-function processInput(players: Player[], input: InputState) {
+function processInput(players: Player[], input: InputState, dt: number) {
     if (players.length == 0) {
         return;
     }
     if (input.dx != 0 || input.dy != 0) {
-        movePlayer(players[0], input.dx, input.dy)
+        movePlayer(players[0], input.dx, input.dy, dt)
         input.dx = 0;
         input.dy = 0;
     }
     let index = 1;
     if (Math.random() > 0.00) {
         while (index < players.length) {
-            movePlayer(players[index], 1, 1);
+            movePlayer(players[index], 1, 1, dt);
             index += 1;
         }
     }
