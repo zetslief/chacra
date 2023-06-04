@@ -24,6 +24,14 @@ const SHUFFLE_BOOSTERS_WEIGHT = 10
 const DEATH_BALL_WEIGHT = 10;
 const OBSTACLE_WEIGHT = 20;
 
+const knownBoosters = [
+    { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
+    { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
+    { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
+    { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
+    { name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
+];
+
 // GAME
 
 type GameState = {
@@ -377,13 +385,6 @@ function setupRenderState(): RenderState {
 
 function boostSpawner(): BoostSpawner {
     function randomBooster(): Booster {
-        const knownBoosters = [
-            { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
-            { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
-            { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
-            { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
-            { name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
-        ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
         const offset = 0.2;
