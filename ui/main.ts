@@ -6,7 +6,7 @@ import {
     Color,
     Ball, Booster, Obstacle,
     BoostSpawner
-} from './types';
+} from './lib/types';
 
 import {
     Vec2, Point,

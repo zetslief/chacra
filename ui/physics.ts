@@ -5,7 +5,7 @@ import {
     Ball,
     Booster, BoostShuffler,
     Obstacle
-} from './types';
+} from './lib/types';
 
 import {
     BOOSTER_SCALE,
