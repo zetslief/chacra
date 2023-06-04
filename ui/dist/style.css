@@ -50,9 +50,17 @@ canvas {
 
 #boosters {
   display: flex;
-  justify-content: space-around;
+  flex-flow: column;
+  height: 100%;
 }
 
-#boosters > div {
-  height: 50px;
+#boosters > * {
+  border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  flex: 1 1 0px;
+}
+
+#boosters > *:hover {
+  box-shadow: -3px -0px black;
 }

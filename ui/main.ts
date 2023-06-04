@@ -582,19 +582,20 @@ class PerfView {
 class BoostersView {
     constructor(onKnownBoosterTrigger: (knownBooster: KnownBooster) => void) {
         const boosters = document.getElementById("boosters")!;
-        const divBoosterMap = new Map<HTMLDivElement, KnownBooster>();
+        const divBoosterMap = new Map<HTMLButtonElement, KnownBooster>();
         for (var booster of KNOWN_BOOSTERS) {
-            const boosterDiv = document.createElement("div");
-            boosterDiv.style.backgroundColor = booster.color as string;
-            boosterDiv.style.width = "100px";
-            boosterDiv.onclick = (e) => {
-                if (e.target instanceof HTMLDivElement) {
+            const boosterButton = document.createElement("button");
+            boosterButton.type = "button";
+            boosterButton.style.backgroundColor = booster.color as string;
+            boosterButton.innerHTML = booster.name;
+            boosterButton.onclick = (e) => {
+                if (e.target instanceof HTMLButtonElement) {
                     const clickedBooster = divBoosterMap.get(e.target)!;
                     onKnownBoosterTrigger(clickedBooster);
                 }
             };
-            divBoosterMap.set(boosterDiv, booster);
-            boosters.appendChild(boosterDiv);
+            divBoosterMap.set(boosterButton, booster);
+            boosters.appendChild(boosterButton);
         }
     }
 }
