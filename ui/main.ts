@@ -1,87 +1,42 @@
 import {
-    Vec2, Point, vec2,
-    smul, sum, sub, ssum, normalize, len,
-    CircleCollider, collideCC,
-    LineCollider
+    GameState,
+    InputState,
+    Player,
+    KnownBooster,
+    Color,
+    Ball, Booster, Obstacle,
+    BoostSpawner
+} from './types';
+
+import {
+    Vec2, Point,
+    vec2, smul, ssum,
+    LineCollider,
 } from './lib/math';
 
-const BACKGROUND = "#111122";
-const BALL = "#33dd33";
-const OBSTACLE_COLOR = "cyan";
+import {
+    KNOWN_BOOSTERS,
+    BOOSTER_RADIUS,
+    BALL_RADIUS,
+    PLAYER_RADIUS,
+    PLAYERS_COUNT
+} from './configuration';
 
-const BALL_RADIUS = 0.020;
-const PLAYER_RADIUS = 0.05;
-const BOOSTER_RADIUS = 0.020;
-const OBSTACLE_RADIUS = 0.030;
-const LINE_WIDTH = 1.00;
+import {
+    updatePhysics,
+    createBoostShuffler
+} from './physics';
 
-const PLAYERS_COUNT = 12;
-const BOOSTER_SCALE = 1.1;
-
-const BIGGER_PLAYER_WEIGHT = 40;
-const BIGGER_BALL_WEIGHT = 30
-const SHUFFLE_BOOSTERS_WEIGHT = 10
-const DEATH_BALL_WEIGHT = 10;
-const OBSTACLE_WEIGHT = 20;
-
-type KnownBooster = { name: string, color: Color, weight: number };
-const KNOWN_BOOSTERS: KnownBooster[] = [
-    { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
-    { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
-    { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
-    { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
-    { name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
-];
-
-// GAME
-
-type GameState = {
-    numberOfPlayers: number,
-    players: Player[],
-    ballOwner: Player,
-    ball: Ball,
-    walls: LineCollider[],
-    ballDirection: Vec2,
-    boosters: Booster[],
-    requestedBoosters: KnownBooster[],
-    boostSpawner: BoostSpawner,
-    boostShuffler: BoostShuffler,
-    obstacles: Obstacle[],
-}
-
-type Color = string | CanvasGradient | CanvasPattern;
-
-type Booster =  { name: string, color: Color, collider: CircleCollider };
-type BoostSpawner = (dt: number, boosters: Booster[]) => void;
-type BoostShuffler = (dt: number, boosters: Booster[]) => void;
-
-type Player = {
-    name: string
-    position: Point,
-    size: number,
-    collider: CircleCollider,
-    color: Color,
-    dead: boolean
-};
-
-type Ball = {
-    position: Point,
-    size: number,
-    collider: CircleCollider
-}
-
-type RenderState = {
+export type RenderState = {
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
 };
 
-type Click = Point;
+const LINE_WIDTH = 1.00;
 
-type InputState = {
-    click: Click | null,
-    dx: number,
-    dy: number
-};
+const BACKGROUND = "#111122";
+const BALL = "#33dd33";
+const OBSTACLE_COLOR = "cyan";
 
 function setupHandlers(input: InputState) {
     document.onclick = (e) => {
@@ -207,9 +162,9 @@ function drawObstacle(
     const y = collider.y * scale.y;
     const size = collider.radius * scale.x;
     strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
-    const textHeight= Math.round(size / 2);
+    const textHeight = Math.round(size / 2);
     ctx.font = textHeight + "px serif";
-    ctx.strokeStyle = OBSTACLE_COLOR; 
+    ctx.strokeStyle = OBSTACLE_COLOR;
     const text = obstacle.lifeCounter.toString();
     const metrics = ctx.measureText(text);
     ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
@@ -217,141 +172,18 @@ function drawObstacle(
 
 // PROCESSING
 
-function updatePhysics(game: GameState, input: InputState, dt: number) {
-    function movePlayer(player: Player, dx: number, dy: number) {
-        const step = (Math.PI / 2) * dt * dy;
-        const position = smul(ssum(player.position, -0.5), 2);
-        const angle = Math.atan2(position.y, position.x) + step;
-        const x = Math.cos(angle);
-        const y = Math.sin(angle);
-        player.position = ssum(smul(vec2(x, y), 0.5), 0.5);
-        player.collider.x = player.position.x;
-        player.collider.y = player.position.y;
-    }
-    function moveBall(ball: Ball, direction: Vec2, dt: number) {
-        const step = 0.20;
-        ball.position = sum(ball.position, smul(smul(direction, dt), step));
-        if (ball.position.x > 1) {
-            ball.position.x -= 1;
-        }
-        if (ball.position.x < 0) {
-            ball.position.x += 1;
-        }
-        if (ball.position.y > 1) {
-            ball.position.y -= 1;
-        }
-        if (ball.position.y < 0) {
-            ball.position.y += 1;
-        }
-        ball.collider.x = ball.position.x;
-        ball.collider.y = ball.position.y;
-    }
-    function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
-        if (collideCC(ball.collider, player)) {
-            const newDirection = normalize(sub(ball.collider, player));
-            direction.x = newDirection.x;
-            direction.y = newDirection.y;
-            return true;
-        }
-        return false;
-    }
-    function processBooster(game: GameState, boosterName: string, player: Player) {
-        if (boosterName == "biggerPlayer") {
-            player.size *= BOOSTER_SCALE;
-            player.collider.radius *= BOOSTER_SCALE;
-        } else if (boosterName == "biggerBall") {
-            game.ball.size *= BOOSTER_SCALE;
-            game.ball.collider.radius *= BOOSTER_SCALE;
-        } else if (boosterName == "shuffleBoosters") {
-            game.boostShuffler = createBoostShuffler();
-        } else if (boosterName == "obstacle") {
-            game.obstacles.push(createObstacle());
-        } else if (boosterName == "deathBall") {
-            player.dead = true;
-        }
-    }
-    function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
-        while (game.requestedBoosters.length > 0) {
-            const requestedBooster = game.requestedBoosters.pop()!;
-            processBooster(game, requestedBooster.name, player);
-        }
-        if (collideCC(ball.collider, booster.collider)) {
-            processBooster(game, booster.name, player);
-            return true;
-        }
-        return false;
-    }
-    function collideBallAndObstacle(game: GameState, ball: Ball) {
-        for (const obstacle of game.obstacles) {
-            if (collideCC(ball.collider, obstacle)) {
-                const newDirection = normalize(sub(ball.collider, obstacle));
-                game.ballDirection = newDirection; 
-                obstacle.lifeCounter -= 1;
-            }
-        }
-        game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
-    }
-    function processInput(players: Player[], input: InputState) {
-        if (players.length == 0) {
-            return;
-        }
-        if (input.dx != 0 || input.dy != 0) {
-            movePlayer(players[0], input.dx, input.dy)
-            input.dx = 0;
-            input.dy = 0;
-        }
-        let index = 1;
-        while (index < players.length) {
-            if (Math.random() > 0.95) {
-                const dx = Math.round((Math.random() - 0.5) * 2);
-                const dy = Math.round((Math.random() - 0.5) * 2);
-                movePlayer(players[index], dx, dy);
-            }
-            index += 1;
-        }
-    }
-    processInput(game.players, input);
-    moveBall(game.ball, game.ballDirection, dt);
-    for (const player of game.players) {
-        if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection))
-        {
-            game.ballOwner = player;
-            game.ballDirection = normalize(game.ballDirection);
-            break;
-        }
-    }
-    collideBallAndObstacle(game, game.ball);
-    game.boostShuffler(dt, game.boosters);
-    let boosters = []
-    for (const booster of game.boosters) {
-        const collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
-        if (!collided) {
-            boosters.push(booster);
-        }
-    }
-    game.players = game.players.filter(player => !player.dead);
-    game.boosters = boosters;
-    if (game.ballOwner.dead) {
-        if (game.players.length > 0) {
-            const randomPlayerIndex = Math.floor(Math.random() * game.players.length);
-            game.ballOwner = game.players[randomPlayerIndex];
-        }
-    }
-}
-
 function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
-    for (let player of game.players)
-    {
+    for (let player of game.players) {
         drawPlayer(ctx, scale, player);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
     for (const obstacle of game.obstacles) {
         drawObstacle(ctx, scale, obstacle);
     }
-    drawBall(ctx, scale, game.ball, game.ballOwner.color); 
+    drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {
         drawBooster(ctx, scale, booster);
     }
@@ -424,56 +256,11 @@ function boostSpawner(): BoostSpawner {
     };
 }
 
-function createBoostShuffler(): BoostShuffler {
-    let initialized = false;
-    const destinationMap = new Map<Booster, Point>();
-    return (dt, boosters) => {
-        if (!initialized) {
-            for (const booster of boosters) {
-                let destination = smul(ssum(booster.collider, -0.5), 2) 
-                destination = smul(destination, -1);
-                destination = ssum(smul(destination, 0.5), 0.5);
-                destinationMap.set(booster, destination);
-            }
-            initialized = true;
-        }
-        for (const booster of boosters) {
-            if (!destinationMap.has(booster)) {
-                destinationMap.delete(booster);
-            }
-        }
-        for (const [booster, destination] of destinationMap.entries()) {
-            const step = 0.10 * dt;
-            const direction = normalize(sub(destination, booster.collider));
-            booster.collider = {
-                radius: booster.collider.radius,
-                ...sum(booster.collider, smul(direction, step))
-            };
-            // TODO: remove this mutation from the loop!
-            if (len(sub(booster.collider, destination)) < 0.0050) {
-                destinationMap.delete(booster);
-            }
-        }
-    }
-}
-
-type Obstacle = CircleCollider & { lifeCounter: number };
-function createObstacle(): Obstacle {
-    let position = vec2(Math.random(), Math.random());
-    position = smul(position, 0.7);
-    return {
-        lifeCounter: 3,
-        radius: OBSTACLE_RADIUS,
-        ...position
-    };
-}
-
 type Pivot = Point & { angle: number };
 function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
     let pivots = [];
     let angle = startAngle;
-    for (let index = 0; index < pivotCount; index +=1)
-    {
+    for (let index = 0; index < pivotCount; index += 1) {
         let pivot = vec2(Math.cos(angle), Math.sin(angle));
         pivot = ssum(smul(pivot, 0.5), 0.5);
         pivots.push({ angle, ...pivot });
@@ -485,7 +272,7 @@ function calculatePivots(startAngle: number, angleStep: number, pivotCount: numb
 function main() {
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
-        return { position, size, collider: { x: position.x, y: position.y, radius }};
+        return { position, size, collider: { x: position.x, y: position.y, radius } };
     }
     function createPlayers(pivots: Pivot[]): Player[] {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
@@ -499,14 +286,13 @@ function main() {
             const color = "rgb(" + red + ", " + green * 2 + ", " + blue + ")";
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
-            players.push({ name, position, size, color, collider: { radius, ...position }, dead});
+            players.push({ name, position, size, color, collider: { radius, ...position }, dead });
         }
         return players;
     }
     function walls(pivots: Pivot[]): LineCollider[] {
         let walls = [];
-        for (let index = 0; index < pivots.length - 1; index += 1)
-        {
+        for (let index = 0; index < pivots.length - 1; index += 1) {
             const pivot = pivots[index];
             const nextPivot = pivots[index + 1];
             const a = pivot;
