@@ -52,3 +52,7 @@ canvas {
   display: flex;
   justify-content: space-around;
 }
+
+#boosters > div {
+  height: 50px;
+}

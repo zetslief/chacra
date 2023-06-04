@@ -24,7 +24,8 @@ const SHUFFLE_BOOSTERS_WEIGHT = 10
 const DEATH_BALL_WEIGHT = 10;
 const OBSTACLE_WEIGHT = 20;
 
-const knownBoosters = [
+type KnownBooster = { name: string, color: Color, weight: number };
+const KNOWN_BOOSTERS: KnownBooster[] = [
     { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
     { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
     { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
@@ -42,9 +43,10 @@ type GameState = {
     walls: LineCollider[],
     ballDirection: Vec2,
     boosters: Booster[],
+    requestedBoosters: KnownBooster[],
     boostSpawner: BoostSpawner,
     boostShuffler: BoostShuffler,
-    obstacles: Obstacle[]
+    obstacles: Obstacle[],
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
@@ -254,6 +256,22 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         return false;
     }
     function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
+        while (game.requestedBoosters.length > 0) {
+            const current = game.requestedBoosters.pop()!;
+            if (current.name == "biggerPlayer") {
+                player.size *= BOOSTER_SCALE;
+                player.collider.radius *= BOOSTER_SCALE;
+            } else if (current.name == "biggerBall") {
+                ball.size *= BOOSTER_SCALE;
+                ball.collider.radius *= BOOSTER_SCALE;
+            } else if (current.name == "shuffleBoosters") {
+                game.boostShuffler = createBoostShuffler();
+            } else if (current.name == "obstacle") {
+                game.obstacles.push(createObstacle());
+            } else if (current.name == "deathBall") {
+                player.dead = true;
+            }
+        }
         if (collideCC(ball.collider, booster.collider)) {
             if (booster.name == "biggerPlayer") {
                 player.size *= BOOSTER_SCALE;
@@ -385,7 +403,7 @@ function setupRenderState(): RenderState {
 
 function boostSpawner(): BoostSpawner {
     function randomBooster(): Booster {
-        const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
+        const totalWeight = KNOWN_BOOSTERS.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
         const offset = 0.2;
         const collider = {
@@ -394,14 +412,14 @@ function boostSpawner(): BoostSpawner {
             radius: BOOSTER_RADIUS
         };
         let weightCounter = 0;
-        for (let index = 0; index < knownBoosters.length; ++index) {
-            const booster = knownBoosters[index];
+        for (let index = 0; index < KNOWN_BOOSTERS.length; ++index) {
+            const booster = KNOWN_BOOSTERS[index];
             weightCounter += booster.weight;
             if (weightCounter > selectedWeight) {
                 return { collider, ...booster };
             }
         }
-        return { collider, ...knownBoosters[knownBoosters.length - 1] };
+        return { collider, ...KNOWN_BOOSTERS[KNOWN_BOOSTERS.length - 1] };
     }
 
     const boosterDelay = 1;
@@ -522,6 +540,7 @@ function main() {
             walls: walls(wallPivots),
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
+            requestedBoosters: [],
             boostSpawner: boostSpawner(),
             boostShuffler: createBoostShuffler(),
             obstacles: []
@@ -532,6 +551,7 @@ function main() {
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
     const dt = (1000 / 30) / 1000;
+    let boostersView = new BoostersView(b => state.requestedBoosters.push(b));
     loop(state, input, renderer, new PerfView(), dt);
 }
 
@@ -558,5 +578,25 @@ class PerfView {
         this._frame.innerHTML = value.toString();
     }
 };
+
+class BoostersView {
+    constructor(onKnownBoosterTrigger: (knownBooster: KnownBooster) => void) {
+        const boosters = document.getElementById("boosters")!;
+        const divBoosterMap = new Map<HTMLDivElement, KnownBooster>();
+        for (var booster of KNOWN_BOOSTERS) {
+            const boosterDiv = document.createElement("div");
+            boosterDiv.style.backgroundColor = booster.color as string;
+            boosterDiv.style.width = "100px";
+            boosterDiv.onclick = (e) => {
+                if (e.target instanceof HTMLDivElement) {
+                    const clickedBooster = divBoosterMap.get(e.target)!;
+                    onKnownBoosterTrigger(clickedBooster);
+                }
+            };
+            divBoosterMap.set(boosterDiv, booster);
+            boosters.appendChild(boosterDiv);
+        }
+    }
+}
 
 window.onload = main;
