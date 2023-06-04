@@ -11,6 +11,7 @@ const BALL = "#33dd33";
 const BALL_RADIUS = 0.020;
 const PLAYER_RADIUS = 0.05;
 const BOOSTER_RADIUS = 0.020;
+const OBSTACLE_RADIUS = 0.030;
 const LINE_WIDTH = 1.00;
 
 const PLAYERS_COUNT = 12;
@@ -20,6 +21,7 @@ const BIGGER_PLAYER_WEIGHT = 40;
 const BIGGER_BALL_WEIGHT = 30
 const SHUFFLE_BOOSTERS_WEIGHT = 20
 const DEATH_BALL_WEIGHT = 10;
+const OBSTACLE_WEIGHT = 10;
 
 // GAME
 
@@ -33,6 +35,7 @@ type GameState = {
     boosters: Booster[],
     boostSpawner: BoostSpawner,
     boostShuffler: BoostShuffler,
+    obstacle: Obstacle | null
 }
 
 type Color = string | CanvasGradient | CanvasPattern;
@@ -173,16 +176,6 @@ function drawBall(
     strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
 }
 
-function drawColliderC(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    collider: CircleCollider) {
-    const x = collider.x * scale.x;
-    const y = collider.y * scale.y;
-    const size = collider.radius * scale.x;
-    strokeCircle(ctx, x, y, size, "green", LINE_WIDTH * 2);
-}
-
 function drawBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
@@ -244,12 +237,26 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
                 ball.collider.radius *= BOOSTER_SCALE;
             } else if (booster.name == "shuffleBoosters") {
                 game.boostShuffler = createBoostShuffler();
+            } else if (booster.name == "obstacle") {
+                game.obstacle = createObstacle();
             } else if (booster.name == "deathBall") {
                 player.dead = true;
             }
             return true;
         }
         return false;
+    }
+    function colliderBallAndObstacle(game: GameState, ball: Ball) {
+        if (!game.obstacle) {
+            return;
+        }
+        if (collideCC(ball.collider, game.obstacle)) {
+            if (game.obstacle.lifeCounter == 1) {
+                game.obstacle = null;
+            } else {
+                game.obstacle.lifeCounter -= 1;
+            }
+        }
     }
     function processInput(players: Player[], input: InputState) {
         if (players.length == 0) {
@@ -280,6 +287,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             break;
         }
     }
+    colliderBallAndObstacle(game, game.ball);
     game.boostShuffler(dt, game.boosters);
     let boosters = []
     for (const booster of game.boosters) {
@@ -327,7 +335,7 @@ function loop(
     draw(game, render);
     const stop = Date.now();
     const duration = (stop - start) / 1000;
-    view.dt = dt;
+    view.dt = dt * 1000;
     view.physics = duration * 1000;
     view.frame = start - previousFrame;
     previousFrame = start;
@@ -355,6 +363,7 @@ function boostSpawner(): BoostSpawner {
             { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
             { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
             { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
+            { name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
         ];
         const totalWeight = knownBoosters.map(b => b.weight).reduce((prev, cur) => prev + cur);
         const selectedWeight = Math.floor(Math.random() * totalWeight);
@@ -417,6 +426,15 @@ function createBoostShuffler(): BoostShuffler {
             }
         }
     }
+}
+
+type Obstacle = CircleCollider & { lifeCounter: number };
+function createObstacle(): Obstacle {
+    return {
+        lifeCounter: 3,
+        radius: OBSTACLE_RADIUS,
+        ...vec2(0.5, 0.5)
+    };
 }
 
 type Pivot = Point & { angle: number };
@@ -484,6 +502,7 @@ function main() {
             boosters: [],
             boostSpawner: boostSpawner(),
             boostShuffler: createBoostShuffler(),
+            obstacle: null
         }
     }
     const state = defaultState();
