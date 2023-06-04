@@ -260,11 +260,13 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
         return false;
     }
-    function colliderBallAndObstacle(game: GameState, ball: Ball) {
+    function collideBallAndObstacle(game: GameState, ball: Ball) {
         if (!game.obstacle) {
             return;
         }
         if (collideCC(ball.collider, game.obstacle)) {
+            const newDirection = normalize(sub(ball.collider, game.obstacle));
+            game.ballDirection = newDirection; 
             if (game.obstacle.lifeCounter == 1) {
                 game.obstacle = null;
             } else {
@@ -301,7 +303,7 @@ function updatePhysics(game: GameState, input: InputState, dt: number) {
             break;
         }
     }
-    colliderBallAndObstacle(game, game.ball);
+    collideBallAndObstacle(game, game.ball);
     game.boostShuffler(dt, game.boosters);
     let boosters = []
     for (const booster of game.boosters) {
