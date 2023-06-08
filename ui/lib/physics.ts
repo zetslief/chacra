@@ -180,6 +180,7 @@ function processInput(players: Player[], input: InputState, dt: number) {
         input.dx = 0;
         input.dy = 0;
     }
+    input.click = null;
     let index = 1;
     if (Math.random() > 0.00) {
         while (index < players.length) {
