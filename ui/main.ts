@@ -100,6 +100,18 @@ function strokeCircle(
     ctx.lineWidth = defaultLineWidth;
 }
 
+function fillCenteredText(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    text: string,
+    fontSize: number
+) {
+    ctx.fillStyle = "gold"; 
+    ctx.font = Math.round(fontSize) + "px serif";
+    const textWidth = ctx.measureText(text).width;
+    ctx.fillText(text, scale.x / 2 - textWidth / 2, scale.y / 2);
+}
+
 function drawOverlay(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
@@ -203,11 +215,7 @@ function drawFinalScreen(game: GameState, render: RenderState) {
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawOverlay(ctx, scale, OVERLAY);
     const text = game.players[0].name + " won!";
-    ctx.fillRect(0, 0, scale.x, scale.y);
-    ctx.fillStyle = "gold"; 
-    ctx.font = Math.round(scale.y / 10) + "px serif";
-    const textWidth = ctx.measureText(text).width;
-    ctx.fillText(text, scale.x / 2 - textWidth / 2, scale.y / 2);
+    fillCenteredText(ctx, scale, text, scale.y / 10);
 }
 
 let previousFrame = Date.now();
