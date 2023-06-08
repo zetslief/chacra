@@ -22,6 +22,7 @@ import {
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
     processInput(game.players, input, dt);
+    game.boostSpawner(dt, game, game.boosters, validateBooster);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
@@ -188,4 +189,32 @@ function processInput(players: Player[], input: InputState, dt: number) {
             index += 1;
         }
     }
+}
+
+function validateBooster(gameState: GameState, booster: Booster): boolean {
+    return !collideAny(gameState, booster.collider);
+}
+
+function collideAny(
+    game: GameState,
+    collider: CircleCollider): boolean {
+    if (collideCC(collider, game.ball.collider)) {
+        return true;
+    }
+    for (const player of game.players) {
+        if (collideCC(collider, player.collider)) {
+            return true;
+        }
+    }
+    for (const booster of game.boosters) {
+        if (collideCC(collider, booster.collider)) {
+            return true;
+        }
+    }
+    for (const obstacle of game.obstacles) {
+        if (collideCC(collider, obstacle)) {
+            return true;
+        }
+    }
+    return false;
 }

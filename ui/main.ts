@@ -236,7 +236,6 @@ function loop(
         draw(game, render);
         drawFinalScreen(game, render);
     } else {
-        game.boostSpawner(dt, game.boosters);
         updatePhysics(game, input, dt);
         draw(game, render);
     }
@@ -286,9 +285,15 @@ function boostSpawner(): BoostSpawner {
 
     const boosterDelay = 1;
     let timeLeft = boosterDelay;
-    return (dt, boosters) => {
+    return (dt, game, boosters, validate) => {
         timeLeft -= dt;
         if (timeLeft < 0) {
+            let attempts = 0;
+            let booster = randomBooster();
+            while (attempts < 10 && !validate(game, booster)) {
+                booster = randomBooster();
+            }
+
             boosters.push(randomBooster());
             timeLeft = boosterDelay;
         }
