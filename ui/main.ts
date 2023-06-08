@@ -367,7 +367,7 @@ function main() {
     const input = { click: null, dx: 0, dy: 0 };
     setupHandlers(input);
     const dt = (1000 / 30) / 1000;
-    let boostersView = new BoostersView(b => state.requestedBoosters.push(b));
+    new BoostersView(b => state.requestedBoosters.push(b));
     loop(state, input, renderer, new PerfView(), dt);
 }
 
