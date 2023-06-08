@@ -33,9 +33,18 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
     }
     collideBallAndObstacle(game, game.ball);
     game.boostShuffler(dt, game.boosters);
+    processRequestedBoosters(game, game.ballOwner);
     let boosters = []
     for (const booster of game.boosters) {
-        const collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
+        let collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
+        if (!collided) {
+            for (const player of game.players) {
+                const playerCollided = collidePlayerAndBooster(game, player, booster);
+                if (!collided) {
+                    collided = playerCollided;
+                }
+            }
+        }
         if (!collided) {
             boosters.push(booster);
         }
@@ -149,12 +158,23 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
     }
 }
 
-function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
+function processRequestedBoosters(game: GameState, player: Player) {
     while (game.requestedBoosters.length > 0) {
         const requestedBooster = game.requestedBoosters.pop()!;
         processBooster(game, requestedBooster.name, player);
     }
+}
+
+function collideBallAndBooster(game: GameState, ball: Ball, booster: Booster, player: Player): boolean {
     if (collideCC(ball.collider, booster.collider)) {
+        processBooster(game, booster.name, player);
+        return true;
+    }
+    return false;
+}
+
+function collidePlayerAndBooster(game: GameState, player: Player, booster: Booster): boolean {
+    if (collideCC(player.collider, booster.collider)) {
         processBooster(game, booster.name, player);
         return true;
     }
