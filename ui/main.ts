@@ -35,6 +35,7 @@ export type RenderState = {
 const LINE_WIDTH = 1.00;
 
 const BACKGROUND = "#111122";
+const OVERLAY = "rgba(100, 100, 255, 0.50)";
 const BALL = "#33dd33";
 const OBSTACLE_COLOR = "cyan";
 
@@ -99,11 +100,19 @@ function strokeCircle(
     ctx.lineWidth = defaultLineWidth;
 }
 
+function drawOverlay(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    color: Color,
+) {
+    drawRect(ctx, 0, 0, scale.x, scale.y, color);
+}
+
 function drawBackground(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
 ) {
-    drawRect(ctx, 0, 0, scale.x, scale.y, BACKGROUND);
+    drawOverlay(ctx, scale, BACKGROUND);
 }
 
 function drawPlayer(
@@ -192,8 +201,8 @@ function draw(game: GameState, render: RenderState) {
 function drawFinalScreen(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
+    drawOverlay(ctx, scale, OVERLAY);
     const text = game.players[0].name + " won!";
-    ctx.fillStyle = "rgba(100, 100, 255, 0.50)";
     ctx.fillRect(0, 0, scale.x, scale.y);
     ctx.fillStyle = "gold"; 
     ctx.font = Math.round(scale.y / 10) + "px serif";
@@ -222,7 +231,6 @@ function loop(
         game.boostSpawner(dt, game.boosters);
         updatePhysics(game, input, dt);
         draw(game, render);
-        input.click = null;
     }
     const stop = Date.now();
     const duration = (stop - start) / 1000;
