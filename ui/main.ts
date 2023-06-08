@@ -39,6 +39,14 @@ const OVERLAY = "rgba(100, 100, 255, 0.50)";
 const BALL = "#33dd33";
 const OBSTACLE_COLOR = "cyan";
 
+let imageIndex = 0;
+const images: any[] = [
+    document.getElementById("noise00"),
+    document.getElementById("noise01"),
+    document.getElementById("noise02"),
+    document.getElementById("noise03"),
+]
+
 function setupHandlers(input: InputState) {
     document.onclick = (e) => {
         input.click = { x: e.pageX, y: e.pageY };
@@ -149,7 +157,7 @@ function drawBallOwner(
     strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 3);
 }
 
-
+let ballImageSkip = 0;
 function drawBall(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
@@ -161,6 +169,14 @@ function drawBall(
     const size = ball.size * scale.x;
     fillCircle(ctx, x, y, size, color);
     strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
+    const image = images[imageIndex];
+    if (ballImageSkip == 7) {
+        imageIndex = imageIndex + 1 == images.length ? 0 : imageIndex + 1;
+        ballImageSkip = 0;
+    } else {
+        ballImageSkip += 1;
+    }
+    ctx.drawImage(image, x - size, y - size, size * 2, size * 2);
 }
 
 function drawBooster(
