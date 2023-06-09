@@ -16,6 +16,7 @@ export type GameState = {
     boostSpawner: BoostSpawner,
     boostShuffler: BoostShuffler,
     obstacles: Obstacle[],
+    particles: Particle[],
 }
 
 export type Color = string | CanvasGradient | CanvasPattern;
@@ -25,6 +26,13 @@ export type Booster = { name: string, color: Color, collider: CircleCollider };
 export type BoosterValidator = (gameState: GameState, booster: Booster) => boolean;
 export type BoostSpawner = (dt: number, game: GameState, boosters: Booster[], validator: BoosterValidator) => void;
 export type BoostShuffler = (dt: number, boosters: Booster[]) => void;
+
+export type Particle = {
+    position: Point,
+    direction: Vec2,
+    duration: number,
+    color: Color
+}
 
 export type Player = {
     name: string

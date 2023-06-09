@@ -363,7 +363,8 @@ function main() {
             requestedBoosters: [],
             boostSpawner: boostSpawner(),
             boostShuffler: createBoostShuffler(),
-            obstacles: []
+            obstacles: [],
+            particles: [],
         }
     }
     const state = defaultState();

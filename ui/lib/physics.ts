@@ -4,7 +4,9 @@ import {
     Player,
     Ball,
     Booster, BoostShuffler,
-    Obstacle
+    Obstacle,
+    Color,
+    Particle,
 } from './types';
 
 import {
@@ -185,6 +187,12 @@ function collidePlayerAndBooster(
 ): boolean {
     if (collideCC(player.collider, booster.collider)) {
         processBooster(game, booster.name, player);
+        game.particles.push({
+            position: player.collider,
+            direction: normalize(sub(player.collider, booster.collider)),
+            duration: 10,
+            color: player.color
+        });
         return true;
     }
     return false;
