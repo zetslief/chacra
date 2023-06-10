@@ -5,7 +5,8 @@ import {
     KnownBooster,
     Color,
     Ball, Booster, Obstacle,
-    BoostSpawner
+    BoostSpawner,
+    Particle,
 } from './lib/types';
 
 import {
@@ -190,6 +191,17 @@ function drawObstacle(
     ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
 }
 
+function drawParticle(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    particle: Particle,
+) {
+    const x = particle.position.x * scale.x;
+    const y = particle.position.y * scale.y;
+    const size = 100;
+    strokeCircle(ctx, x, y, size, particle.color, LINE_WIDTH * 2);
+}
+
 // PROCESSING
 
 function draw(game: GameState, render: RenderState) {
@@ -202,6 +214,9 @@ function draw(game: GameState, render: RenderState) {
     drawBallOwner(ctx, scale, game.ballOwner);
     for (const obstacle of game.obstacles) {
         drawObstacle(ctx, scale, obstacle);
+    }
+    for (const particle of game.particles) {
+        drawParticle(ctx, scale, particle);
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {

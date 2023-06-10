@@ -5,8 +5,6 @@ import {
     Ball,
     Booster, BoostShuffler,
     Obstacle,
-    Color,
-    Particle,
 } from './types';
 
 import {
@@ -30,6 +28,12 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
             game.ballOwner = player;
             game.ballDirection = normalize(game.ballDirection);
+            game.particles.push({
+                position: { ...player.collider},
+                direction: normalize(sub(player.collider, game.ball.collider)),
+                duration: 10,
+                color: player.color
+            });
             break;
         }
     }
@@ -187,12 +191,6 @@ function collidePlayerAndBooster(
 ): boolean {
     if (collideCC(player.collider, booster.collider)) {
         processBooster(game, booster.name, player);
-        game.particles.push({
-            position: player.collider,
-            direction: normalize(sub(player.collider, booster.collider)),
-            duration: 10,
-            color: player.color
-        });
         return true;
     }
     return false;
