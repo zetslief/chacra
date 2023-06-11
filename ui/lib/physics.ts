@@ -31,10 +31,8 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
             game.ballOwner = player;
             game.ballDirection = normalize(game.ballDirection);
             game.areaBoosters.push({
-                position: { ...player.collider},
-                direction: normalize(sub(player.collider, game.ball.collider)),
+                collider: { ...player.collider, radius: AREA_BOOSTER_RADIUS},
                 duration: AREA_BOOSTER_DURATION,
-                radius: AREA_BOOSTER_RADIUS,
                 color: player.color
             });
             break;

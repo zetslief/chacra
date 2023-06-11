@@ -28,10 +28,8 @@ export type BoostSpawner = (dt: number, game: GameState, boosters: Booster[], va
 export type BoostShuffler = (dt: number, boosters: Booster[]) => void;
 
 export type AreaBooster = {
-    position: Point,
-    direction: Vec2,
+    collider: CircleCollider,
     duration: number,
-    radius: number,
     color: Color
 }
 

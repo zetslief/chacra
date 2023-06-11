@@ -196,9 +196,10 @@ function drawAreaBooster(
     scale: Vec2,
     areaBooster: AreaBooster,
 ) {
-    const x = areaBooster.position.x * scale.x;
-    const y = areaBooster.position.y * scale.y;
-    const radius = areaBooster.radius * scale.y;
+    const collider = areaBooster.collider;
+    const x = collider.x * scale.x;
+    const y = collider.y * scale.y;
+    const radius = collider.radius * scale.y;
     strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH * 2);
 }
 
