@@ -10,6 +10,8 @@ import {
 import {
     BOOSTER_SCALE,
     OBSTACLE_RADIUS,
+    AREA_BOOSTER_RADIUS,
+    AREA_BOOSTER_DURATION,
 } from './configuration';
 
 import {
@@ -31,7 +33,8 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
             game.areaBoosters.push({
                 position: { ...player.collider},
                 direction: normalize(sub(player.collider, game.ball.collider)),
-                duration: 10,
+                duration: AREA_BOOSTER_DURATION,
+                radius: AREA_BOOSTER_RADIUS,
                 color: player.color
             });
             break;

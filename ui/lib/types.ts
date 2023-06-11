@@ -31,6 +31,7 @@ export type AreaBooster = {
     position: Point,
     direction: Vec2,
     duration: number,
+    radius: number,
     color: Color
 }
 

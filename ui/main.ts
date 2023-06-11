@@ -184,7 +184,7 @@ function drawObstacle(
     const size = collider.radius * scale.x;
     strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
     const textHeight = Math.round(size / 2);
-    ctx.font = textHeight + "px serif";
+    ctx.font = textHeight + "px Serif";
     ctx.strokeStyle = OBSTACLE_COLOR;
     const text = obstacle.lifeCounter.toString();
     const metrics = ctx.measureText(text);
@@ -194,12 +194,12 @@ function drawObstacle(
 function drawAreaBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    particle: AreaBooster,
+    areaBooster: AreaBooster,
 ) {
-    const x = particle.position.x * scale.x;
-    const y = particle.position.y * scale.y;
-    const size = 100;
-    strokeCircle(ctx, x, y, size, particle.color, LINE_WIDTH * 2);
+    const x = areaBooster.position.x * scale.x;
+    const y = areaBooster.position.y * scale.y;
+    const radius = areaBooster.radius * scale.y;
+    strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH * 2);
 }
 
 // PROCESSING
