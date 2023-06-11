@@ -28,7 +28,7 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
             game.ballOwner = player;
             game.ballDirection = normalize(game.ballDirection);
-            game.particles.push({
+            game.areaBoosters.push({
                 position: { ...player.collider},
                 direction: normalize(sub(player.collider, game.ball.collider)),
                 duration: 10,

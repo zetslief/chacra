@@ -6,7 +6,7 @@ import {
     Color,
     Ball, Booster, Obstacle,
     BoostSpawner,
-    Particle,
+    AreaBooster,
 } from './lib/types';
 
 import {
@@ -191,10 +191,10 @@ function drawObstacle(
     ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
 }
 
-function drawParticle(
+function drawAreaBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    particle: Particle,
+    particle: AreaBooster,
 ) {
     const x = particle.position.x * scale.x;
     const y = particle.position.y * scale.y;
@@ -215,8 +215,8 @@ function draw(game: GameState, render: RenderState) {
     for (const obstacle of game.obstacles) {
         drawObstacle(ctx, scale, obstacle);
     }
-    for (const particle of game.particles) {
-        drawParticle(ctx, scale, particle);
+    for (const particle of game.areaBoosters) {
+        drawAreaBooster(ctx, scale, particle);
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {
@@ -379,7 +379,7 @@ function main() {
             boostSpawner: boostSpawner(),
             boostShuffler: createBoostShuffler(),
             obstacles: [],
-            particles: [],
+            areaBoosters: [],
         }
     }
     const state = defaultState();
