@@ -8,6 +8,7 @@ import {
 } from './types';
 
 import {
+    BALL_MAX_RADIUS,
     BOOSTER_SCALE,
     OBSTACLE_RADIUS,
     PLAYER_DEFAULT_SPEED,
@@ -166,7 +167,8 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
         player.collider.radius *= BOOSTER_SCALE;
     } else if (boosterName == "biggerBall") {
         game.ball.size *= BOOSTER_SCALE;
-        game.ball.collider.radius *= BOOSTER_SCALE;
+        game.ball.size = Math.min(game.ball.size, BALL_MAX_RADIUS);
+        game.ball.collider.radius = game.ball.size;
     } else if (boosterName == "shuffleBoosters") {
         game.boostShuffler = createBoostShuffler();
     } else if (boosterName == "obstacle") {
