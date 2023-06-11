@@ -10,6 +10,7 @@ import {
 import {
     BOOSTER_SCALE,
     OBSTACLE_RADIUS,
+    PLAYER_DEFAULT_SPEED,
     AREA_BOOSTER_RADIUS,
     AREA_BOOSTER_DURATION,
 } from './configuration';
@@ -36,6 +37,16 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
                 color: player.color
             });
             break;
+        }
+        player.speed = PLAYER_DEFAULT_SPEED;
+        for (const areaBooster of game.areaBoosters) {
+            if (areaBooster.color != player.color) {
+                continue;
+            }
+            if (collideCC(areaBooster.collider, player.collider)) {
+                player.speed *= 1.5;
+                break;
+            }
         }
     }
     collideBallAndObstacle(game, game.ball);
@@ -110,7 +121,7 @@ function createObstacle(): Obstacle {
 }
 
 function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
-    const step = (Math.PI / 2) * dt * dy;
+    const step = player.speed * dt * dy;
     const position = smul(ssum(player.position, -0.5), 2);
     const angle = Math.atan2(position.y, position.x) + step;
     const x = Math.cos(angle);

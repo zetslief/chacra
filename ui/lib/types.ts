@@ -39,6 +39,7 @@ export type Player = {
     size: number,
     collider: CircleCollider,
     color: Color,
+    speed: number,
     dead: boolean
 };
 

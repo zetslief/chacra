@@ -20,6 +20,7 @@ import {
     BOOSTER_RADIUS,
     BALL_RADIUS,
     PLAYER_RADIUS,
+    PLAYER_DEFAULT_SPEED,
     PLAYERS_COUNT
 } from './lib/configuration';
 
@@ -345,7 +346,14 @@ function main() {
             const color = "rgb(" + red + ", " + green * 2 + ", " + blue + ")";
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
-            players.push({ name, position, size, color, collider: { radius, ...position }, dead });
+            players.push({
+                name,
+                position,
+                size,
+                color,
+                collider: { radius, ...position },
+                speed: PLAYER_DEFAULT_SPEED,
+                dead });
         }
         return players;
     }
