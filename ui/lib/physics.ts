@@ -185,9 +185,9 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
             let pos = vec2(Math.cos(angle), Math.sin(angle));
             pos = ssum(smul(pos, 0.5), 0.5);
             game.areaBoosters.push({
-                collider: { ...pos, radius: AREA_BOOSTER_RADIUS },
+                collider: { ...pos, radius: player.collider.radius * 1.1 },
                 color: player.color,
-                duration: AREA_BOOSTER_DURATION + angle / 2,
+                duration: AREA_BOOSTER_DURATION + angle,
             });
         }
     } else if (boosterName == "deathBall") {

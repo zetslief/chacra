@@ -210,15 +210,15 @@ function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
+    for (const particle of game.areaBoosters) {
+        drawAreaBooster(ctx, scale, particle);
+    }
     for (let player of game.players) {
         drawPlayer(ctx, scale, player);
     }
     drawBallOwner(ctx, scale, game.ballOwner);
     for (const obstacle of game.obstacles) {
         drawObstacle(ctx, scale, obstacle);
-    }
-    for (const particle of game.areaBoosters) {
-        drawAreaBooster(ctx, scale, particle);
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {
