@@ -201,7 +201,7 @@ function drawAreaBooster(
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
     const radius = collider.radius * scale.y;
-    strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH * 2);
+    strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
 }
 
 // PROCESSING
