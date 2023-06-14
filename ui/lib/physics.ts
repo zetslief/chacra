@@ -178,6 +178,18 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
         game.boostShuffler = createBoostShuffler();
     } else if (boosterName == "obstacle") {
         game.obstacles.push(createObstacle());
+    } else if (boosterName == "megaElectric") {
+        const angleStep = Math.PI / 180;
+        for (let index = 0; index < 360; ++index) {
+            const angle = angleStep * index;
+            let pos = vec2(Math.cos(angle), Math.sin(angle));
+            pos = ssum(smul(pos, 0.5), 0.5);
+            game.areaBoosters.push({
+                collider: { ...pos, radius: AREA_BOOSTER_RADIUS },
+                color: player.color,
+                duration: AREA_BOOSTER_DURATION + angle / 2,
+            });
+        }
     } else if (boosterName == "deathBall") {
         player.dead = true;
     }
