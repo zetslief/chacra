@@ -340,10 +340,8 @@ function main() {
         for (const pivot of pivots) {
             const index: number = players.length;
             const name = "Player" + index;
-            const red = Math.floor((index / pivots.length) * 255);
-            const green = Math.floor(Math.max(Math.random() * red, 50));
-            const blue = Math.floor(Math.max(Math.random() * 200, 80));
-            const color = "rgb(" + red + ", " + green * 2 + ", " + blue + ")";
+            const colorValue = Math.round(index * (360 / pivots.length));
+            const color = "hsl(" + colorValue + ", 80%, 70%)";
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
             players.push({
