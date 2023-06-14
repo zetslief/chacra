@@ -262,7 +262,7 @@ function loop(
     view.frame = start - previousFrame;
     previousFrame = start;
     if (dt - duration < 0) {
-        loop(game, input, render, view, dt);
+        requestAnimationFrame(() => loop(game, input, render, view, dt));
     } else {
         setTimeout(() => loop(game, input, render, view, dt), (dt - duration) * 1000);
     }
