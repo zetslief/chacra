@@ -242,7 +242,9 @@ function loop(
     render: RenderState,
     view: PerfView,
     dt: number) {
+    const originalDt = dt; 
     const start = Date.now();
+    dt = (start - previousFrame) / 1000;
     if (game.players.length == 1) {
         if (input.click) {
             input.click = null;
@@ -261,10 +263,10 @@ function loop(
     view.physics = duration * 1000;
     view.frame = start - previousFrame;
     previousFrame = start;
-    if (dt - duration < 0) {
-        requestAnimationFrame(() => loop(game, input, render, view, dt));
+    if (originalDt - duration < 0) {
+        requestAnimationFrame(() => loop(game, input, render, view, originalDt));
     } else {
-        setTimeout(() => loop(game, input, render, view, dt), (dt - duration) * 1000);
+        setTimeout(() => loop(game, input, render, view, originalDt), (originalDt - duration) * 1000);
     }
 }
 
