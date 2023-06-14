@@ -4,6 +4,7 @@ import {
     Player,
     Ball,
     Booster, BoostShuffler,
+    AreaBooster,
     Obstacle,
 } from './types';
 
@@ -27,6 +28,9 @@ import {
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
     processInput(game.players, input, dt);
     game.boostSpawner(dt, game, game.boosters, validateBooster);
+    for (const areaBooster of game.areaBoosters) {
+        processAreaBooster(areaBooster, dt);
+    }
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
@@ -69,6 +73,7 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
     }
     game.players = game.players.filter(player => !player.dead);
+    game.areaBoosters = game.areaBoosters.filter(ab => ab.duration > 0);
     game.boosters = boosters;
     if (game.ballOwner.dead) {
         if (game.players.length > 0) {
@@ -176,6 +181,10 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
     } else if (boosterName == "deathBall") {
         player.dead = true;
     }
+}
+
+function processAreaBooster(areaBooster: AreaBooster, dt: number) {
+    areaBooster.duration -= dt;
 }
 
 function processRequestedBoosters(game: GameState, player: Player) {
