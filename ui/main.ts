@@ -259,9 +259,14 @@ function loop(
     }
     const stop = Date.now();
     const duration = (stop - start) / 1000;
-    view.dt = dt * 1000;
-    view.physics = duration * 1000;
-    view.frame = start - previousFrame;
+    view.write("dt", dt * 1000);
+    view.write("physics", duration * 1000);
+    view.write("frame",  start - previousFrame);
+    view.write("players", game.players.length);
+    view.write("ballOwner", game.ballOwner.name);
+    view.write("boosters", game.boosters.length);
+    view.write("obstacles", game.obstacles.length);
+    view.write("areaBoosters", game.areaBoosters.length);
     previousFrame = start;
     if (originalDt - duration < 0) {
         requestAnimationFrame(() => loop(game, input, render, view, originalDt));
@@ -400,29 +405,33 @@ function main() {
     loop(state, input, renderer, new PerfView(), dt);
 }
 
+type Set = (arg: number | string) => void;
 class PerfView {
-    private readonly _dt: HTMLElement;
-    private readonly _physics: HTMLElement;
-    private readonly _frame: HTMLElement;
+    private readonly labels: HTMLElement;
+    private readonly values: HTMLElement;
+    private readonly entries: Map<string, Set> = new Map<string, Set>();
 
     constructor() {
-        this._dt = document.getElementById("dt")!;
-        this._physics = document.getElementById("physics")!;
-        this._frame = document.getElementById("frame")!;
+        this.labels = document.getElementById("statsLabels")!;
+        this.values = document.getElementById("statsValues")!;
     }
 
-    set dt(value: number) {
-        this._dt.innerHTML = value.toString();
+    write(key: string, value: string | number) {
+        let entry = this.entries.get(key);
+        console.log(key, value, entry);
+        if (!entry) {
+            const element = document.createElement("div");
+            const label = document.createElement("p");
+            const text = document.createElement("p");
+            this.labels.appendChild(label);
+            this.values.appendChild(text);
+            label.innerText = key;
+            entry = (v) => text.innerText = v.toString();
+            this.entries.set(key, entry);
+        }
+        entry(value);
     }
-
-    set physics(value: number) {
-        this._physics.innerHTML = value.toString();
-    }
-
-    set frame(value: number) {
-        this._frame.innerHTML = value.toString();
-    }
-};
+}
 
 class BoostersView {
     constructor(onKnownBoosterTrigger: (knownBooster: KnownBooster) => void) {
