@@ -262,11 +262,7 @@ function loop(
     view.write("dt", dt * 1000);
     view.write("physics", duration * 1000);
     view.write("frame",  start - previousFrame);
-    view.write("players", game.players.length);
-    view.write("ballOwner", game.ballOwner.name);
-    view.write("boosters", game.boosters.length);
-    view.write("obstacles", game.obstacles.length);
-    view.write("areaBoosters", game.areaBoosters.length);
+    dumpGameState(game, (k, v) => view.write(k, v));
     previousFrame = start;
     if (originalDt - duration < 0) {
         requestAnimationFrame(() => loop(game, input, render, view, originalDt));
@@ -334,6 +330,15 @@ function calculatePivots(startAngle: number, angleStep: number, pivotCount: numb
         angle += angleStep;
     }
     return pivots;
+}
+
+type Dump = (name: string, content: string | number) => void;
+function dumpGameState(game: GameState, dump: Dump) {
+    dump("players", game.players.length);
+    dump("ballOwner", game.ballOwner.name);
+    dump("boosters", game.boosters.length);
+    dump("obstacles", game.obstacles.length);
+    dump("areaBoosters", game.areaBoosters.length);
 }
 
 function main() {
@@ -418,7 +423,6 @@ class PerfView {
 
     write(key: string, value: string | number) {
         let entry = this.entries.get(key);
-        console.log(key, value, entry);
         if (!entry) {
             const element = document.createElement("div");
             const label = document.createElement("p");
