@@ -28,13 +28,12 @@ canvas {
 
 #stats {
   display: flex;
-  flex-direction: row;
-  width: 100%;
 }
 
 .column {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   flex-grow: 1;
 }
 
@@ -42,16 +41,15 @@ canvas {
   border-style: dotted;
   border-color: green;
   border-width: 1px;
+  margin: 0px;
 }
 
 #labels {
-  flex-grow: 2;
 }
 
 #boosters {
   display: flex;
   flex-flow: column;
-  height: 100%;
 }
 
 #boosters > * {
