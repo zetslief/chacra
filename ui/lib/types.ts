@@ -17,6 +17,7 @@ export type GameState = {
     boostShuffler: BoostShuffler,
     obstacles: Obstacle[],
     areaBoosters: AreaBooster[],
+    areaBoosterSpawners: AreaBoosterSpawner[],
 }
 
 export type Color = string | CanvasGradient | CanvasPattern;
@@ -32,6 +33,7 @@ export type AreaBooster = {
     duration: number,
     color: Color
 }
+export type AreaBoosterSpawner = (dt: number, game: GameState, areaBoosters: AreaBooster[]) => boolean;
 
 export type Player = {
     name: string

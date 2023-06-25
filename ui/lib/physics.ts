@@ -4,7 +4,7 @@ import {
     Player,
     Ball,
     Booster, BoostShuffler,
-    AreaBooster,
+    AreaBooster, AreaBoosterSpawner,
     Obstacle,
 } from './types';
 
@@ -28,6 +28,7 @@ import {
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
     processInput(game.players, input, dt);
     game.boostSpawner(dt, game, game.boosters, validateBooster);
+    processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
         processAreaBooster(areaBooster, dt);
     }
@@ -179,17 +180,7 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
     } else if (boosterName == "obstacle") {
         game.obstacles.push(createObstacle());
     } else if (boosterName == "megaElectric") {
-        const angleStep = Math.PI / 180;
-        for (let index = 0; index < 360; ++index) {
-            const angle = angleStep * index;
-            let pos = vec2(Math.cos(angle), Math.sin(angle));
-            pos = ssum(smul(pos, 0.5), 0.5);
-            game.areaBoosters.push({
-                collider: { ...pos, radius: player.collider.radius * 1.1 },
-                color: player.color,
-                duration: AREA_BOOSTER_DURATION + angle,
-            });
-        }
+        game.areaBoosterSpawners.push(createAreaBoosterSpawner(player));
     } else if (boosterName == "deathBall") {
         player.dead = true;
     }
@@ -197,6 +188,10 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
 
 function processAreaBooster(areaBooster: AreaBooster, dt: number) {
     areaBooster.duration -= dt;
+}
+
+function processAreaBoosterSpawners(spawners: AreaBoosterSpawner[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
+    game.areaBoosterSpawners = spawners.filter((spawner) => spawner(dt, game, areaBoosters));
 }
 
 function processRequestedBoosters(game: GameState, player: Player) {
@@ -287,4 +282,27 @@ function collideAny(
         }
     }
     return false;
+}
+
+function createAreaBoosterSpawner(player: Player): AreaBoosterSpawner {
+    let index = 0;
+    const totalCount = 360;
+    const angleStep = (Math.PI * 2) / totalCount;
+    let totalTime = 0;
+    const delay = 0.010;
+    return (dt: number, game: GameState, areaBoosters: AreaBooster[]) => {
+        totalTime += dt;
+        while (totalTime / delay > index) {
+            const angle = angleStep * index;
+            let pos = vec2(Math.cos(angle), Math.sin(angle));
+            pos = ssum(smul(pos, 0.5), 0.5);
+            game.areaBoosters.push({
+                collider: { ...pos, radius: player.collider.radius * 1.1 },
+                color: player.color,
+                duration: AREA_BOOSTER_DURATION + angle,
+            });
+            ++index;
+        }
+        return index < totalCount;
+    };
 }

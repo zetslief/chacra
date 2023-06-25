@@ -399,6 +399,7 @@ function main() {
             boostShuffler: createBoostShuffler(),
             obstacles: [],
             areaBoosters: [],
+            areaBoosterSpawners: [],
         }
     }
     const state = defaultState();
@@ -424,7 +425,6 @@ class PerfView {
     write(key: string, value: string | number) {
         let entry = this.entries.get(key);
         if (!entry) {
-            const element = document.createElement("div");
             const label = document.createElement("p");
             const text = document.createElement("p");
             this.labels.appendChild(label);
