@@ -3,22 +3,23 @@ import {
     InputState,
     Player,
     Ball,
-    Booster, BoostShuffler,
-    AreaBooster, AreaBoosterSpawner,
+    Booster, BoosterValidator, BoostSpawnerState, BoostShufflerState,
+    AreaBooster, AreaBoosterSpawnerState,
     Obstacle,
 } from './types';
 
 import {
     BALL_MAX_RADIUS,
-    BOOSTER_SCALE,
+    BOOSTER_RADIUS, BOOSTER_SCALE,
     OBSTACLE_RADIUS,
     PLAYER_DEFAULT_SPEED,
     AREA_BOOSTER_RADIUS,
     AREA_BOOSTER_DURATION,
+    KNOWN_BOOSTERS,
 } from './configuration';
 
 import {
-    Vec2, Point,
+    Vec2,
     vec2, smul, sum, sub, ssum, normalize, len,
     CircleCollider,
     collideCC,
@@ -27,7 +28,7 @@ import {
 
 export function updatePhysics(game: GameState, input: InputState, dt: number) {
     processInput(game.players, input, dt);
-    game.boostSpawner(dt, game, game.boosters, validateBooster);
+    processBoostSpawner(dt, game.boostSpawner, game, game.boosters, validateBooster);
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
         processAreaBooster(areaBooster, dt);
@@ -56,7 +57,7 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
         }
     }
     collideBallAndObstacle(game, game.ball);
-    game.boostShuffler(dt, game.boosters);
+    processBoostShuffler(dt, game.boostShuffler, game.boosters);
     processRequestedBoosters(game, game.ballOwner);
     let boosters = []
     for (const booster of game.boosters) {
@@ -84,35 +85,35 @@ export function updatePhysics(game: GameState, input: InputState, dt: number) {
     }
 }
 
-export function createBoostShuffler(): BoostShuffler {
-    let initialized = false;
-    const destinationMap = new Map<Booster, Point>();
-    return (dt, boosters) => {
-        if (!initialized) {
-            for (const booster of boosters) {
-                let destination = smul(ssum(booster.collider, -0.5), 2)
-                destination = smul(destination, -1);
-                destination = ssum(smul(destination, 0.5), 0.5);
-                destinationMap.set(booster, destination);
-            }
-            initialized = true;
-        }
+function createBoostShuffler(): BoostShufflerState {
+    return { initialized: false, destinationMap: new Map() };
+}
+
+function processBoostShuffler(dt: number, state: BoostShufflerState, boosters: Booster[]) {
+    if (!state.initialized) {
         for (const booster of boosters) {
-            if (!destinationMap.has(booster)) {
-                destinationMap.delete(booster);
-            }
+            let destination = smul(ssum(booster.collider, -0.5), 2)
+            destination = smul(destination, -1);
+            destination = ssum(smul(destination, 0.5), 0.5);
+            state.destinationMap.set(booster, destination);
         }
-        for (const [booster, destination] of destinationMap.entries()) {
-            const step = 0.10 * dt;
-            const direction = normalize(sub(destination, booster.collider));
-            booster.collider = {
-                radius: booster.collider.radius,
-                ...sum(booster.collider, smul(direction, step))
-            };
-            // TODO: remove this mutation from the loop!
-            if (len(sub(booster.collider, destination)) < 0.0050) {
-                destinationMap.delete(booster);
-            }
+        state.initialized = true;
+    }
+    for (const booster of boosters) {
+        if (!state.destinationMap.has(booster)) {
+            state.destinationMap.delete(booster);
+        }
+    }
+    for (const [booster, destination] of state.destinationMap.entries()) {
+        const step = 0.10 * dt;
+        const direction = normalize(sub(destination, booster.collider));
+        booster.collider = {
+            radius: booster.collider.radius,
+            ...sum(booster.collider, smul(direction, step))
+        };
+        // TODO: remove this mutation from the loop!
+        if (len(sub(booster.collider, destination)) < 0.0050) {
+            state.destinationMap.delete(booster);
         }
     }
 }
@@ -190,8 +191,11 @@ function processAreaBooster(areaBooster: AreaBooster, dt: number) {
     areaBooster.duration -= dt;
 }
 
-function processAreaBoosterSpawners(spawners: AreaBoosterSpawner[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
-    game.areaBoosterSpawners = spawners.filter((spawner) => spawner(dt, game, areaBoosters));
+function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
+    for (const state of spawners) {
+        areaBoosterSpawner(state, areaBoosters, state.player, dt);
+    }
+    game.areaBoosterSpawners = spawners.filter((spawner) => spawner.finished);
 }
 
 function processRequestedBoosters(game: GameState, player: Player) {
@@ -284,25 +288,63 @@ function collideAny(
     return false;
 }
 
-function createAreaBoosterSpawner(player: Player): AreaBoosterSpawner {
-    let index = 0;
-    const totalCount = 360;
-    const angleStep = (Math.PI * 2) / totalCount;
-    let totalTime = 0;
-    const delay = 0.010;
-    return (dt: number, game: GameState, areaBoosters: AreaBooster[]) => {
-        totalTime += dt;
-        while (totalTime / delay > index) {
-            const angle = angleStep * index;
-            let pos = vec2(Math.cos(angle), Math.sin(angle));
-            pos = ssum(smul(pos, 0.5), 0.5);
-            game.areaBoosters.push({
-                collider: { ...pos, radius: player.collider.radius * 1.1 },
-                color: player.color,
-                duration: AREA_BOOSTER_DURATION + angle,
-            });
-            ++index;
-        }
-        return index < totalCount;
+function createAreaBoosterSpawner(player: Player): AreaBoosterSpawnerState {
+    return {
+        index: 0,
+        count: 360,
+        elapsedTime: 0,
+        delay: 0.01,
+        player,
+        finished: false,
     };
+}
+
+function areaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBooster[], player: Player, dt: number) {
+    const angleStep = (Math.PI * 2) / state.count;
+    state.elapsedTime += dt;
+    while (state.elapsedTime / state.delay > state.index) {
+        const angle = angleStep * state.index;
+        let pos = vec2(Math.cos(angle), Math.sin(angle));
+        pos = ssum(smul(pos, 0.5), 0.5);
+        areaBoosters.push({
+            collider: { ...pos, radius: player.collider.radius * 1.1 },
+            color: player.color,
+            duration: AREA_BOOSTER_DURATION + angle,
+        });
+        ++state.index;
+    }
+}
+
+function processBoostSpawner(dt: number, state: BoostSpawnerState, game: GameState, boosters: Booster[], validate: BoosterValidator) {
+    function randomBooster(): Booster {
+        const totalWeight = KNOWN_BOOSTERS.map(b => b.weight).reduce((prev, cur) => prev + cur);
+        const selectedWeight = Math.floor(Math.random() * totalWeight);
+        const offset = 0.2;
+        const collider = {
+            x: offset + Math.random() * (1 - offset),
+            y: offset + Math.random() * (1 - offset),
+            radius: BOOSTER_RADIUS
+        };
+        let weightCounter = 0;
+        for (let index = 0; index < KNOWN_BOOSTERS.length; ++index) {
+            const booster = KNOWN_BOOSTERS[index];
+            weightCounter += booster.weight;
+            if (weightCounter > selectedWeight) {
+                return { collider, ...booster };
+            }
+        }
+        return { collider, ...KNOWN_BOOSTERS[KNOWN_BOOSTERS.length - 1] };
+    }
+
+    state.timeLeft -= dt;
+    if (state.timeLeft < 0) {
+        let attempts = 0;
+        let booster = randomBooster();
+        while (attempts < 10 && !validate(game, booster)) {
+            booster = randomBooster();
+        }
+
+        boosters.push(randomBooster());
+        state.timeLeft = state.delay;
+    }
 }

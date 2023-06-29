@@ -26,7 +26,6 @@ import {
 
 import {
     updatePhysics,
-    createBoostShuffler
 } from './lib/physics';
 
 export type RenderState = {
@@ -281,44 +280,6 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
-function boostSpawner(): BoostSpawner {
-    function randomBooster(): Booster {
-        const totalWeight = KNOWN_BOOSTERS.map(b => b.weight).reduce((prev, cur) => prev + cur);
-        const selectedWeight = Math.floor(Math.random() * totalWeight);
-        const offset = 0.2;
-        const collider = {
-            x: offset + Math.random() * (1 - offset),
-            y: offset + Math.random() * (1 - offset),
-            radius: BOOSTER_RADIUS
-        };
-        let weightCounter = 0;
-        for (let index = 0; index < KNOWN_BOOSTERS.length; ++index) {
-            const booster = KNOWN_BOOSTERS[index];
-            weightCounter += booster.weight;
-            if (weightCounter > selectedWeight) {
-                return { collider, ...booster };
-            }
-        }
-        return { collider, ...KNOWN_BOOSTERS[KNOWN_BOOSTERS.length - 1] };
-    }
-
-    const boosterDelay = 1;
-    let timeLeft = boosterDelay;
-    return (dt, game, boosters, validate) => {
-        timeLeft -= dt;
-        if (timeLeft < 0) {
-            let attempts = 0;
-            let booster = randomBooster();
-            while (attempts < 10 && !validate(game, booster)) {
-                booster = randomBooster();
-            }
-
-            boosters.push(randomBooster());
-            timeLeft = boosterDelay;
-        }
-    };
-}
-
 type Pivot = Point & { angle: number };
 function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
     let pivots = [];
@@ -395,8 +356,14 @@ function main() {
             ballDirection: vec2(1.0, 0.0),
             boosters: [],
             requestedBoosters: [],
-            boostSpawner: boostSpawner(),
-            boostShuffler: createBoostShuffler(),
+            boostSpawner: {
+                delay: 1,
+                timeLeft: 1,
+            },
+            boostShuffler: {
+                initialized: false,
+                destinationMap: new Map(),
+            },
             obstacles: [],
             areaBoosters: [],
             areaBoosterSpawners: [],
