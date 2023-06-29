@@ -375,7 +375,7 @@ function main() {
     setupHandlers(input);
     const dt = (1000 / 30) / 1000;
     new BoostersView(b => state.requestedBoosters.push(b));
-    var worker = new Worker("physics_worker.js");
+    var worker = new Worker("./physics.worker.js");
     worker.postMessage(state);
     loop(state, input, renderer, new PerfView(), dt);
 }

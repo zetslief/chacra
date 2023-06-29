@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "esbuild main.ts --bundle --outfile=./dist/main.js && esbuild physics_worker.ts --bundle --outfile=./dist/physics_worker.js",
+    "build": "esbuild main.ts --bundle --outfile=./dist/main.js && esbuild physics.worker.ts --bundle --outfile=./dist/physics.worker.js",
     "watch": "esbuild main.ts --watch --bundle --outfile=./dist/main.js",
     "test": "esbuild test.ts --bundle --platform=node --outfile=./dist/test.js && node ./dist/test.js"
   },
