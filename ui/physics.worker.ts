@@ -4,7 +4,7 @@ import { updatePhysics } from './lib/physics';
 onmessage = (event) => {
     const game = event.data as GameState;
     if (game) {
-        loop(game, Date.now() - 1000, (1000 / 60) * 0.001);
+        loop(game, Date.now() - 1000, (1000 / 30) * 0.001);
     }
 };
 
@@ -23,6 +23,6 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     if (originalDt - duration < 0) {
         loop(game, previousFrame, originalDt);
     } else {
-        setTimeout(() => loop(game, previousFrame, (originalDt - duration) * 1000));
+        setTimeout(() => loop(game, previousFrame, originalDt), (originalDt - duration) * 1000);
     }
 }

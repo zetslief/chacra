@@ -241,10 +241,12 @@ function loop(
     dt: number) {
     const originalDt = dt; 
     const start = Date.now();
-    if (newState) {
-        game = newState;
-        newState = null;
+    if (!newState) {
+        requestAnimationFrame(() => loop(game, input, render, view, originalDt));
+        return;
     }
+    game = newState;
+    newState = null;
     dt = (start - previousFrame) / 1000;
     if (game.players.length == 1) {
         if (input.click) {
@@ -264,11 +266,7 @@ function loop(
     view.write("frame",  start - previousFrame);
     dumpGameState(game, (k, v) => view.write(k, v));
     previousFrame = start;
-    if (originalDt - duration < 0) {
-        requestAnimationFrame(() => loop(game, input, render, view, originalDt));
-    } else {
-        setTimeout(() => loop(game, input, render, view, originalDt), (originalDt - duration) * 1000);
-    }
+    requestAnimationFrame(() => loop(game, input, render, view, originalDt));
 }
 
 function setupRenderState(): RenderState {
