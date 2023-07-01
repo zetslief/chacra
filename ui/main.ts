@@ -231,23 +231,13 @@ function drawFinalScreen(game: GameState, render: RenderState) {
     fillCenteredText(ctx, scale, text, scale.y / 10);
 }
 
-let previousFrame = Date.now();
-
-function loop(
-    game: GameState,
-    input: InputState,
-    render: RenderState,
-    view: PerfView,
-    dt: number) {
-    const originalDt = dt; 
-    const start = Date.now();
+function loop(game: GameState, input: InputState, render: RenderState, view: PerfView) {
     if (!newState) {
-        requestAnimationFrame(() => loop(game, input, render, view, originalDt));
+        requestAnimationFrame(() => loop(game, input, render, view));
         return;
     }
     game = newState;
     newState = null;
-    dt = (start - previousFrame) / 1000;
     if (game.players.length == 1) {
         if (input.click) {
             input.click = null;
@@ -259,14 +249,8 @@ function loop(
     } else {
         draw(game, render);
     }
-    const stop = Date.now();
-    const duration = (stop - start) / 1000;
-    view.write("dt", dt * 1000);
-    view.write("physics", duration * 1000);
-    view.write("frame",  start - previousFrame);
     dumpGameState(game, (k, v) => view.write(k, v));
-    previousFrame = start;
-    requestAnimationFrame(() => loop(game, input, render, view, originalDt));
+    requestAnimationFrame(() => loop(game, input, render, view));
 }
 
 function setupRenderState(): RenderState {
