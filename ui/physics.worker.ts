@@ -14,9 +14,9 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     const start = Date.now();
     dt = (start - previousFrame) / 1000;
     if (game.players.length > 1) {
-        console.log("worker message");
-        // updatePhysics(game, input, dt);
+        updatePhysics(game, input, dt);
     }
+    postMessage(game);
     const stop = Date.now();
     const duration = (stop - start) / 1000;
     previousFrame = start;

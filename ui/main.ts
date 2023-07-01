@@ -5,7 +5,6 @@ import {
     KnownBooster,
     Color,
     Ball, Booster, Obstacle,
-    BoostSpawner,
     AreaBooster,
 } from './lib/types';
 
@@ -17,7 +16,6 @@ import {
 
 import {
     KNOWN_BOOSTERS,
-    BOOSTER_RADIUS,
     BALL_RADIUS,
     PLAYER_RADIUS,
     PLAYER_DEFAULT_SPEED,
@@ -243,6 +241,10 @@ function loop(
     dt: number) {
     const originalDt = dt; 
     const start = Date.now();
+    if (newState) {
+        game = newState;
+        newState = null;
+    }
     dt = (start - previousFrame) / 1000;
     if (game.players.length == 1) {
         if (input.click) {
@@ -253,7 +255,6 @@ function loop(
         draw(game, render);
         drawFinalScreen(game, render);
     } else {
-        updatePhysics(game, input, dt);
         draw(game, render);
     }
     const stop = Date.now();
@@ -302,6 +303,7 @@ function dumpGameState(game: GameState, dump: Dump) {
     dump("areaBoosters", game.areaBoosters.length);
 }
 
+let newState: GameState | null = null;
 function main() {
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
@@ -376,6 +378,9 @@ function main() {
     const dt = (1000 / 30) / 1000;
     new BoostersView(b => state.requestedBoosters.push(b));
     var worker = new Worker("./physics.worker.js");
+    worker.onmessage = (e) => {
+        newState = e.data as GameState;
+    };
     worker.postMessage(state);
     loop(state, input, renderer, new PerfView(), dt);
 }
