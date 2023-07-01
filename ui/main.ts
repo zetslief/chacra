@@ -22,10 +22,6 @@ import {
     PLAYERS_COUNT
 } from './lib/configuration';
 
-import {
-    updatePhysics,
-} from './lib/physics';
-
 export type RenderState = {
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
@@ -356,7 +352,6 @@ function main() {
     const state = defaultState();
     const renderer = setupRenderState();
     const input = { click: null, dx: 0, dy: 0 };
-    setupHandlers(input);
     const dt = (1000 / 30) / 1000;
     new BoostersView(b => state.requestedBoosters.push(b));
     var worker = new Worker("./physics.worker.js");
@@ -364,7 +359,8 @@ function main() {
         newState = e.data as GameState;
     };
     worker.postMessage(state);
-    loop(state, input, renderer, new PerfView(), dt);
+    setupHandlers(input);
+    loop(state, input, renderer, new PerfView());
 }
 
 type Set = (arg: number | string) => void;
