@@ -52,20 +52,19 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     }
 }
 
-type Pivot = Point & { angle: number };
-function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
-    let pivots = [];
-    let angle = startAngle;
-    for (let index = 0; index < pivotCount; index += 1) {
-        let pivot = vec2(Math.cos(angle), Math.sin(angle));
-        pivot = ssum(smul(pivot, 0.5), 0.5);
-        pivots.push({ angle, ...pivot });
-        angle += angleStep;
-    }
-    return pivots;
-}
-
 function defaultState(): GameState {
+    type Pivot = Point & { angle: number };
+    function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
+        let pivots = [];
+        let angle = startAngle;
+        for (let index = 0; index < pivotCount; index += 1) {
+            let pivot = vec2(Math.cos(angle), Math.sin(angle));
+            pivot = ssum(smul(pivot, 0.5), 0.5);
+            pivots.push({ angle, ...pivot });
+            angle += angleStep;
+        }
+        return pivots;
+    }
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
         return { position, size, collider: { x: position.x, y: position.y, radius } };
