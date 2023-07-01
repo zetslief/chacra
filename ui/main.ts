@@ -8,19 +8,9 @@ import {
     AreaBooster,
 } from './lib/types';
 
-import {
-    Vec2, Point,
-    vec2, smul, ssum,
-    LineCollider,
-} from './lib/math';
+import { Vec2, vec2, } from './lib/math';
 
-import {
-    KNOWN_BOOSTERS,
-    BALL_RADIUS,
-    PLAYER_RADIUS,
-    PLAYER_DEFAULT_SPEED,
-    PLAYERS_COUNT
-} from './lib/configuration';
+import { KNOWN_BOOSTERS } from './lib/configuration';
 
 export type RenderState = {
     canvas: HTMLCanvasElement,
@@ -230,12 +220,12 @@ function drawFinalScreen(game: GameState, render: RenderState) {
     fillCenteredText(ctx, scale, text, scale.y / 10);
 }
 
-function loop(game: GameState, render: RenderState, view: PerfView) {
+function loop(render: RenderState, view: PerfView) {
     if (!newState) {
-        requestAnimationFrame(() => loop(game, render, view));
+        requestAnimationFrame(() => loop(render, view));
         return;
     }
-    game = newState;
+    const game = newState;
     newState = null;
     if (game.players.length == 1) {
         draw(game, render);
@@ -244,7 +234,7 @@ function loop(game: GameState, render: RenderState, view: PerfView) {
         draw(game, render);
     }
     dumpGameState(game, (k, v) => view.write(k, v));
-    requestAnimationFrame(() => loop(game, render, view));
+    requestAnimationFrame(() => loop(render, view));
 }
 
 function setupRenderState(): RenderState {
@@ -255,19 +245,6 @@ function setupRenderState(): RenderState {
     canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
-}
-
-type Pivot = Point & { angle: number };
-function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
-    let pivots = [];
-    let angle = startAngle;
-    for (let index = 0; index < pivotCount; index += 1) {
-        let pivot = vec2(Math.cos(angle), Math.sin(angle));
-        pivot = ssum(smul(pivot, 0.5), 0.5);
-        pivots.push({ angle, ...pivot });
-        angle += angleStep;
-    }
-    return pivots;
 }
 
 type Dump = (name: string, content: string | number) => void;
@@ -281,81 +258,13 @@ function dumpGameState(game: GameState, dump: Dump) {
 
 let newState: GameState | null = null;
 function main() {
-    function ball(position: Point): Ball {
-        const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
-        return { position, size, collider: { x: position.x, y: position.y, radius } };
-    }
-    function createPlayers(pivots: Pivot[]): Player[] {
-        const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
-        let players = []
-        for (const pivot of pivots) {
-            const index: number = players.length;
-            const name = "Player" + index;
-            const colorValue = Math.round(index * (360 / pivots.length));
-            const color = "hsl(" + colorValue + ", 80%, 70%)";
-            const position = { x: pivot.x, y: pivot.y };
-            const dead = false;
-            players.push({
-                name,
-                position,
-                size,
-                color,
-                collider: { radius, ...position },
-                speed: PLAYER_DEFAULT_SPEED,
-                dead });
-        }
-        return players;
-    }
-    function walls(pivots: Pivot[]): LineCollider[] {
-        let walls = [];
-        for (let index = 0; index < pivots.length - 1; index += 1) {
-            const pivot = pivots[index];
-            const nextPivot = pivots[index + 1];
-            const a = pivot;
-            const b = nextPivot;
-            walls.push({ a, b });
-        }
-        walls.push({ a: pivots[pivots.length - 1], b: pivots[0] });
-        return walls;
-    }
-    function defaultState(): GameState {
-        const numberOfPlayers = PLAYERS_COUNT;
-        const sectionAngle = (Math.PI * 2) / numberOfPlayers
-        const wallPivots = calculatePivots(0, sectionAngle, numberOfPlayers);
-        const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
-        const players = createPlayers(playerPivots);
-        const randomPlayerIndex = Math.floor(Math.random() * players.length);
-        return {
-            type: "GameState",
-            numberOfPlayers,
-            players,
-            ballOwner: players[randomPlayerIndex],
-            ball: ball(vec2(0.5, 0.5)),
-            walls: walls(wallPivots),
-            ballDirection: vec2(1.0, 0.0),
-            boosters: [],
-            requestedBoosters: [],
-            boostSpawner: {
-                delay: 1,
-                timeLeft: 1,
-            },
-            boostShuffler: {
-                initialized: false,
-                destinationMap: new Map(),
-            },
-            obstacles: [],
-            areaBoosters: [],
-            areaBoosterSpawners: [],
-        }
-    }
-    const state = defaultState();
     const renderer = setupRenderState();
-    new BoostersView(b => state.requestedBoosters.push(b));
+    new BoostersView(b => console.log("Implement me! Old implementation: state.requestedBoosters.push(b)"));
     var worker = new Worker("./physics.worker.js");
     worker.onmessage = (e) => newState = e.data as GameState;
-    worker.postMessage(state);
     setupInputHandlers((input) => worker.postMessage(input));
-    loop(state, renderer, new PerfView());
+    worker.postMessage("start");
+    loop(renderer, new PerfView());
 }
 
 type Set = (arg: number | string) => void;
