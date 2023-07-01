@@ -4,6 +4,7 @@ import {
     Player,
     Ball,
 } from './lib/types';
+
 import { updatePhysics } from './lib/physics';
 
 import {
@@ -23,7 +24,7 @@ let input: InputState = new InputState();
 
 onmessage = (event) => {
     if (event.data === "start") {
-        const fps = 30;
+        const fps = 60;
         const dt = (1000 / fps) / 1000;
         loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {

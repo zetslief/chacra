@@ -24,27 +24,6 @@ const OVERLAY = "rgba(100, 100, 255, 0.50)";
 const BALL = "#33dd33";
 const OBSTACLE_COLOR = "cyan";
 
-function setupInputHandlers(update: (state: InputState) => void) {
-    const input: InputState = new InputState();
-    document.onclick = (e) => {
-        input.click = { x: e.pageX, y: e.pageY };
-        update(input);
-    };
-    document.onkeydown = (e) => {
-        if (e.isComposing || e.keyCode === 229) {
-            return;
-        }
-        const key = e.code.toUpperCase();
-        if (key === "ARROWUP") {
-            input.dy = 1;
-        }
-        if (key === "ARROWDOWN") {
-            input.dy = -1;
-        }
-        update(input);
-    };
-}
-
 // DRAWING
 function drawRect(
     ctx: CanvasRenderingContext2D,
@@ -245,6 +224,27 @@ function setupRenderState(): RenderState {
     canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
+}
+
+function setupInputHandlers(update: (state: InputState) => void) {
+    const input: InputState = new InputState();
+    document.onclick = (e) => {
+        input.click = { x: e.pageX, y: e.pageY };
+        update(input);
+    };
+    document.onkeydown = (e) => {
+        if (e.isComposing || e.keyCode === 229) {
+            return;
+        }
+        const key = e.code.toUpperCase();
+        if (key === "ARROWUP") {
+            input.dy = 1;
+        }
+        if (key === "ARROWDOWN") {
+            input.dy = -1;
+        }
+        update(input);
+    };
 }
 
 type Dump = (name: string, content: string | number) => void;
