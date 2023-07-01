@@ -4,7 +4,16 @@ import {
     LineCollider
 } from './math';
 
-export type GameState = {
+export type StateType = 
+    "GameState"
+    | "InputState";
+
+export type State = {
+    readonly type: StateType;
+};
+
+export type GameState = State & {
+    type: "GameState",
     numberOfPlayers: number,
     players: Player[],
     ballOwner: Player,
@@ -73,10 +82,11 @@ export type Ball = {
 
 export type Click = Point;
 
-export type InputState = {
-    click: Click | null,
-    dx: number,
-    dy: number
+export class InputState implements State {
+    readonly type: StateType = "InputState";
+    click?: Click;
+    dx: number = 0;
+    dy: number = 0;
 };
 
 export type Obstacle = CircleCollider & { lifeCounter: number };

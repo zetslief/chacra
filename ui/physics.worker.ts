@@ -1,14 +1,23 @@
 import { GameState, InputState } from './lib/types';
 import { updatePhysics } from './lib/physics';
 
+let input: InputState = new InputState();
+
 onmessage = (event) => {
-    const game = event.data as GameState;
-    if (game) {
-        loop(game, Date.now() - 1000, (1000 / 30) * 0.001);
+    if ("type" in event.data) {
+        if (event.data.type == "InputState") {
+            input = event.data;
+        }
+        else {
+            loop(
+                event.data as GameState,
+                Date.now() - 1000,
+                (1000 / 30) * 0.001
+            );
+        }
     }
 };
 
-const input: InputState = { click: null, dx: 0, dy: 0 };
 function loop(game: GameState, previousFrame: number, dt: number) {
     const originalDt = dt; 
     const start = Date.now();

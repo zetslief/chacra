@@ -34,9 +34,11 @@ const OVERLAY = "rgba(100, 100, 255, 0.50)";
 const BALL = "#33dd33";
 const OBSTACLE_COLOR = "cyan";
 
-function setupHandlers(input: InputState) {
+function setupInputHandlers(update: (state: InputState) => void) {
+    const input: InputState = new InputState();
     document.onclick = (e) => {
         input.click = { x: e.pageX, y: e.pageY };
+        update(input);
     };
     document.onkeydown = (e) => {
         if (e.isComposing || e.keyCode === 229) {
@@ -49,6 +51,7 @@ function setupHandlers(input: InputState) {
         if (key === "ARROWDOWN") {
             input.dy = -1;
         }
+        update(input);
     };
 }
 
@@ -227,26 +230,21 @@ function drawFinalScreen(game: GameState, render: RenderState) {
     fillCenteredText(ctx, scale, text, scale.y / 10);
 }
 
-function loop(game: GameState, input: InputState, render: RenderState, view: PerfView) {
+function loop(game: GameState, render: RenderState, view: PerfView) {
     if (!newState) {
-        requestAnimationFrame(() => loop(game, input, render, view));
+        requestAnimationFrame(() => loop(game, render, view));
         return;
     }
     game = newState;
     newState = null;
     if (game.players.length == 1) {
-        if (input.click) {
-            input.click = null;
-            main();
-            return;
-        }
         draw(game, render);
         drawFinalScreen(game, render);
     } else {
         draw(game, render);
     }
     dumpGameState(game, (k, v) => view.write(k, v));
-    requestAnimationFrame(() => loop(game, input, render, view));
+    requestAnimationFrame(() => loop(game, render, view));
 }
 
 function setupRenderState(): RenderState {
@@ -328,6 +326,7 @@ function main() {
         const players = createPlayers(playerPivots);
         const randomPlayerIndex = Math.floor(Math.random() * players.length);
         return {
+            type: "GameState",
             numberOfPlayers,
             players,
             ballOwner: players[randomPlayerIndex],
@@ -351,16 +350,12 @@ function main() {
     }
     const state = defaultState();
     const renderer = setupRenderState();
-    const input = { click: null, dx: 0, dy: 0 };
-    const dt = (1000 / 30) / 1000;
     new BoostersView(b => state.requestedBoosters.push(b));
     var worker = new Worker("./physics.worker.js");
-    worker.onmessage = (e) => {
-        newState = e.data as GameState;
-    };
+    worker.onmessage = (e) => newState = e.data as GameState;
     worker.postMessage(state);
-    setupHandlers(input);
-    loop(state, input, renderer, new PerfView());
+    setupInputHandlers((input) => worker.postMessage(input));
+    loop(state, renderer, new PerfView());
 }
 
 type Set = (arg: number | string) => void;
