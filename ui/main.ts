@@ -259,10 +259,10 @@ function dumpGameState(game: GameState, dump: Dump) {
 let newState: GameState | null = null;
 function main() {
     const renderer = setupRenderState();
-    new BoostersView(b => console.log("Implement me! Old implementation: state.requestedBoosters.push(b)"));
     var worker = new Worker("./physics.worker.js");
     worker.onmessage = (e) => newState = e.data as GameState;
     setupInputHandlers((input) => worker.postMessage(input));
+    new BoostersView(b => worker.postMessage(b));
     worker.postMessage("start");
     loop(renderer, new PerfView());
 }

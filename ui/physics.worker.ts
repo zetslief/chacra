@@ -25,7 +25,7 @@ let input: InputState = new InputState();
 onmessage = (event) => {
     if (event.data === "start") {
         const fps = 60;
-        const dt = (1000 / fps) / 1000;
+        const dt = (1 / fps);
         loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {
         if (event.data.type == "InputState") {
