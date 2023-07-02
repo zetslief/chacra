@@ -261,6 +261,7 @@ function dumpGameState(game: GameState, dump: Dump) {
     dump("ballOwner", game.ballOwner.name);
     dump("boosters", game.boosters.length);
     dump("obstacles", game.obstacles.length);
+    dump("areaBoosterSpawners", game.areaBoosterSpawners.length);
     dump("areaBoosters", game.areaBoosters.length);
 }
 

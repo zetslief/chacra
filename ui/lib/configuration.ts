@@ -11,7 +11,7 @@ export const BOOSTER_RADIUS = 0.020;
 export const OBSTACLE_RADIUS = 0.030;
 
 export const AREA_BOOSTER_RADIUS = 0.10;
-export const AREA_BOOSTER_DURATION = 10;
+export const AREA_BOOSTER_DURATION = 4;
 
 export const PLAYERS_COUNT = 12;
 export const BOOSTER_SCALE = 1.1;

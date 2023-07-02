@@ -308,7 +308,7 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
         areaBoosters.push({
             collider: { ...pos, radius: player.collider.radius * 1.1 },
             color: player.color,
-            duration: AREA_BOOSTER_DURATION + angle,
+            duration: AREA_BOOSTER_DURATION,
         });
         ++state.index;
     }
