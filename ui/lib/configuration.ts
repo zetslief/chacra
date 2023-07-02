@@ -24,10 +24,10 @@ export const OBSTACLE_WEIGHT = 20;
 export const MEGA_ELECTRIC_WEIGHT = 10;
 
 export const KNOWN_BOOSTERS: KnownBooster[] = [
-    { name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
-    { name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
-    { name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
-    { name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
-    { name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
-    { name: "megaElectric", color: "cyan", weight: MEGA_ELECTRIC_WEIGHT },
+    { type: "KnownBooster", name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
+    { type: "KnownBooster", name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
+    { type: "KnownBooster", name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },
+    { type: "KnownBooster", name: "deathBall", color: "red", weight: DEATH_BALL_WEIGHT },
+    { type: "KnownBooster", name: "obstacle", color: "gold", weight: OBSTACLE_WEIGHT },
+    { type: "KnownBooster", name: "megaElectric", color: "cyan", weight: MEGA_ELECTRIC_WEIGHT },
 ];

@@ -3,6 +3,7 @@ import {
     InputState,
     Player,
     Ball,
+    KnownBooster,
 } from './lib/types';
 
 import { updatePhysics } from './lib/physics';
@@ -21,6 +22,7 @@ import {
 } from './lib/configuration';
 
 let input: InputState = new InputState();
+let knownBoosterQueue: KnownBooster[] = [];
 
 onmessage = (event) => {
     if (event.data === "start") {
@@ -28,8 +30,10 @@ onmessage = (event) => {
         const dt = (1 / fps);
         loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {
-        if (event.data.type == "InputState") {
+        if (event.data.type === "InputState") {
             input = event.data;
+        } else if (event.data.type === "KnownBooster") {
+            knownBoosterQueue.push(event.data as KnownBooster);
         }
     }
 };
@@ -38,6 +42,8 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     const originalDt = dt; 
     const start = Date.now();
     dt = (start - previousFrame) / 1000;
+    game.requestedBoosters = knownBoosterQueue;
+    knownBoosterQueue = [];
     if (game.players.length > 1) {
         updatePhysics(game, input, dt);
     }
