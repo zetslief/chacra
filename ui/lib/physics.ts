@@ -193,7 +193,7 @@ function processAreaBooster(areaBooster: AreaBooster, dt: number) {
 
 function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
     for (const state of spawners) {
-        areaBoosterSpawner(state, areaBoosters, state.player, dt);
+        processAreaBoosterSpawner(state, areaBoosters, state.player, dt);
     }
     game.areaBoosterSpawners = spawners.filter((spawner) => !spawner.finished);
 }
@@ -250,7 +250,7 @@ function processInput(players: Player[], input: InputState, dt: number) {
         input.dx = 0;
         input.dy = 0;
     }
-    input.click = null;
+    input.click = undefined;
     let index = 1;
     if (Math.random() > 0.00) {
         while (index < players.length) {
@@ -299,7 +299,7 @@ function createAreaBoosterSpawner(player: Player): AreaBoosterSpawnerState {
     };
 }
 
-function areaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBooster[], player: Player, dt: number) {
+function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBooster[], player: Player, dt: number) {
     const angleStep = (Math.PI * 2) / state.count;
     state.elapsedTime += dt;
     while (state.elapsedTime / state.delay > state.index) {
