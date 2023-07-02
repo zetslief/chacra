@@ -26,8 +26,13 @@ import {
 } from './math';
 
 
-export function updatePhysics(game: GameState, input: InputState, dt: number) {
-    processInput(game.players, input, dt);
+export function updatePhysics(
+    game: GameState,
+    inputs: [Player, InputState][],
+    dt: number) {
+    for (const [player, input] of inputs) {
+        processInput(player, input, dt);
+    }
     processBoostSpawner(dt, game.boostSpawner, game, game.boosters, validateBooster);
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
@@ -241,23 +246,13 @@ function collideBallAndObstacle(game: GameState, ball: Ball) {
     game.obstacles = game.obstacles.filter(o => o.lifeCounter > 0);
 }
 
-function processInput(players: Player[], input: InputState, dt: number) {
-    if (players.length == 0) {
-        return;
-    }
+function processInput(player: Player, input: InputState, dt: number) {
     if (input.dx != 0 || input.dy != 0) {
-        movePlayer(players[0], input.dx, input.dy, dt)
+        movePlayer(player, input.dx, input.dy, dt)
         input.dx = 0;
         input.dy = 0;
     }
     input.click = undefined;
-    let index = 1;
-    if (Math.random() > 0.00) {
-        while (index < players.length) {
-            movePlayer(players[index], 1, 1, dt);
-            index += 1;
-        }
-    }
 }
 
 function validateBooster(gameState: GameState, booster: Booster): boolean {

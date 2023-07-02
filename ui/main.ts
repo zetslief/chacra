@@ -227,7 +227,7 @@ function setupRenderState(): RenderState {
 }
 
 function setupInputHandlers(update: (state: InputState) => void) {
-    const input: InputState = new InputState();
+    const input: InputState = new InputState("Player4");
     document.onclick = (e) => {
         input.click = { x: e.pageX, y: e.pageY };
         update(input);

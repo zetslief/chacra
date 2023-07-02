@@ -21,7 +21,7 @@ import {
     PLAYERS_COUNT
 } from './lib/configuration';
 
-let input: InputState = new InputState();
+let inputs: InputState[] = []; 
 let knownBoosterQueue: KnownBooster[] = [];
 
 onmessage = (event) => {
@@ -31,7 +31,8 @@ onmessage = (event) => {
         loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {
         if (event.data.type === "InputState") {
-            input = event.data;
+            const input = event.data as InputState;
+            inputs.push(input);
         } else if (event.data.type === "KnownBooster") {
             knownBoosterQueue.push(event.data as KnownBooster);
         }
@@ -45,7 +46,15 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     game.requestedBoosters = knownBoosterQueue;
     knownBoosterQueue = [];
     if (game.players.length > 1) {
-        updatePhysics(game, input, dt);
+        const playerInputs = [];
+        for (const input of inputs) {
+            const player = game.players.find(p => p.name === input.playerName)!;
+            if (player) {
+                playerInputs.push([player, input] as [Player, InputState]);
+            }
+        }
+        inputs = [];
+        updatePhysics(game, playerInputs, dt);
     }
     postMessage(game);
     const stop = Date.now();
