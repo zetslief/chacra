@@ -58,6 +58,7 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     }
     postMessage(game);
     const stop = Date.now();
+    postMessage((stop - start).toString());
     const duration = (stop - start) / 1000;
     previousFrame = start;
     if (originalDt - duration < 0) {
