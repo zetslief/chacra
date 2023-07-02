@@ -195,7 +195,7 @@ function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoo
     for (const state of spawners) {
         areaBoosterSpawner(state, areaBoosters, state.player, dt);
     }
-    game.areaBoosterSpawners = spawners.filter((spawner) => spawner.finished);
+    game.areaBoosterSpawners = spawners.filter((spawner) => !spawner.finished);
 }
 
 function processRequestedBoosters(game: GameState, player: Player) {
@@ -303,6 +303,10 @@ function areaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBo
     const angleStep = (Math.PI * 2) / state.count;
     state.elapsedTime += dt;
     while (state.elapsedTime / state.delay > state.index) {
+        if (state.index == state.count) {
+            state.finished = true;
+            break;
+        }
         const angle = angleStep * state.index;
         let pos = vec2(Math.cos(angle), Math.sin(angle));
         pos = ssum(smul(pos, 0.5), 0.5);
