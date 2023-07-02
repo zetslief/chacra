@@ -199,19 +199,27 @@ function drawFinalScreen(game: GameState, render: RenderState) {
     fillCenteredText(ctx, scale, text, scale.y / 10);
 }
 
+let frameSkipCounter = 0;
 function loop(render: RenderState, view: PerfView) {
     if (!newState) {
         requestAnimationFrame(() => loop(render, view));
+        ++frameSkipCounter;
+        view.write("Frames skipped", frameSkipCounter);
         return;
     }
+    view.write("frames skipped", frameSkipCounter);
+    frameSkipCounter = 0;
     const game = newState;
     newState = null;
+    const start = Date.now();
     if (game.players.length == 1) {
         draw(game, render);
         drawFinalScreen(game, render);
     } else {
         draw(game, render);
     }
+    const stop = Date.now();
+    view.write("frame time, ms", (stop - start));
     dumpGameState(game, (k, v) => view.write(k, v));
     requestAnimationFrame(() => loop(render, view));
 }
