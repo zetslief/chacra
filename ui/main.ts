@@ -1,14 +1,22 @@
 import {
     GameState,
     InputState,
-    Player,
     KnownBooster,
-    Color,
-    Ball, Booster, Obstacle,
-    AreaBooster,
 } from './lib/types';
 
-import { Vec2, vec2, } from './lib/math';
+import {
+    drawBackground,
+    drawAreaBooster,
+    drawPlayer,
+    drawBallOwner,
+    drawObstacle,
+    drawBall,
+    drawBooster,
+    drawOverlay,
+    fillCenteredText,
+} from './lib/render';
+
+import { vec2, } from './lib/math';
 
 import { KNOWN_BOOSTERS } from './lib/configuration';
 
@@ -17,157 +25,6 @@ export type RenderState = {
     ctx: CanvasRenderingContext2D
 };
 
-const LINE_WIDTH = 1.00;
-
-const BACKGROUND = "#111122";
-const OVERLAY = "rgba(100, 100, 255, 0.50)";
-const BALL = "#33dd33";
-const OBSTACLE_COLOR = "cyan";
-
-// DRAWING
-function drawRect(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: Color
-) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, width, height);
-}
-
-function fillCircle(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    radius: number,
-    color: Color
-) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.fill();
-}
-
-function strokeCircle(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    radius: number,
-    color: Color,
-    lineWidth: number
-) {
-    const defaultLineWidth = ctx.lineWidth;
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.lineWidth = defaultLineWidth;
-}
-
-function fillCenteredText(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    text: string,
-    fontSize: number
-) {
-    ctx.fillStyle = "gold"; 
-    ctx.font = Math.round(fontSize) + "px serif";
-    const textWidth = ctx.measureText(text).width;
-    ctx.fillText(text, scale.x / 2 - textWidth / 2, scale.y / 2);
-}
-
-function drawOverlay(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    color: Color,
-) {
-    drawRect(ctx, 0, 0, scale.x, scale.y, color);
-}
-
-function drawBackground(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-) {
-    drawOverlay(ctx, scale, BACKGROUND);
-}
-
-function drawPlayer(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    player: Player,
-) {
-    const x = player.position.x * scale.x;
-    const y = player.position.y * scale.y;
-    const size = player.size * scale.x;
-    fillCircle(ctx, x, y, size, player.color);
-}
-
-function drawBallOwner(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    player: Player,
-) {
-    const x = player.position.x * scale.x;
-    const y = player.position.y * scale.y;
-    const size = player.size * scale.x * 1.1;
-    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 3);
-}
-
-function drawBall(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    ball: Ball,
-    color: Color,
-) {
-    const x = ball.position.x * scale.x;
-    const y = ball.position.y * scale.y;
-    const size = ball.size * scale.x;
-    fillCircle(ctx, x, y, size, color);
-    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
-}
-
-function drawBooster(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    booster: Booster) {
-    const collider = booster.collider;
-    const x = collider.x * scale.x;
-    const y = collider.y * scale.y;
-    const size = collider.radius * scale.x;
-    fillCircle(ctx, x, y, size, booster.color);
-}
-
-function drawObstacle(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    obstacle: Obstacle) {
-    const collider = obstacle;
-    const x = collider.x * scale.x;
-    const y = collider.y * scale.y;
-    const size = collider.radius * scale.x;
-    strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
-    const textHeight = Math.round(size / 2);
-    ctx.font = textHeight + "px Serif";
-    ctx.strokeStyle = OBSTACLE_COLOR;
-    const text = obstacle.lifeCounter.toString();
-    const metrics = ctx.measureText(text);
-    ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
-}
-
-function drawAreaBooster(
-    ctx: CanvasRenderingContext2D,
-    scale: Vec2,
-    areaBooster: AreaBooster,
-) {
-    const collider = areaBooster.collider;
-    const x = collider.x * scale.x;
-    const y = collider.y * scale.y;
-    const radius = collider.radius * scale.y;
-    strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
-}
 
 // PROCESSING
 
@@ -194,7 +51,7 @@ function draw(game: GameState, render: RenderState) {
 function drawFinalScreen(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
-    drawOverlay(ctx, scale, OVERLAY);
+    drawOverlay(ctx, scale);
     const text = game.players[0].name + " won!";
     fillCenteredText(ctx, scale, text, scale.y / 10);
 }
