@@ -23,9 +23,15 @@ import {
 
 let inputs: InputState[] = []; 
 let knownBoosterQueue: KnownBooster[] = [];
+let port: MessagePort | null = null;
 
 onmessage = (event) => {
-    if (event.data === "start") {
+    if (event.data === "connect") {
+        port = event.ports[0];
+        port.onmessage = (e) => {
+            inputs.push(e.data as InputState);
+        };
+    } else if (event.data === "start") {
         const fps = 60;
         const dt = (1 / fps);
         loop(defaultState(), Date.now() - dt, dt);

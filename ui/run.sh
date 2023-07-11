@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
-npm run-script watch &
+npm run-script build
 cd dist
-python3 -m http.server
+python3 -m http.server &
+cd ..
+npm run-script watch 

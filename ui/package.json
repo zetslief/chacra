@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "esbuild main.ts physics.worker.ts --bundle --outdir=./dist/",
-    "watch": "esbuild main.ts physics.worker.ts --watch --bundle --outdir=./dist/",
+    "build": "esbuild main.ts physics.worker.ts network.worker.ts --bundle --outdir=./dist/",
+    "watch": "esbuild main.ts physics.worker.ts network.worker.ts --watch --bundle --outdir=./dist/",
     "test": "esbuild test.ts --bundle --platform=node --outfile=./dist/test.js && node ./dist/test.js"
   },
   "author": "",

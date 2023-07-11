@@ -88,7 +88,7 @@ export class InputState implements State {
     dx: number = 0;
     dy: number = 0;
 
-    constructor(private readonly playerName: string) { }
+    constructor(readonly playerName: string) { }
 };
 
 export type Obstacle = CircleCollider & { lifeCounter: number };

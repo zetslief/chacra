@@ -126,17 +126,27 @@ let newState: GameState | null = null;
 function main() {
     const renderer = setupRenderState();
     const perfView = new PerfView();
-    var worker = new Worker("./physics.worker.js");
-    worker.onmessage = (e) => {
+
+    const physicsWorker = new Worker("./physics.worker.js");
+    const networkWorker = new Worker("./network.worker.js");
+
+    physicsWorker.onmessage = (e) => {
         if (typeof e.data === "string") {
             perfView.write("physics time, ms", e.data);
         } else {
             newState = e.data as GameState
         }
     };
-    setupInputHandlers((input) => worker.postMessage(input));
-    new BoostersView(b => worker.postMessage(b));
-    worker.postMessage("start");
+    setupInputHandlers((input) => physicsWorker.postMessage(input));
+    new BoostersView(b => physicsWorker.postMessage(b));
+
+    const messageChannel = new MessageChannel();
+    physicsWorker.postMessage("connect", [ messageChannel.port1 ]);
+    networkWorker.postMessage("connect", [ messageChannel.port2 ]);
+
+    physicsWorker.postMessage("start");
+    networkWorker.postMessage("start");
+
     loop(renderer, perfView);
 }
 
