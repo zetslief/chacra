@@ -84,14 +84,11 @@ export type Click = Point;
 
 export class InputState implements State {
     readonly type: StateType = "InputState";
-    readonly playerName: string;
     click?: Click;
     dx: number = 0;
     dy: number = 0;
 
-    constructor(playerName: string) {
-        this.playerName = playerName;
-    }
+    constructor(private readonly playerName: string) { }
 };
 
 export type Obstacle = CircleCollider & { lifeCounter: number };
