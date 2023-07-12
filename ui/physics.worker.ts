@@ -63,6 +63,9 @@ function loop(game: GameState, previousFrame: number, dt: number) {
         updatePhysics(game, playerInputs, dt);
     }
     postMessage(game);
+    if (port) {
+        port.postMessage(game);
+    }
     const stop = Date.now();
     postMessage((stop - start).toString());
     const duration = (stop - start) / 1000;
