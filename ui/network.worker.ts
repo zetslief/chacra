@@ -61,4 +61,7 @@ function processGameState(state: GameState) {
             closestDistance = currentDistance;
         }
     }
+    if (Math.random() > 0.5) {
+        closestPlayer = state.ballOwner;
+    }
 }

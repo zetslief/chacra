@@ -248,7 +248,7 @@ function collideBallAndObstacle(game: GameState, ball: Ball) {
 
 function processInput(player: Player, input: InputState, dt: number) {
     if (input.dx != 0 || input.dy != 0) {
-        movePlayer(player, input.dx, input.dy, dt)
+        movePlayer(player, input.dx, input.dy, dt);
         input.dx = 0;
         input.dy = 0;
     }
