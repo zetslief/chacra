@@ -28,7 +28,7 @@ npm run-script test
 
 Just does the tests. Current tests are obsolete and probably can be removed. I keep them there just as a reminder that this area of the codebase it garbage.
 
-## BE
+## Backend
 
 ```bash
 dotnet run
