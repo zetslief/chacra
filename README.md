@@ -9,13 +9,16 @@ Main entities:
 - `Ball`: represents a ball. `Player`s can interact with it to play collect `booster`s.
 - `Booster`: represents an object on the field that can be collected by the `ball`.
 
-## HOW-TO
+## UI
 
 ### Build
 
 ```bash
-npm run-script build
+cd ui
+./run.sh
 ```
+
+The scripts starts `esbuild`'s watch process and simple `http` server in order to load all the workers and static files.
 
 ### Test
 
@@ -23,9 +26,12 @@ npm run-script build
 npm run-script test
 ```
 
-### Develop
+Just does the tests. Current tests are obsolete and probably can be removed. I keep them there just as a reminder that this area of the codebase it garbage.
+
+## BE
 
 ```bash
-npm run-script develop
+dotnet run
 ```
 
+No development here so far.
