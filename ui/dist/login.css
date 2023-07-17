@@ -1,0 +1,53 @@
+* {
+    margin: 0;
+}
+
+body {
+    margin: 0 auto;
+    padding: 10%;
+    width: 50vw;
+
+    background: blueviolet;
+}
+
+#login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+    border-width: 3px;
+    border-radius: 1em;
+    border-style: solid;
+    border-color: black;
+}
+
+#login > * {
+    padding: 0.5em;
+    margin: 0.5em;
+    font-size: 2em;
+}
+
+label {
+    text-align: center;
+    font-size-adjust: 2;
+}
+
+input {
+    border-width: 1px;
+    border-radius: 0.5em;
+    border-style: solid;
+    border-color: black;
+}
+
+#login > button {
+    border-width: 1px;
+    border-radius: 0.5em;
+    border-style: solid;
+    border-color: black;
+
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+#login > button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
