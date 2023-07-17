@@ -18,10 +18,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.MapGet("/", () => {
-    return Results.Content(
-        File.ReadAllText(indexPath),
-        "text/html"
-    );
+    return Results.Content(File.ReadAllText(indexPath), "text/html");
 });
 
 app.Run();
