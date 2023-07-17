@@ -1,13 +1,21 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <div id="login">
+    <form id="login" action="/connect" method="post">
         <label for="playerName">Enter your name</label>
         <input id="playerName" placeholder="name..."/>
         <button id="loginButton">Connect</button>
     </div>
+    <script>
+        const input = document.getElementById("playerName");
+        const form = document.getElementById("login");
+        const loginButton = document.getElementById("loginButton");
+
+        input.value = "Player " + Math.floor(Math.random() * 100);
+    </script>
 </body>
 </html>
