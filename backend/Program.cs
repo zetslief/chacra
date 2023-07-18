@@ -3,7 +3,10 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 var loginPagePath = Path.GetFullPath("../ui/dist/login.html");
+var connectedPagePath = Path.GetFullPath("../ui/dist/connected.html");
 var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
+
+var players = new List<string>(); 
 
 var app = builder.Build();
 
@@ -26,8 +29,12 @@ app.MapPost("/connect", async (ctx) => {
     var form = await ctx.Request.ReadFormAsync();
     if (form.TryGetValue("playerName", out var playerName)) {
         Console.WriteLine($"Player name: {playerName}");
-        ctx.Response.Redirect($"/connect/{playerName}");
+        ctx.Response.Redirect("/connected");
     }
+});
+
+app.MapGet("/connected", () => {
+    return Results.Content(File.ReadAllText(connectedPagePath), "text/html");
 });
 
 app.MapGet("/connect/{playerName}", (string playerName) => {
