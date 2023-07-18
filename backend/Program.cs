@@ -29,7 +29,13 @@ app.MapPost("/connect", async (ctx) => {
     var form = await ctx.Request.ReadFormAsync();
     if (form.TryGetValue("playerName", out var playerName)) {
         Console.WriteLine($"Player name: {playerName}");
-        ctx.Response.Redirect("/connected");
+        if (!string.IsNullOrEmpty(playerName)) {
+            players.Add(playerName!);
+            ctx.Response.Redirect("/connected");
+        } else {
+            ctx.Response.Redirect("/");
+            throw new InvalidOperationException("Player name is empty!");
+        }
     }
 });
 
@@ -37,8 +43,8 @@ app.MapGet("/connected", () => {
     return Results.Content(File.ReadAllText(connectedPagePath), "text/html");
 });
 
-app.MapGet("/connect/{playerName}", (string playerName) => {
-    return Results.Content(playerName);
+app.MapGet("/connected/data", () => {
+    return Results.Json(players);
 });
 
 app.MapGet("/game", () => {
