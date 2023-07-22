@@ -7,7 +7,7 @@ window.onload = async () => {
     const data = await getRoomData();
 
     const storage = document.getElementById("storage");
-    const template = document.getElementById("storageItem");
+    const template = document.getElementById("storageItemTemplate");
 
     for (const item of data) {
         const itemElement = template.cloneNode(true);
