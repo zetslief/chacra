@@ -5,5 +5,14 @@ async function getRoomData() {
 
 window.onload = async () => {
     const data = await getRoomData();
-    console.log(data);
+
+    const storage = document.getElementById("storage");
+    const template = document.getElementById("storageItem");
+
+    for (const item of data) {
+        const itemElement = template.cloneNode(true);
+        itemElement.removeAttribute("id");
+        itemElement.lastChild.textContent = item.toString();
+        storage.appendChild(itemElement);
+    }
 };
