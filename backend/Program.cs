@@ -59,6 +59,13 @@ app.MapGet("/game/started", () => {
     return Results.Content(File.ReadAllText(indexPagePath), "text/html");
 });
 
+app.MapGet("/game/inputStates", () => {
+    return Results.Json(new InputState[] {
+        new ("Player1", null, 0, 1),
+        new ("Player2", null, 0, -1)
+    });
+});
+
 app.Run();
 
 public record Connect(string PlayerName);

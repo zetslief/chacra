@@ -22,6 +22,7 @@ onmessage = (event) => {
     } else if (event.data === "start") {
         assertPortConnected(port);
         run(port);
+        runInputPolling();
     }
 };
 
@@ -44,6 +45,29 @@ function run(port: MessagePort) {
         }
     }
     setTimeout(() => run(port), 50);
+}
+
+function runInputPolling() {
+    async function poll() {
+        const response = await fetch("http://localhost:5000/game/inputStates");
+        if (!response.ok) {
+            console.error(response.status);
+            return;
+        }
+        const inputs = await response.json() as InputState[];
+        if (port) {
+            for (const input of inputs) {
+                port.postMessage(input);
+            }
+        }
+    }
+
+    poll()
+        .then(() => setTimeout(runInputPolling, 1000 / 30))
+        .catch((e) => {
+            console.error(e);
+            runInputPolling();
+        });
 }
 
 function processGameState(state: GameState) {
