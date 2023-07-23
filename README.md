@@ -18,7 +18,7 @@ cd ui
 ./run.sh
 ```
 
-The scripts starts `esbuild`'s watch process and simple `http` server in order to load all the workers and static files.
+The script buids the app and starts `esbuild`'s watch process.
 
 ### Test
 
