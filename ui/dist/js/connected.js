@@ -3,6 +3,17 @@ async function getRoomData() {
     return response.json();
 } 
 
+async function startGame() {
+    console.log("start...");
+    const response = await fetch(
+        "http://localhost:5000/game/start", 
+        { method: "POST", redirect: "follow" }
+    );
+    if (response.redirected) {
+        window.location = response.url;
+    }
+}
+
 window.onload = async () => {
     const data = await getRoomData();
 

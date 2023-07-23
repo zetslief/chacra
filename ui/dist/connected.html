@@ -5,15 +5,19 @@
     <link rel="stylesheet" href="connected.css">
 </head>
 <body>
-    <h1 id="connectedTitle">Connected</h1>
     <div>
-        <div id="storage"/>
+        <h1 id="connectedTitle">Connected</h1>
+        <div id="storage">
+        </div>
+        <button onclick="startGame()">Start Game</button>
     </div>
+
+    <script src="js/connected.js"></script>
+
     <div hidden>
         <div id="storageItemTemplate" class="storageItem">
             <p class="storageItemValue"></p>
         </div>
     </div>
-    <script src="js/connected.js"/>
 </body>
 </html>

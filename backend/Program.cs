@@ -51,6 +51,14 @@ app.MapGet("/game", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
+app.MapPost("/game/start", () => {
+    return Results.Redirect("/game/started", true);
+});
+
+app.MapGet("/game/started", () => {
+    return Results.Content(File.ReadAllText(indexPagePath), "text/html");
+});
+
 app.Run();
 
 public record Connect(string PlayerName);
