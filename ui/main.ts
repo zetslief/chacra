@@ -127,6 +127,7 @@ function main() {
     const renderer = setupRenderState();
     const perfView = new PerfView();
 
+    // TODO: remove dependency on relative path here.
     const physicsWorker = new Worker("./../physics.worker.js");
     const networkWorker = new Worker("./../network.worker.js");
 
