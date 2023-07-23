@@ -35,7 +35,3 @@ dotnet run
 ```
 
 No development here so far.
-
-## TODO
-
-1. Change connection page. Now it uses client-side redirection, which is quite strange. There should be easier way to accoplish the goal.
