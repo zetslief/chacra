@@ -127,8 +127,8 @@ function main() {
     const renderer = setupRenderState();
     const perfView = new PerfView();
 
-    const physicsWorker = new Worker("./physics.worker.js");
-    const networkWorker = new Worker("./network.worker.js");
+    const physicsWorker = new Worker("./../physics.worker.js");
+    const networkWorker = new Worker("./../network.worker.js");
 
     physicsWorker.onmessage = (e) => {
         if (typeof e.data === "string") {
