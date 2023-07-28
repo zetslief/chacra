@@ -1,4 +1,5 @@
 using Microsoft.Extensions.FileProviders;
+using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var connectedPagePath = Path.GetFullPath("../ui/dist/connected.html");
 var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
 
 var players = new List<string>(); 
+var inputQueue = new BlockingCollection<InputState>();
 
 var app = builder.Build();
 
@@ -60,14 +62,23 @@ app.MapGet("/game/started", () => {
 });
 
 app.MapGet("/game/inputStates", () => {
-    return Results.Json(new InputState[] {
-        new ("Player1", null, 0, 1),
-        new ("Player2", null, 0, -1)
-    });
+    var currentQueue = inputQueue;
+    inputQueue = new BlockingCollection<InputState>();
+    return Results.Json(currentQueue.ToArray());
 });
+
+
+app.MapPost("/game/input", (InputState state) => {
+    inputQueue.Add(state);
+});
+
+Uri uri = new("http://localhost:5000/game/input");
+Enumerable.Range(0, 10)
+    .Select((index) => Bot.RunBotAsync(uri, $"Player{index}"))
+    .ToArray();
 
 app.Run();
 
 public record Connect(string PlayerName);
 public record Disconnect(string PlayerName);
-public record InputState(string PlayerName, bool? clicked, float Dx, float Dy);
+public record InputState(string PlayerName, bool? Clicked, float Dx, float Dy);
