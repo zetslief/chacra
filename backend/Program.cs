@@ -72,11 +72,6 @@ app.MapPost("/game/input", (InputState state) => {
     inputQueue.Add(state);
 });
 
-Uri uri = new("http://localhost:5000/game/input");
-Enumerable.Range(0, 10)
-    .Select((index) => Bot.RunBotAsync(uri, $"Player{index}"))
-    .ToArray();
-
 app.Run();
 
 public record Connect(string PlayerName);
