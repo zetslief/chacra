@@ -10,7 +10,6 @@ async function startGame() {
         { method: "POST", redirect: "follow" }
     );
     if (response.redirected) {
-        // TODO: think on how to remove this redirection logic.
         window.location = response.url;
     }
 }
