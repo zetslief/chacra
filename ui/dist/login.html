@@ -5,17 +5,11 @@
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <form id="login" action="/connect" method="post">
+    <form id="login" action="/connect" method="post" onsubmit="savePlayer()">
         <label for="playerName">Enter your name</label>
         <input id="playerName" name="playerName" type="text" placeholder="name..." minlength="3"/>
-        <button type="submit">Connect</button>
+        <button id="connect" type="submit">Connect</button>
     </div>
-    <script>
-        const input = document.getElementById("playerName");
-        const form = document.getElementById("login");
-        const loginButton = document.getElementById("loginButton");
-
-        input.value = "Player " + Math.floor(Math.random() * 100);
-    </script>
+    <script src="js/login.js"/>
 </body>
 </html>

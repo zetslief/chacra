@@ -9,7 +9,29 @@ Main entities:
 - `Ball`: represents a ball. `Player`s can interact with it to play collect `booster`s.
 - `Booster`: represents an object on the field that can be collected by the `ball`.
 
+`Lobby` is needed in order to start a gaming session. A player that creates the `lobby` is called `host`. The `host` is able to start the game once other players are connected.
+
+
+
 ## UI
+
+### Login
+
+Allows a user to enter the `player name` and connect to the lobby browser.
+
+`Session storage` is used to store `player's data.
+
+### Lobby browser
+
+Allows a user to either select existing `lobby` or create a new one.
+
+### Lobby host
+
+This page is shown to the host of the `lobby`. It shows connected `player`s and allows to start the gaming session.
+
+### Lobby guest
+
+The page only shows the connected players to the `lobby`.
 
 ### Build
 
@@ -33,5 +55,3 @@ Just does the tests. Current tests are obsolete and probably can be removed. I k
 ```bash
 dotnet run
 ```
-
-No development here so far.
