@@ -1,13 +1,24 @@
 import { InputState } from './lib/types';
 
-const uri = "http://localhost:5000/game/input";
+const root = "http://localhost:5000";
+
+const connectUri = root + "/lobby/connect";
+const inputUpdateUri = root + "/game/input";
+
 const inputUpdateDelay = 50;
 
-Promise.all(Array.from({length: 12}, (k, v) => runBot(uri, "Player" + v)))
+Promise.all(Array.from({length: 12}, (k, v) => runBot("Player" + v)))
     .then(() => console.log("Bot finished!"));
 
-async function runBot(uri: string, playerName: string) {
-    sendInputState(uri, playerName);
+async function runBot(playerName: string) {
+    sendConnect(connectUri, playerName);
+    sendInputState(inputUpdateUri, playerName);
+}
+
+function sendConnect(uri: string, playerName: string) {
+    fetch(uri, {
+        method: "POST",
+    });
 }
 
 function sendInputState(uri: string, playerName: string) {
@@ -18,7 +29,7 @@ function sendInputState(uri: string, playerName: string) {
         body: JSON.stringify(state),
         headers: { "Content-Type": "application/json" }
     })
-        .then(() => setTimeout(() => runBot(uri, playerName), inputUpdateDelay))
+        .then(() => setTimeout(() => sendInputState(uri, playerName), inputUpdateDelay))
         .catch((e) => {
             console.error(e);
             setTimeout(() => sendInputState(uri, playerName), inputUpdateDelay);

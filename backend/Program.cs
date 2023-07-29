@@ -8,6 +8,7 @@ var lobbyBrowserHostPage = Path.GetFullPath("../ui/dist/lobby.browser.host.html"
 var lobbyBrowserGuestPage = Path.GetFullPath("../ui/dist/lobby.browser.guest.html");
 var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
 
+var lobbyStarted = false;
 var players = new List<string>(); 
 var inputQueue = new BlockingCollection<InputState>();
 
@@ -57,15 +58,16 @@ app.MapGet("/lobby/data", () => {
     return Results.Json(players);
 });
 
+app.MapGet("/lobby/status", () => {
+    return Results.Json(new LobbyStatus(lobbyStarted));
+});
+
+app.MapPost("/lobby/start", () => {
+    lobbyStarted = true;
+    return Results.Redirect("/game", true);
+});
+
 app.MapGet("/game", () => {
-    return Results.Content(File.ReadAllText(loginPagePath), "text/html");
-});
-
-app.MapPost("/game/start", () => {
-    return Results.Redirect("/game/started", true);
-});
-
-app.MapGet("/game/started", () => {
     return Results.Content(File.ReadAllText(indexPagePath), "text/html");
 });
 
@@ -84,4 +86,5 @@ app.Run();
 
 public record Connect(string PlayerName);
 public record Disconnect(string PlayerName);
-public record InputState(string playerName, string type, float dx, float dy);
+public record LobbyStatus(bool Started);
+public record InputState(string PlayerName, string Type, float Dx, float Dy);
