@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var loginPagePath = Path.GetFullPath("../ui/dist/login.html");
 var lobbyBrowserHostPage = Path.GetFullPath("../ui/dist/lobby.browser.host.html");
+var lobbyBrowserGuestPage = Path.GetFullPath("../ui/dist/lobby.browser.guest.html");
 var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
 
 var players = new List<string>(); 
@@ -48,7 +49,11 @@ app.MapGet("/lobby/browser/host", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html");
 });
 
-app.MapGet("/connected/data", () => {
+app.MapGet("/lobby/browser/guest", () => {
+    return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
+});
+
+app.MapGet("/lobby/data", () => {
     return Results.Json(players);
 });
 
