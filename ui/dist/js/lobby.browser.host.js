@@ -1,4 +1,4 @@
-async function getRoomData() {
+async function requestLobbyData() {
     var response = await fetch("http://localhost:5000/connected/data");
     return response.json();
 } 
@@ -15,7 +15,7 @@ async function startGame() {
 }
 
 window.onload = async () => {
-    const data = await getRoomData();
+    const data = await requestLobbyData();
 
     const storage = document.getElementById("storage");
     const template = document.getElementById("storageItemTemplate");
