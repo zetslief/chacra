@@ -76,4 +76,4 @@ app.Run();
 
 public record Connect(string PlayerName);
 public record Disconnect(string PlayerName);
-public record InputState(string PlayerName, bool? Clicked, float Dx, float Dy);
+public record InputState(string playerName, string type, float dx, float dy);
