@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 var builder = WebApplication.CreateBuilder(args);
 
 var loginPagePath = Path.GetFullPath("../ui/dist/login.html");
-var connectedPagePath = Path.GetFullPath("../ui/dist/connected.html");
+var lobbyBrowserPagePath = Path.GetFullPath("../ui/dist/lobby.browser.html");
 var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
 
 var players = new List<string>(); 
@@ -33,7 +33,7 @@ app.MapPost("/connect", async (ctx) => {
         Console.WriteLine($"Player name: {playerName}");
         if (!string.IsNullOrEmpty(playerName)) {
             players.Add(playerName!);
-            ctx.Response.Redirect("/connected");
+            ctx.Response.Redirect("/lobby/browser");
         } else {
             ctx.Response.Redirect("/");
             throw new InvalidOperationException("Player name is empty!");
@@ -41,8 +41,8 @@ app.MapPost("/connect", async (ctx) => {
     }
 });
 
-app.MapGet("/connected", () => {
-    return Results.Content(File.ReadAllText(connectedPagePath), "text/html");
+app.MapGet("/lobby/browser", () => {
+    return Results.Content(File.ReadAllText(lobbyBrowserPagePath), "text/html");
 });
 
 app.MapGet("/connected/data", () => {
