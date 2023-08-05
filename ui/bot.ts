@@ -8,16 +8,21 @@ const inputUpdateUri = root + "/game/input";
 const inputUpdateDelay = 50;
 
 Promise.all(Array.from({length: 12}, (k, v) => runBot("Player" + v)))
-    .then(() => console.log("Bot finished!"));
 
 async function runBot(playerName: string) {
-    sendConnect(connectUri, playerName);
+    await sendConnect(connectUri, playerName);
     sendInputState(inputUpdateUri, playerName);
 }
 
-function sendConnect(uri: string, playerName: string) {
-    fetch(uri, {
+async function sendConnect(uri: string, playerName: string) {
+    const body = JSON.stringify({
+        playerName
+    });
+    console.log("Connecting", body);
+    await fetch(uri, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
     });
 }
 

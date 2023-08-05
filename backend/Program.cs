@@ -29,20 +29,17 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
-app.MapPost("/connect", async (ctx) => {
-    var form = await ctx.Request.ReadFormAsync();
-    if (form.TryGetValue("playerName", out var playerName)) {
-        Console.WriteLine($"Player name: {playerName}");
-        if (!string.IsNullOrEmpty(playerName)) {
-            players.Add(playerName!);
-            ctx.Response.Redirect(players.Count == 1 
-                ? "/lobby/browser/host" 
-                : "/lobby/browser/guest"
-            );
-        } else {
-            ctx.Response.Redirect("/");
-            throw new InvalidOperationException("Player name is empty!");
-        }
+app.MapPost("/lobby/connect", (Connect connect) => {
+    Console.WriteLine($"Connecting: {connect}");
+    var playerName = connect.PlayerName;
+    if (!string.IsNullOrEmpty(playerName)) {
+        players.Add(playerName!);
+        return Results.Redirect(players.Count == 1 
+            ? "/lobby/browser/host" 
+            : "/lobby/browser/guest"
+        );
+    } else {
+        return Results.Redirect("/");
     }
 });
 
