@@ -5,10 +5,10 @@
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <form id="login" action="/connect" method="post" onsubmit="savePlayer()">
+    <div id="login"> 
         <label for="playerName">Enter your name</label>
         <input id="playerName" name="playerName" type="text" placeholder="name..." minlength="3"/>
-        <button id="connect" type="submit">Connect</button>
+        <button id="connect" onclick="connect()">Connect</button>
     </div>
     <script src="js/login.js"></script>
 </body>
