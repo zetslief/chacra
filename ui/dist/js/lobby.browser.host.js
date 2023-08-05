@@ -13,11 +13,14 @@ window.onload = async () => {
 
 async function startGame() {
     const response = await fetch(
-        "http://localhost:5000/game/start", 
+        "http://localhost:5000/lobby/start", 
         { method: "POST", redirect: "follow" }
     );
-    if (response.redirected) {
+    if (response.ok && response.redirected) {
         window.location = response.url;
+    } else {
+        console.error("Failed to start the lobby!");
+        console.error(response);
     }
 }
 
