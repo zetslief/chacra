@@ -11,8 +11,6 @@ Main entities:
 
 `Lobby` is needed in order to start a gaming session. A player that creates the `lobby` is called `host`. The `host` is able to start the game once other players are connected.
 
-
-
 ## UI
 
 ### Login
@@ -55,3 +53,13 @@ Just does the tests. Current tests are obsolete and probably can be removed. I k
 ```bash
 dotnet run
 ```
+
+## Networking
+
+So, there are several way to implement the networking.
+
+The first way is to store game state on the `server` side.
+This approach could introduce latency issues to the players.
+
+The second approach is broadcasting events to all players.
+This approach require more CPU time from the clients: all of them need to run physics calculations. Howewer, it could be possible to share the `physics` server if the clients (e.g. `bots`) are in the same domain.
