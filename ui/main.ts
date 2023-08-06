@@ -144,24 +144,29 @@ async function main() {
     networkWorker.postMessage("start");
 
     while (!newState) {
-        await getGameState();
+        newState = await getGameState();
     }
-    setInterval(getGameState, 1000 / 30);
+    setInterval(async () => {
+        const state = await getGameState();
+        if (state) {
+            newState = state;
+        }
+    }, 30);
     loop(renderer, perfView);
 }
 
-async function getGameState() {
+async function getGameState(): Promise<GameState | null> {
     const response = await fetch("http://localhost:5000/game/state");
     if (response.ok) {
         const jsonString = await response.json();
         if (jsonString.length > 0) {
-            newState = JSON.parse(jsonString);
+            return JSON.parse(jsonString);
         }
-        console.log("No new state");
     } else {
         console.error("Failed to get game state");
         console.error(response);
     }
+    return null;
 }
 
 type Set = (arg: number | string) => void;
