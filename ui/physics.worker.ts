@@ -62,7 +62,6 @@ function loop(game: GameState, previousFrame: number, dt: number) {
         inputs = [];
         updatePhysics(game, playerInputs, dt);
     }
-    postMessage(game);
     if (port) {
         port.postMessage(game);
     }

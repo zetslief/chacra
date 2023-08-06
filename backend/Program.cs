@@ -1,5 +1,8 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
+using Chacra;
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,9 +82,24 @@ app.MapPost("/game/input", (InputState state) => {
     inputQueue.Add(state);
 });
 
+string state = string.Empty;
+app.MapGet("/game/state", () => {
+    var result = Results.Json(state);
+    state = string.Empty;
+    return result;
+});
+
+app.MapPost("/game/state", async (ctx) => {
+    using var reader = new StreamReader(ctx.Request.Body);
+    var body = await reader.ReadToEndAsync();
+    state = body;
+});
+
 app.Run();
 
-public record Connect(string PlayerName);
-public record Disconnect(string PlayerName);
-public record LobbyStatus(bool Started);
-public record InputState(string PlayerName, string Type, float Dx, float Dy);
+namespace Chacra {
+    public record Connect(string PlayerName);
+    public record Disconnect(string PlayerName);
+    public record LobbyStatus(bool Started);
+    public record InputState(string PlayerName, string Type, float Dx, float Dy);
+}

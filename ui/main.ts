@@ -64,11 +64,11 @@ function loop(render: RenderState, view: PerfView) {
         view.write("frames skipped", frameSkipCounter);
         return;
     }
-    view.write("frames skipped", frameSkipCounter);
     frameSkipCounter = 0;
+    view.write("frames skipped", frameSkipCounter);
+    const start = Date.now();
     const game = newState;
     newState = null;
-    const start = Date.now();
     if (game.players.length == 1) {
         draw(game, render);
         drawFinalScreen(game, render);
@@ -123,7 +123,7 @@ function dumpGameState(game: GameState, dump: Dump) {
 }
 
 let newState: GameState | null = null;
-function main() {
+async function main() {
     const renderer = setupRenderState();
     const perfView = new PerfView();
 
@@ -131,11 +131,7 @@ function main() {
     const networkWorker = new Worker("/network.worker.js");
 
     physicsWorker.onmessage = (e) => {
-        if (typeof e.data === "string") {
-            perfView.write("physics time, ms", e.data);
-        } else {
-            newState = e.data as GameState
-        }
+        perfView.write("physics time, ms", e.data);
     };
     setupInputHandlers((input) => physicsWorker.postMessage(input));
     new BoostersView(b => physicsWorker.postMessage(b));
@@ -147,7 +143,25 @@ function main() {
     physicsWorker.postMessage("start");
     networkWorker.postMessage("start");
 
+    while (!newState) {
+        await getGameState();
+    }
+    setInterval(getGameState, 1000 / 30);
     loop(renderer, perfView);
+}
+
+async function getGameState() {
+    const response = await fetch("http://localhost:5000/game/state");
+    if (response.ok) {
+        const jsonString = await response.json();
+        if (jsonString.length > 0) {
+            newState = JSON.parse(jsonString);
+        }
+        console.log("No new state");
+    } else {
+        console.error("Failed to get game state");
+        console.error(response);
+    }
 }
 
 type Set = (arg: number | string) => void;

@@ -18,7 +18,7 @@ function assertPortConnected(port: MessagePort | null): asserts port is MessageP
 onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
-        port.onmessage = (e) => processGameState(e.data as GameState);
+        port.onmessage = async (e) => await processGameState(e.data as GameState);
     } else if (event.data === "start") {
         assertPortConnected(port);
         run(port);
@@ -70,22 +70,10 @@ function runInputPolling() {
         });
 }
 
-function processGameState(state: GameState) {
-    if (state.players.length == 0) {
-        return;
-    }
-    ball = state.ball;
-    closestPlayer = state.players[0];
-    let closestDistance = distance(closestPlayer.collider, state.ball.collider);
-    for (let index = 1; index < state.players.length; ++index) {
-        const player = state.players[index];
-        const currentDistance = distance(player.collider, state.ball.collider)
-        if (currentDistance < closestDistance) {
-            closestPlayer = player;
-            closestDistance = currentDistance;
-        }
-    }
-    if (Math.random() > 0.5) {
-        closestPlayer = state.ballOwner;
-    }
+async function processGameState(state: GameState) {
+    await fetch("http://localhost:5000/game/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state),
+    });
 }
