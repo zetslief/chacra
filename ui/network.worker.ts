@@ -3,6 +3,7 @@ import {
 } from './lib/types';
 
 let port: MessagePort | null = null;
+let latestGameState: GameState | null = null;
 
 function assertPortConnected(port: MessagePort | null): asserts port is MessagePort {
     if (!port) {
@@ -13,14 +14,14 @@ function assertPortConnected(port: MessagePort | null): asserts port is MessageP
 onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
-        port.onmessage = async (e) => await processGameState(e.data as GameState);
+        port.onmessage = (e) => latestGameState = e.data as GameState;
     } else if (event.data === "start") {
         assertPortConnected(port);
-        runInputPolling();
+        loop();
     }
 };
 
-function runInputPolling() {
+async function loop() {
     async function poll() {
         const response = await fetch("http://localhost:5000/game/inputStates");
         if (!response.ok) {
@@ -35,21 +36,23 @@ function runInputPolling() {
         }
     }
 
-    poll()
-        .then(() => setTimeout(runInputPolling, 1000 / 30))
-        .catch((e) => {
-            console.error(e);
-            runInputPolling();
-        });
+    while (latestGameState) {
+        await processGameState();
+        await poll();
+    }
+    await poll();
+    setTimeout(loop, 5);
 }
 
-async function processGameState(state: GameState) {
+async function processGameState() {
+    const state = latestGameState;
+    latestGameState = null;
     const start = Date.now();
-    await fetch("http://localhost:5000/game/state", {
+    const result = await fetch("http://localhost:5000/game/state", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(state),
     });
     const stop = Date.now();
-    console.log(stop - start);
+    console.log(stop - start, result.ok);
 }

@@ -6,10 +6,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var loginPagePath = Path.GetFullPath("../ui/dist/login.html");
-var lobbyBrowserHostPage = Path.GetFullPath("../ui/dist/lobby.browser.host.html");
-var lobbyBrowserGuestPage = Path.GetFullPath("../ui/dist/lobby.browser.guest.html");
-var indexPagePath = Path.GetFullPath("../ui/dist/index.html");
+var loginPagePath = Path.GetFullPath("./../../ui/dist/login.html");
+var lobbyBrowserHostPage = Path.GetFullPath("./../../ui/dist/lobby.browser.host.html");
+var lobbyBrowserGuestPage = Path.GetFullPath("./../../ui/dist/lobby.browser.guest.html");
+var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
 var lobbyStarted = false;
 var players = new List<string>(); 
@@ -25,7 +25,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "../ui/dist/"))
+        Path.Combine(builder.Environment.ContentRootPath, "./../../ui/dist/"))
 });
 
 app.MapGet("/", () => {
