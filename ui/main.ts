@@ -6,7 +6,7 @@ import {
 
 import {
     drawBackground,
-    drawAreaBooster,
+    drawAreaBoosters,
     drawPlayer,
     drawBallOwner,
     drawObstacle,
@@ -32,9 +32,7 @@ function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
-    for (const particle of game.areaBoosters) {
-        drawAreaBooster(ctx, scale, particle);
-    }
+    drawAreaBoosters(ctx, scale, game.areaBoosters);
     for (let player of game.players) {
         drawPlayer(ctx, scale, player);
     }
@@ -119,7 +117,7 @@ function dumpGameState(game: GameState, dump: Dump) {
     dump("boosters", game.boosters.length);
     dump("obstacles", game.obstacles.length);
     dump("areaBoosterSpawners", game.areaBoosterSpawners.length);
-    dump("areaBoosters", game.areaBoosters.length);
+    dump("areaBoosters", game.areaBoosters.duration.length);
 }
 
 let newState: GameState | null = null;

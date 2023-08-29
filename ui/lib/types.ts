@@ -25,7 +25,7 @@ export type GameState = State & {
     boostSpawner: BoostSpawnerState,
     boostShuffler: BoostShufflerState,
     obstacles: Obstacle[],
-    areaBoosters: AreaBooster[],
+    areaBoosters: AreaBoosters,
     areaBoosterSpawners: AreaBoosterSpawnerState[],
 }
 
@@ -49,10 +49,15 @@ export type BoostShufflerState = {
 };
 export type BoostShuffler = (dt: number, boosters: Booster[]) => void;
 
-export type AreaBooster = {
-    collider: CircleCollider,
-    duration: number,
-    color: Color
+export type CircleColliders = {
+    x: number[],
+    y: number[],
+    radius: number[]
+};
+
+export type AreaBoosters = CircleColliders & {
+    duration: number[],
+    color: Color[]
 }
 export type AreaBoosterSpawnerState = {
     index: number,
@@ -62,7 +67,7 @@ export type AreaBoosterSpawnerState = {
     player: Player,
     finished: boolean,
 };
-export type AreaBoosterSpawner = (dt: number, game: GameState, areaBoosters: AreaBooster[]) => void;
+export type AreaBoosterSpawner = (dt: number, game: GameState, areaBoosters: AreaBoosters) => void;
 
 export type Player = {
     name: string

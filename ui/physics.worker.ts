@@ -151,7 +151,7 @@ function defaultState(): GameState {
             destinationMap: new Map(),
         },
         obstacles: [],
-        areaBoosters: [],
+        areaBoosters: { x: [], y: [], radius: [], duration: [], color: [] },
         areaBoosterSpawners: [],
     }
 }

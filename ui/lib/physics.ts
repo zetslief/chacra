@@ -4,7 +4,7 @@ import {
     Player,
     Ball,
     Booster, BoosterValidator, BoostSpawnerState, BoostShufflerState,
-    AreaBooster, AreaBoosterSpawnerState,
+    AreaBoosters, AreaBoosterSpawnerState,
     Obstacle,
 } from './types';
 
@@ -35,27 +35,31 @@ export function updatePhysics(
     }
     processBoostSpawner(dt, game.boostSpawner, game, game.boosters, validateBooster);
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
-    for (const areaBooster of game.areaBoosters) {
-        processAreaBooster(areaBooster, dt);
-    }
+    processAreaBoosters(game.areaBoosters, dt);
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
             game.ballOwner = player;
             game.ballDirection = normalize(game.ballDirection);
-            game.areaBoosters.push({
-                collider: { ...player.collider, radius: AREA_BOOSTER_RADIUS},
-                duration: AREA_BOOSTER_DURATION,
-                color: player.color
-            });
+            game.areaBoosters.x.push(player.collider.x);
+            game.areaBoosters.y.push(player.collider.y);
+            game.areaBoosters.radius.push(AREA_BOOSTER_RADIUS * 1.1);
+            game.areaBoosters.color.push(player.color);
+            game.areaBoosters.duration.push(AREA_BOOSTER_DURATION);
             break;
         }
         player.speed = PLAYER_DEFAULT_SPEED;
-        for (const areaBooster of game.areaBoosters) {
-            if (areaBooster.color != player.color) {
+        for (let index = 0; index < game.areaBoosters.color.length; ++index)
+        {
+            if (game.areaBoosters.color[index] != player.color) {
                 continue;
             }
-            if (collideCC(areaBooster.collider, player.collider)) {
+            const areaBoosterCollider: CircleCollider = {
+                x: game.areaBoosters.x[index],
+                y: game.areaBoosters.y[index],
+                radius: game.areaBoosters.radius[index],
+            };
+            if (collideCC(areaBoosterCollider, player.collider)) {
                 player.speed *= 1.5;
                 break;
             }
@@ -80,7 +84,19 @@ export function updatePhysics(
         }
     }
     game.players = game.players.filter(player => !player.dead);
-    game.areaBoosters = game.areaBoosters.filter(ab => ab.duration > 0);
+    const areaBoosters: AreaBoosters = {
+        x: [], y: [], radius: [], color: [], duration: []
+    };
+    for (let index = 0; index < game.areaBoosters.color.length; ++index) {
+        if (game.areaBoosters.duration[index] > 0) {
+            areaBoosters.x.push(game.areaBoosters.x[index]);
+            areaBoosters.y.push(game.areaBoosters.y[index]);
+            areaBoosters.radius.push(game.areaBoosters.radius[index]);
+            areaBoosters.color.push(game.areaBoosters.color[index]);
+            areaBoosters.duration.push(game.areaBoosters.duration[index]);
+        }
+    }
+    game.areaBoosters = areaBoosters;
     game.boosters = boosters;
     if (game.ballOwner.dead) {
         if (game.players.length > 0) {
@@ -192,11 +208,14 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
     }
 }
 
-function processAreaBooster(areaBooster: AreaBooster, dt: number) {
-    areaBooster.duration -= dt;
+function processAreaBoosters(areaBoosters: AreaBoosters, dt: number) {
+    for (let index = 0; index < areaBoosters.duration.length; ++index)
+    {
+        areaBoosters.duration[index] -= dt;
+    }
 }
 
-function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
+function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoosters: AreaBoosters, game: GameState, dt: number) {
     for (const state of spawners) {
         processAreaBoosterSpawner(state, areaBoosters, state.player, dt);
     }
@@ -294,7 +313,7 @@ function createAreaBoosterSpawner(player: Player): AreaBoosterSpawnerState {
     };
 }
 
-function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBooster[], player: Player, dt: number) {
+function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters: AreaBoosters, player: Player, dt: number) {
     const angleStep = (Math.PI * 2) / state.count;
     state.elapsedTime += dt;
     while (state.elapsedTime / state.delay > state.index) {
@@ -305,11 +324,11 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
         const angle = angleStep * state.index;
         let pos = vec2(Math.cos(angle), Math.sin(angle));
         pos = ssum(smul(pos, 0.5), 0.5);
-        areaBoosters.push({
-            collider: { ...pos, radius: player.collider.radius * 1.1 },
-            color: player.color,
-            duration: AREA_BOOSTER_DURATION,
-        });
+        areaBoosters.x.push(pos.x);
+        areaBoosters.y.push(pos.y);
+        areaBoosters.radius.push(player.collider.radius * 1.1);
+        areaBoosters.color.push(player.color);
+        areaBoosters.duration.push(AREA_BOOSTER_DURATION);
         ++state.index;
     }
 }
