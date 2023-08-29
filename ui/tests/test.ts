@@ -1,4 +1,4 @@
-import {Point, point, collideLL } from "./lib/math";
+import {Point, point, collideLL } from "../lib/math";
 
 function lineDataset(): [string, Point, Point, Point, Point, boolean][] {
     // x1 y1 x2 y2
