@@ -5,7 +5,7 @@
   "scripts": {
     "build": "esbuild main.ts physics.worker.ts network.worker.ts --bundle --outdir=./dist/",
     "watch": "esbuild main.ts physics.worker.ts network.worker.ts --watch --bundle --outdir=./dist/",
-    "test": "esbuild ./tests/test.ts --bundle --platform=node --outfile=./dist/tests/tests.js"
+    "test": "esbuild ./tests/*.ts --bundle --platform=node --outdir=./dist/tests"
   },
   "author": "",
   "license": "ISC"
