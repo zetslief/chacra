@@ -18,7 +18,6 @@ import {
     BALL_RADIUS,
     PLAYER_RADIUS,
     PLAYER_DEFAULT_SPEED,
-    PLAYERS_COUNT
 } from './lib/configuration';
 
 let inputs: InputState[] = []; 
@@ -77,17 +76,12 @@ function loop(game: GameState, previousFrame: number, dt: number) {
 }
 
 function defaultState(): GameState {
-    type Pivot = Point & { angle: number };
-    function calculatePivots(startAngle: number, angleStep: number, pivotCount: number): Pivot[] {
-        let pivots = [];
-        let angle = startAngle;
-        for (let index = 0; index < pivotCount; index += 1) {
-            let pivot = vec2(Math.cos(angle), Math.sin(angle));
-            pivot = ssum(smul(pivot, 0.5), 0.5);
-            pivots.push({ angle, ...pivot });
-            angle += angleStep;
-        }
-        return pivots;
+    type Pivot = Point;
+    function calculatePivots(): Pivot[] {
+        return [
+            vec2(0.0, 0.5),
+            vec2(1.0, 0.5)
+        ];
     }
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
@@ -114,22 +108,16 @@ function defaultState(): GameState {
         }
         return players;
     }
-    function walls(pivots: Pivot[]): LineCollider[] {
-        let walls = [];
-        for (let index = 0; index < pivots.length - 1; index += 1) {
-            const pivot = pivots[index];
-            const nextPivot = pivots[index + 1];
-            const a = pivot;
-            const b = nextPivot;
-            walls.push({ a, b });
-        }
-        walls.push({ a: pivots[pivots.length - 1], b: pivots[0] });
-        return walls;
+    function walls(): LineCollider[] {
+        return [
+            { a: vec2(0.0, 0.0), b: vec2(0.0, 1.0) },
+            { a: vec2(0.0, 1.0), b: vec2(1.0, 1.0) },
+            { a: vec2(1.0, 1.0), b: vec2(1.0, 0.0) },
+            { a: vec2(1.0, 0.0), b: vec2(0.0, 0.0) },
+        ];
     }
-    const numberOfPlayers = PLAYERS_COUNT;
-    const sectionAngle = (Math.PI * 2) / numberOfPlayers
-    const wallPivots = calculatePivots(0, sectionAngle, numberOfPlayers);
-    const playerPivots = calculatePivots(sectionAngle / 2, sectionAngle, numberOfPlayers);
+    const numberOfPlayers = 2;
+    const playerPivots = calculatePivots();
     const players = createPlayers(playerPivots);
     const randomPlayerIndex = Math.floor(Math.random() * players.length);
     return {
@@ -138,7 +126,7 @@ function defaultState(): GameState {
         players,
         ballOwner: players[randomPlayerIndex],
         ball: ball(vec2(0.5, 0.5)),
-        walls: walls(wallPivots),
+        walls: walls(),
         ballDirection: vec2(1.0, 0.0),
         boosters: [],
         requestedBoosters: [],
