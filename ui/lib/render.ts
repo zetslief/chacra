@@ -1,5 +1,5 @@
 import {
-    AreaBoosters,
+    AreaBooster,
     Ball,
     Obstacle,
     Booster,
@@ -148,17 +148,15 @@ export function drawObstacle(
     ctx.strokeText(text, x - metrics.width / 2, y + textHeight / 2);
 }
 
-export function drawAreaBoosters(
+export function drawAreaBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    areaBoosters: AreaBoosters,
+    areaBooster: AreaBooster,
 ) {
-    for (let index = 0; index < areaBoosters.duration.length; ++index) {
-        console.log("render area booster", index);
-        const x = areaBoosters.x[index] * scale.x;
-        const y = areaBoosters.y[index] * scale.y;
-        const radius = areaBoosters.radius[index] * scale.y;
-        strokeCircle(ctx, x, y, radius, areaBoosters.color[index], LINE_WIDTH);
-    }
+    const collider = areaBooster.collider;
+    const x = collider.x * scale.x;
+    const y = collider.y * scale.y;
+    const radius = collider.radius * scale.y;
+    strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
 }
 
