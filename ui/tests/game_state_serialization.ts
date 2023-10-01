@@ -33,9 +33,10 @@ function testJson(sampleCount: number): number {
     return result.length;
 }
 
-export function runSerializationTests(): boolean {
+function main() {
     const sampleCount = 1000;
     const jsonResult = testJson(sampleCount);
     console.log("JSON: ", jsonResult);
-    return true;
 }
+
+main()
