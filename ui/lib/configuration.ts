@@ -4,7 +4,7 @@ export const BALL_RADIUS = 0.020;
 export const BALL_MAX_RADIUS = 0.15;
 
 export const PLAYER_RADIUS = 0.05;
-export const PLAYER_DEFAULT_SPEED = (2 * Math.PI / 20);
+export const PLAYER_DEFAULT_SPEED = 0.7;
 
 export const BOOSTER_RADIUS = 0.020;
 

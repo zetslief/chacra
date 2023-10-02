@@ -136,7 +136,9 @@ function createObstacle(): Obstacle {
 function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
     const step = player.speed * dt * dy;
     player.position.y -= step;
-    player.collider.x = player.position.x;
+    if (player.position.y < 0) {
+        player.position.y = 1;
+    }
     player.collider.y = player.position.y;
 }
 
