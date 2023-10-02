@@ -90,10 +90,13 @@ export function drawPlayer(
     scale: Vec2,
     player: Player,
 ) {
-    const x = player.position.x * scale.x;
-    const y = player.position.y * scale.y;
+    const x1 = player.colliders.bottom.x * scale.x;
+    const y1 = player.colliders.bottom.y * scale.y;
+    const x2 = player.colliders.top.x * scale.x;
+    const y2 = player.colliders.top.y * scale.y;
     const size = player.size * scale.x;
-    fillCircle(ctx, x, y, size, player.color);
+    fillCircle(ctx, x1, y1, size, player.color);
+    fillCircle(ctx, x2, y2, size, player.color);
 }
 
 export function drawBallOwner(
@@ -101,10 +104,13 @@ export function drawBallOwner(
     scale: Vec2,
     player: Player,
 ) {
-    const x = player.position.x * scale.x;
-    const y = player.position.y * scale.y;
+    const x1 = player.colliders.bottom.x * scale.x;
+    const y1 = player.colliders.bottom.y * scale.y;
+    const x2 = player.colliders.top.x * scale.x;
+    const y2 = player.colliders.top.y * scale.y;
     const size = player.size * scale.x * 1.1;
-    strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 3);
+    strokeCircle(ctx, x1, y1, size, BALL, LINE_WIDTH * 3);
+    strokeCircle(ctx, x2, y2, size, BALL, LINE_WIDTH * 3);
 }
 
 export function drawBall(

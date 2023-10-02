@@ -66,9 +66,8 @@ export type AreaBoosterSpawner = (dt: number, game: GameState, areaBoosters: Are
 
 export type Player = {
     name: string
-    position: Point,
     size: number,
-    collider: CircleCollider,
+    colliders: { bottom: CircleCollider, top: CircleCollider },
     color: Color,
     speed: number,
     dead: boolean

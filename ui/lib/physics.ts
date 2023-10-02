@@ -40,24 +40,26 @@ export function updatePhysics(
     }
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
-        if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
-            game.ballOwner = player;
-            game.ballDirection = normalize(game.ballDirection);
-            game.areaBoosters.push({
-                collider: { ...player.collider, radius: AREA_BOOSTER_RADIUS},
-                duration: AREA_BOOSTER_DURATION,
-                color: player.color
-            });
-            break;
-        }
-        player.speed = PLAYER_DEFAULT_SPEED;
-        for (const areaBooster of game.areaBoosters) {
-            if (areaBooster.color != player.color) {
-                continue;
-            }
-            if (collideCC(areaBooster.collider, player.collider)) {
-                player.speed *= 1.5;
+        for (const playerCollider of [player.colliders.bottom, player.colliders.top]) {
+            if (collideBallAndPlayer(game.ball, playerCollider, game.ballDirection)) {
+                game.ballOwner = player;
+                game.ballDirection = normalize(game.ballDirection);
+                game.areaBoosters.push({
+                    collider: { ...playerCollider, radius: AREA_BOOSTER_RADIUS},
+                    duration: AREA_BOOSTER_DURATION,
+                    color: player.color
+                });
                 break;
+            }
+            player.speed = PLAYER_DEFAULT_SPEED;
+            for (const areaBooster of game.areaBoosters) {
+                if (areaBooster.color != player.color) {
+                    continue;
+                }
+                if (collideCC(areaBooster.collider, playerCollider)) {
+                    player.speed *= 1.5;
+                    break;
+                }
             }
         }
     }
@@ -135,11 +137,21 @@ function createObstacle(): Obstacle {
 
 function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
     const step = player.speed * dt * dy;
-    player.position.y -= step;
-    if (player.position.y < 0) {
-        player.position.y = 1;
+    const radius = player.colliders.bottom.radius;
+    let position = player.colliders.bottom.y;
+    position -= step;
+    if (position < 0) {
+        position = 1;
     }
-    player.collider.y = player.position.y;
+    player.colliders.bottom.y = position;
+    let topPosition = position;
+    if (position - radius < 0) {
+        topPosition = 1 + position;
+    }
+    if (position + radius > 1) {
+        topPosition = -1 + position;
+    }
+    player.colliders.top.y = topPosition;
 }
 
 function moveBall(ball: Ball, direction: Vec2, dt: number) {
@@ -174,7 +186,7 @@ function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec
 function processBooster(game: GameState, boosterName: string, player: Player) {
     if (boosterName == "biggerPlayer") {
         player.size *= BOOSTER_SCALE;
-        player.collider.radius *= BOOSTER_SCALE;
+        player.colliders.bottom.radius *= BOOSTER_SCALE;
     } else if (boosterName == "biggerBall") {
         game.ball.size *= BOOSTER_SCALE;
         game.ball.size = Math.min(game.ball.size, BALL_MAX_RADIUS);
@@ -226,9 +238,11 @@ function collidePlayerAndBooster(
     player: Player,
     booster: Booster,
 ): boolean {
-    if (collideCC(player.collider, booster.collider)) {
-        processBooster(game, booster.name, player);
-        return true;
+    for (const playerCollider of [player.colliders.bottom, player.colliders.top]) {
+        if (collideCC(playerCollider, booster.collider)) {
+            processBooster(game, booster.name, player);
+            return true;
+        }
     }
     return false;
 }
@@ -264,8 +278,10 @@ function collideAny(
         return true;
     }
     for (const player of game.players) {
-        if (collideCC(collider, player.collider)) {
-            return true;
+        for (const playerCollider of [player.colliders.bottom, player.colliders.top]) {
+            if (collideCC(collider, playerCollider)) {
+                return true;
+            }
         }
     }
     for (const booster of game.boosters) {
@@ -304,7 +320,7 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
         let pos = vec2(Math.cos(angle), Math.sin(angle));
         pos = ssum(smul(pos, 0.5), 0.5);
         areaBoosters.push({
-            collider: { ...pos, radius: player.collider.radius * 1.1 },
+            collider: { ...pos, radius: player.colliders.bottom.radius * 1.1 },
             color: player.color,
             duration: AREA_BOOSTER_DURATION,
         });

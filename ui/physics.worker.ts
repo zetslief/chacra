@@ -11,7 +11,7 @@ import { updatePhysics } from './lib/physics';
 import {
     Point,
     LineCollider,
-    vec2, smul, ssum,
+    vec2
 } from './lib/math';
 
 import { 
@@ -99,10 +99,9 @@ function defaultState(): GameState {
             const dead = false;
             players.push({
                 name,
-                position,
                 size,
                 color,
-                collider: { radius, ...position },
+                colliders: { bottom: { radius, ...position }, top: { radius, ...position } },
                 speed: PLAYER_DEFAULT_SPEED,
                 dead });
         }
