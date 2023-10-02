@@ -135,11 +135,7 @@ function createObstacle(): Obstacle {
 
 function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
     const step = player.speed * dt * dy;
-    const position = smul(ssum(player.position, -0.5), 2);
-    const angle = Math.atan2(position.y, position.x) + step;
-    const x = Math.cos(angle);
-    const y = Math.sin(angle);
-    player.position = ssum(smul(vec2(x, y), 0.5), 0.5);
+    player.position.y -= step;
     player.collider.x = player.position.x;
     player.collider.y = player.position.y;
 }
