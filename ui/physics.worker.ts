@@ -91,9 +91,9 @@ function defaultState(): GameState {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
         let players = []
         for (const pivot of pivots) {
-            const index: number = players.length;
-            const name = "Player" + index;
-            const colorValue = Math.round(index * (360 / pivots.length));
+            const index: number = Math.random();
+            const name: string = "Player" + players.length;
+            const colorValue = Math.round(index * 360);
             const color = "hsl(" + colorValue + ", 80%, 70%)";
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
