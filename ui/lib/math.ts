@@ -119,9 +119,6 @@ export function collideLL(first: LineCollider, second: LineCollider): boolean {
             && ((ax1 >= ax2 && ax1 <= bx2) || (bx1 >= ax2 && bx1 <= bx2));
     }
 
-    function ordered(a: number, b: number): [number, number] {
-        return a < b ? [a, b] : [b, a];
-    }
     const [ax1, bx1] = ordered(first.a.x, first.b.x);
     const [ax2, bx2] = ordered(second.a.x, second.b.x);
     const [ay1, by1] = ordered(first.a.y, first.b.y);
@@ -171,7 +168,32 @@ export function collideCL(line: LineCollider, circle: CircleCollider): boolean {
     const dd = b * b - 4 * a * cc;
     if (dd < 0) {
         return false;
+    } else if (dd == 0) {
+        const x = -b / (2 * a);
+        const y = k * x + c;
+        const [xLeft, xRight] = ordered(line.a.x, line.b.x);
+        if (x <= xLeft || x >= xRight) {
+            return false;
+        }
+        const [yBottom, yTop] = ordered(line.a.y, line.b.y);
+        if (y <= yBottom || y >= yTop) {
+            return false;
+        }
+        return true;
     } else {
+        const d = Math.sqrt(dd);
+        const x1 = (-b - d) / (2 * a);
+        const x2 = (-b + d) / (2 * a);
+        const y1 = k * x1 + c;
+        const y2 = k * x2 + c;
+        const [xLeft, xRight] = ordered(line.a.x, line.b.x);
+        if ((x1 < xLeft || x1 > xRight) && (x2 < xLeft || x2 > xRight)) {
+            return false;
+        }
+        const [yTop, yBottom] = ordered(line.a.y, line.b.y);
+        if ((y1 < yBottom || y1 > yTop) && (y2 < yBottom || y2 > yTop)) {
+            return false;
+        }
         return true;
     }
 }
@@ -181,3 +203,6 @@ export function insideCircle(circle: CircleCollider, point: Point): boolean {
     return len(diff) <= circle.radius;
 }
 
+function ordered(a: number, b: number): [number, number] {
+    return a < b ? [a, b] : [b, a];
+}
