@@ -158,9 +158,22 @@ export function collideCC(first: CircleCollider, second: CircleCollider): boolea
     return len(diff) < (first.radius + second.radius);
 }
 
-export function collideCL(rect: LineCollider, circle: CircleCollider): boolean {
-    console.error("Rect x Circle collistions are not implemented", rect, circle);
-    return false;
+export function collideCL(line: LineCollider, circle: CircleCollider): boolean {
+    const result = line_k_c(line.a, line.b);
+    if (!result) {
+        return false;
+    } 
+    const [k, c] = result;
+    const r = circle.radius;
+    const a = (k * k + 1);
+    const b = (2 * k * c - 2 * k * circle.y - 2 * circle.x);
+    const cc = (circle.x * circle.x + c * c - 2 * c * circle.y + circle.y * circle.y - r * r);
+    const dd = b * b - 4 * a * cc;
+    if (dd < 0) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 export function insideCircle(circle: CircleCollider, point: Point): boolean {
