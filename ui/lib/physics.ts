@@ -22,7 +22,7 @@ import {
     Vec2,
     vec2, smul, sum, sub, ssum, normalize, len,
     CircleCollider,
-    collideCC,
+    collideCC, collideCL
 } from './math';
 
 
@@ -61,6 +61,18 @@ export function updatePhysics(
                     break;
                 }
             }
+        }
+    }
+    let wallIndex = 0;
+    for (const wall of game.walls) {
+        if (collideCL(wall, game.ball.collider)) {
+            if (wallIndex % 2 == 0) {
+                game.ballDirection.x *= -1;
+            } else {
+                game.ballDirection.y *= -1;
+            }
+        } else {
+            wallIndex += 1;
         }
     }
     collideBallAndObstacle(game, game.ball);

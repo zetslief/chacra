@@ -8,7 +8,7 @@ const inputUpdateUri = root + "/game/input";
 
 const inputUpdateDelay = 50;
 
-Promise.all(Array.from({length: 12}, (k, v) => runBot("Player" + v)))
+Promise.all(Array.from({length: 2}, (k, v) => runBot("Player" + v)))
 
 async function runBot(playerName: string) {
     console.log("Connecting...", playerName);
