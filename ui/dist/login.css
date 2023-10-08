@@ -1,19 +1,24 @@
 * {
     margin: 0;
+    padding: 0;
 }
 
-body {
-    margin: 0 auto;
-    padding: 10%;
-    width: 50vw;
+#page {
+    width: 100vw;
+    height: 100vh;
 
-    background: blueviolet;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    background-color: blueviolet;
 }
 
 #login {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
     
     border-width: 3px;
     border-radius: 1em;
@@ -22,14 +27,9 @@ body {
 }
 
 #login > * {
-    padding: 0.5em;
-    margin: 0.5em;
+    padding: 0.2em;
+    margin: 0.3em;
     font-size: 2em;
-}
-
-label {
-    text-align: center;
-    font-size-adjust: 2;
 }
 
 input {
@@ -46,6 +46,8 @@ input {
     border-color: black;
 
     background-color: rgba(255, 255, 255, 0.5);
+
+    align-self:stretch;
 }
 
 #login > button:hover {
