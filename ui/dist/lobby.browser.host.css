@@ -34,7 +34,7 @@ butotn:hover {
     width: 100%;
 }
 
-#storage {
+#players {
     width: 100%;
 
     display: flex;
@@ -42,7 +42,7 @@ butotn:hover {
     align-items: center;
 }
 
-.storageItem {
+.player {
     border-style: solid;
     border-radius: 0.5em;
     border-color: black;

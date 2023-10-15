@@ -1,13 +1,13 @@
 
 window.onload = async () => {
-    const storage = document.getElementById("storage");
-    const template = document.getElementById("storageItemTemplate");
+    const players = document.getElementById("players");
+    const template = document.getElementById("playerTemplate");
 
     const data = await requestLobbyData();
-    renderLobbyData(data, template, storage);
+    renderLobbyData(data, template, players);
     setInterval(async () => {
         const data = await requestLobbyData();
-        renderLobbyData(data, template, storage);
+        renderLobbyData(data, template, players);
     }, 1000)
 };
 
@@ -24,19 +24,23 @@ async function startGame() {
     }
 }
 
+async function leaveLobby() {
+    console.error("Leave Lobby: not implemented!");
+}
+
 async function requestLobbyData() {
     var response = await fetch("http://localhost:5000/lobby/data");
     return response.json();
 } 
 
-function renderLobbyData(data, template, storage) {
-    while (storage.firstChild) {
-        storage.removeChild(storage.firstChild);
+function renderLobbyData(data, template, players) {
+    while (players.firstChild) {
+        players.removeChild(players.firstChild);
     }
     for (const item of data) {
-        const itemElement = template.cloneNode(true);
-        itemElement.removeAttribute("id");
-        itemElement.lastChild.textContent = item.toString();
-        storage.appendChild(itemElement);
+        const playerElement = template.cloneNode(true);
+        playerElement.removeAttribute("id");
+        playerElement.lastChild.textContent = item.toString();
+        players.appendChild(playerElement);
     }
 }
