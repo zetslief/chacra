@@ -24,6 +24,10 @@ async function connect() {
     }
 }
 
+function createLobby() {
+    console.error("Create New Lobby is not implemented!");
+}
+
 window.onload = () => {
     input.value = "Player " + Math.floor(Math.random() * 100);
 }
