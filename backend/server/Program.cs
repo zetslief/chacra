@@ -12,6 +12,7 @@ var lobbyBrowserGuestPage = Path.GetFullPath("./../../ui/dist/lobby.browser.gues
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
 var lobbyStarted = false;
+Lobby? lobby = null;
 var players = new List<string>(); 
 var inputQueue = new BlockingCollection<InputState>();
 
@@ -32,25 +33,35 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
-app.MapPost("/lobby/connect", (Connect connect) => {
-    Console.WriteLine($"Connecting: {connect}");
-    var playerName = connect.PlayerName;
-    if (!string.IsNullOrEmpty(playerName)) {
-        players.Add(playerName!);
-        return Results.Redirect(players.Count == 1 
-            ? "/lobby/browser/host" 
-            : "/lobby/browser/guest"
+app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
+    Console.WriteLine($"Join lobby: {joinLobby}");
+    var playerName = new Player(joinLobby.PlayerName);
+    if (lobby is null)
+    {
+        Console.WriteLine($"Error: lobby not created");
+        return Results.BadRequest("Failed to join lobby: not found!");
+    }
+    else
+    {
+        lobby.Players.Add(playerName!);
+        return Results.Redirect(players.Count == 1
+            ? "/lobby/host"
+            : "/lobby/guest"
         );
-    } else {
-        return Results.Redirect("/");
     }
 });
 
-app.MapGet("/lobby/browser/host", () => {
+app.MapPost("/lobby/create", (CreateLobby createLobby) =>
+{
+    lobby = new(new Player(createLobby.PlayerName));
+    return Results.Redirect("/lobby/host");
+});
+
+app.MapGet("/lobby/host", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html");
 });
 
-app.MapGet("/lobby/browser/guest", () => {
+app.MapGet("/lobby/guest", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
 });
 
@@ -98,8 +109,16 @@ app.MapPost("/game/state", async (ctx) => {
 app.Run();
 
 namespace Chacra {
-    public record Connect(string PlayerName);
+    public record CreateLobby(string PlayerName);
+    public record JoinLobby(string PlayerName);
     public record Disconnect(string PlayerName);
     public record LobbyStatus(bool Started);
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
+
+    public record Player(string Name);
+    public record Lobby(Player Host, HashSet<Player> Players)
+    {
+        public Lobby(Player host)
+            : this(host, new() { host }) { }
+    }
 }
