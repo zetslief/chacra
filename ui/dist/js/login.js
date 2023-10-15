@@ -1,9 +1,22 @@
-const input = document.getElementById("playerName");
+const PLAYER_NAME = "playerName";
 
-async function connect() {
-    sessionStorage.setItem("playerName", input.value);
+const ROOT = "http:://localhost:5000";
+const JOIN_ENDPOINT = ROOT + "/lobby/join";
+const CREATE_NEW_LOBBY_ENDPOINT = ROOT +"/lobby/create";
+
+const input = document.getElementById(PLAYER_NAME);
+
+window.onload = () => {
+    const playerName = sessionStorage.getItem(PLAYER_NAME);
+    if (playerName) {
+        input.value = playerName;
+    }
+}
+
+async function join() {
+    sessionStorage.setItem(PLAYER_NAME, input.value);
     const result = await fetch(
-        "http://localhost:5000/lobby/connect",
+        "http://localhost:5000/lobby/join",
         {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -15,19 +28,44 @@ async function connect() {
         if (result.redirected && result.url) {
             location.assign(result.url);
         } else {
-            console.error("Result is ok, but where should I go? No redirection :(");
-            console.error(result);
+            errorNoRedirection(result);
         }
     } else {
-        console.error("Failed to connect", input.value);
-        console.error(result);
+        errorFailedRequest();
     }
 }
 
-function createLobby() {
-    console.error("Create New Lobby is not implemented!");
+async function createLobby() {
+    const playerName = input.value;
+    if (!playerName) {
+        console.error("Player name is not specified!");
+        return;
+    }
+    sessionStorage.setItem("playerName", playerName);
+    const result = await fetch(CREATE_NEW_LOBBY_ENDPOINT,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: { playerName }
+        }
+    );
+    if (result.ok) {
+        if (result.redirected && result.url) {
+            location.assign(result.url);
+        } else {
+            errorNoRedirection(result);
+        }
+    } else {
+        errorFailedRequest(result);
+    }
 }
 
-window.onload = () => {
-    input.value = "Player " + Math.floor(Math.random() * 100);
+function errorNoRedirection(result) {
+    console.error("Request is successful, but no redirection.");
+    console.error(result);
+}
+
+function errorFailedRequest(result) {
+    console.error("Request failed");
+    console.error(result);
 }
