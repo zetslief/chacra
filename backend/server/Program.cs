@@ -45,7 +45,7 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
     {
         lobby.Players.Add(newPlayer);
     }
-    return Results.Redirect("/lobby/guest");
+    return lobby.Host == newPlayer ?  Results.Redirect("/lobby/host") : Results.Redirect("/lobby/host");
 });
 
 app.MapPost("/lobby/create", (CreateLobby createLobby) =>
