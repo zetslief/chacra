@@ -41,18 +41,11 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
         Console.WriteLine($"Error: lobby not created");
         return Results.BadRequest("Failed to join lobby: not found!");
     }
-    else if (lobby.Players.Contains(newPlayer))
-    {
-        return Results.BadRequest($"This player is already in the lobby {newPlayer}");
-    }
-    else
+    if (!lobby.Players.Contains(newPlayer))
     {
         lobby.Players.Add(newPlayer);
-        return Results.Redirect(players.Count == 1
-            ? "/lobby/host"
-            : "/lobby/guest"
-        );
     }
+    return Results.Redirect("/lobby/guest");
 });
 
 app.MapPost("/lobby/create", (CreateLobby createLobby) =>
