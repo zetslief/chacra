@@ -5,9 +5,15 @@
     <link rel="stylesheet" href="/lobby.browser.guest.css">
 </head>
 <body>
-    <div>
-        <h1 id="connectedTitle">Connected</h1>
-        <div id="storage">
+    <div class="main">
+        <div style="display: flex; flex-direction: column; flex: 2;">
+            <div>
+                <h1 id="connectedTitle">Connected</h1>
+            </div>
+            <div id="storage"></div>
+        </div>
+        <div style="flex: 1">
+            <input>
         </div>
     </div>
 
@@ -15,7 +21,7 @@
 
     <div hidden>
         <div id="storageItemTemplate" class="storageItem">
-            <p class="storageItemValue"></p>
+            <p id="storageItemValue"></p>
         </div>
     </div>
 </body>

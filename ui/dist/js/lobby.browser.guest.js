@@ -4,6 +4,7 @@ window.onload = async () => {
 
     const data = await requestLobbyData();
     renderLobbyData(data, template, storage);
+
     setInterval(async () => {
         const data = await requestLobbyData();
         renderLobbyData(data, template, storage);
@@ -22,7 +23,8 @@ function renderLobbyData(data, template, storage) {
     for (const item of data) {
         const itemElement = template.cloneNode(true);
         itemElement.removeAttribute("id");
-        itemElement.lastChild.textContent = item.toString();
+        const valueElement = itemElement.lastElementChild;
+        valueElement.textContent = item.toString();
         storage.appendChild(itemElement);
     }
 }
