@@ -1,6 +1,6 @@
 const PLAYER_NAME = "playerName";
 
-const ROOT = "http:://localhost:5000";
+const ROOT = "http://localhost:5000";
 const JOIN_ENDPOINT = ROOT + "/lobby/join";
 const CREATE_NEW_LOBBY_ENDPOINT = ROOT +"/lobby/create";
 
@@ -14,13 +14,18 @@ window.onload = () => {
 }
 
 async function join() {
-    sessionStorage.setItem(PLAYER_NAME, input.value);
+    const playerName = input.value;
+    if (!playerName) {
+        console.error("Player name is not specified!");
+        return;
+    }
+    sessionStorage.setItem(PLAYER_NAME, playerName);
     const result = await fetch(
-        "http://localhost:5000/lobby/join",
+        JOIN_ENDPOINT,
         {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName: input.value }),
+            body: JSON.stringify({ playerName }),
         }
     );
     if (result.ok) {
@@ -46,7 +51,7 @@ async function createLobby() {
         {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: { playerName }
+            body: JSON.stringify({ playerName })
         }
     );
     if (result.ok) {
