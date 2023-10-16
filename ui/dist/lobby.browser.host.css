@@ -1,45 +1,32 @@
-body {
-    background: darkorange;
-}
-
-p {
+* {
     margin: 0;
+    padding: 0;
 }
 
-button {
-    width: 100%;
-    margin: 0.5em;
-    padding: 1em;
+.group {
+    background-color: rgba(150, 150, 150, 0.3);
 
-    border-style: solid;
     border-radius: 0.5em;
-    border-color: darkblue;
-    border-width: 2px;
 
-    background-color: darkslateblue;
+    padding: 0.5em;
 }
 
-butotn:hover {
-    border-width: 5px;
+.leave-button {
+    background-color: darkred;
+    border-width: 0;
 }
 
-#main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.leave-button:hover {
+    background-color: red;
 }
 
-#connectedTitle {
-    text-align: center;
-    width: 100%;
+.start-button {
+    background-color: darkgreen;
+    border-width: 0;
 }
 
-#players {
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.start-button:hover {
+    background-color: green;
 }
 
 .player {
@@ -51,4 +38,56 @@ butotn:hover {
     padding: 1em;
     margin-top: 0.5em;
     width: 50%;
+}
+
+#main {
+    height: 98vh;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    padding: 1vh;
+    gap: 1vh;
+
+    background: darkorange;
+}
+
+#main > div:first-child {
+    flex: 1 0 10%;
+}
+
+#main > div:nth-child(2) {
+    flex: 1 0 10%;
+}
+
+#main > div {
+    flex: 2 0 50%;
+
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+}
+
+#main > div:last-child {
+    flex: 0;
+}
+
+.button-bar {
+    display: flex;
+}
+
+.button-bar > button {
+    flex: 1;
+
+    margin: 0.5em;
+    padding: 1em;
+
+    border-radius: 0.5em;
+}
+
+#players {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

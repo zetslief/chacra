@@ -6,19 +6,25 @@
 </head>
 <body>
     <div id="main">
-        <div id="lobbyDeclaration">
+        <div id="lobbyDeclaration" class="group">
             <label for="lobbyName">Lobby</label>
             <input name="lobbyName" id="lobbyName" type="text" placeholder="enter lobby name...">
         </div>
-        <div id="gameInformation">
+        <div id="gameInformation" class="group">
+            <p>Game Information</p>
         </div>
-        <div id="chat">
+        <div id="chat" class="group">
+            <p>Chat</p>
         </div>
-        <div id="players">
+        <div id="players" class="group">
         </div>
-        <div>
-            <button onclick="startGame()">Start</button>
-            <button onclick="leaveLobby()">Leave</button>
+        <div class="group button-bar">
+            <button 
+                class="leave-button"
+                onclick="leaveLobby()">Leave</button>
+            <button 
+                class="start-button"
+                onclick="startGame()">Start</button>
         </div>
     </div>
 
