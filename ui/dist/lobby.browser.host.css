@@ -10,23 +10,24 @@
 
     padding: 0.5em;
 }
-
 .leave-button {
     background-color: darkred;
-    border-width: 0;
+    border-color: darkred;
 }
 
 .leave-button:hover {
     background-color: red;
+    border-color: darkred;
 }
 
 .start-button {
     background-color: darkgreen;
-    border-width: 0;
+    border-color: darkgreen;
 }
 
 .start-button:hover {
     background-color: green;
+    border-color: darkgreen;
 }
 
 .player {
@@ -54,7 +55,7 @@
 }
 
 #main > div:first-child {
-    flex: 1 0 10%;
+    flex: 0 0 auto;
 }
 
 #main > div:nth-child(2) {
@@ -90,4 +91,37 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.lobby-name {
+    display: flex;
+    gap: 1vh;
+}
+
+.lobby-name > * {
+    padding: 1vh;
+}
+
+.lobby-name > input {
+    width: 30%;
+
+    background: transparent;
+    border-color: rgba(100, 100, 100, 0.3);
+    border-style: solid;
+    border-radius: 0.5em;
+}
+
+.lobby-name > input:focus {
+    outline: none;
+}
+
+.lobby-name > button {
+    background-color: darkgreen;
+    border-color: darkgreen;
+    border-radius:  0.5em;
+}
+
+.lobby-name > button:hover {
+    background-color: green;
+    border-color: darkgreen;
 }
