@@ -65,7 +65,7 @@
     flex: 2 0 50%;
 
     border-style: solid;
-    border-color: blue;
+    border-color: rgba(100, 100, 100, 0.3);
     border-width: 1px;
 }
 
