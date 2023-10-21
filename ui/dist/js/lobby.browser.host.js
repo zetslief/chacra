@@ -4,12 +4,12 @@ window.onload = async () => {
     const players = document.getElementById("players");
     const template = document.getElementById("playerTemplate");
 
-    const data = await requestLobbyData();
-    labelName.value = data.Name;
-    renderLobbyData(data.players, template, players);
+    const lobbyData = await requestLobbyData();
+    renderLobbyName(lobbyData.Name, labelName);
+    renderLobbyPlayers(lobbyData.players, template, players);
     setInterval(async () => {
         const data = await requestLobbyData();
-        renderLobbyData(data.players, template, players);
+        renderLobbyPlayers(data.players, template, players);
     }, 1000)
 };
 
@@ -35,7 +35,11 @@ async function requestLobbyData() {
     return response.json();
 } 
 
-function renderLobbyData(data, template, players) {
+function renderLobbyName(labelName, labelNameElement) {
+    labelNameElement.value = labelName;
+}
+
+function renderLobbyPlayers(data, template, players) {
     while (players.firstChild) {
         players.removeChild(players.firstChild);
     }
