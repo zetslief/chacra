@@ -10,6 +10,21 @@
 
     padding: 0.5em;
 }
+
+.row {
+    display: flex;
+    flex-direction: row;
+
+    gap: 0.5em;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.5em;
+}
+
 .leave-button {
     background-color: darkred;
     border-color: darkred;

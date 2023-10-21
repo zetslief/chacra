@@ -4,13 +4,22 @@ const LOBBY_STOP = ROOT + "/lobby/leave";
 const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
 
+const chat = document.getElementById("chat");
+const chatMessageTemplate = document.getElementById("chatMessageTemplate");
+
 window.onload = async () => {
     const labelName = document.getElementById("lobbyName");
     const players = document.getElementById("players");
     const template = document.getElementById("playerTemplate");
 
+    const gameName = document.getElementById("gameName");
+    const numberOfPlayers = document.getElementById("numberOfPlayers");
+
     const lobbyData = await requestLobbyData();
+    console.log(lobbyData);
+    writeMessage("host", "lobby created");
     renderLobbyName(lobbyData.name, labelName);
+    renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     renderLobbyPlayers(lobbyData.players, template, players);
     setInterval(async () => {
         const data = await requestLobbyData();
@@ -19,6 +28,7 @@ window.onload = async () => {
 };
 
 async function saveLobbyName() {
+    writeMessage("host", "lobby name changed");
     const response = await fetch(LOBBY_LOBBY_NAME,
         { method: "POST" });
     if (!response.ok) {
@@ -27,6 +37,7 @@ async function saveLobbyName() {
 }
 
 async function startGame() {
+    writeMessage("host", "starting game...");
     const response = await fetch(LOBBY_START, 
         { method: "POST", redirect: "follow" }
     );
@@ -39,6 +50,7 @@ async function startGame() {
 }
 
 async function leaveLobby() {
+    writeMessage("host", "leaving lobby...");
     console.error("Leave Lobby: not implemented!");
 }
 
@@ -51,6 +63,11 @@ function renderLobbyName(labelName, labelNameElement) {
     labelNameElement.value = labelName;
 }
 
+function renderGameInformation(game, gameNameElement, numberOfPlayersElement) {
+    gameNameElement.textContent = game.name;
+    numberOfPlayersElement.textContent = game.numberOfPlayers;
+}
+
 function renderLobbyPlayers(data, template, players) {
     while (players.firstChild) {
         players.removeChild(players.firstChild);
@@ -61,4 +78,15 @@ function renderLobbyPlayers(data, template, players) {
         playerElement.lastChild.textContent = item.name.toString();
         players.appendChild(playerElement);
     }
+}
+
+function writeMessage(sender, content) {
+    appendChatMessage(sender + ": " + content);
+}
+
+function appendChatMessage(message) {
+    const chatMessageElement = chatMessageTemplate.cloneNode(true);
+    chatMessageElement.removeAttribute("id");
+    chatMessageElement.lastChild.textContent = message;
+    chat.appendChild(chatMessageElement);
 }

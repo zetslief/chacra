@@ -11,8 +11,18 @@
             <input name="lobbyName" id="lobbyName" type="text" placeholder="enter lobby name...">
             <button onclick="saveLobbyName()">Save</button>
         </div>
-        <div id="gameInformation" class="group">
-            <p>Game Information</p>
+        <div id="gameInformation" class="group column">
+            <h3 style="text-align: center;">Game Information</h3>
+            <div class="row">
+                <div class="column">
+                    <p>GameName</p>
+                    <p>Number Of Players</p>
+                </div>
+                <div class="column">
+                    <p id="gameName"></p>
+                    <p id="numberOfPlayers"></p>
+                </div>
+            </div>
         </div>
         <div id="chat" class="group">
             <p>Chat</p>
@@ -33,7 +43,7 @@
         <div id="playerTemplate" class="player">
             <p class="playerValue"></p>
         </div>
-        <div id="chatMessageTempalte" class="message">
+        <div id="chatMessageTemplate" class="message">
             <p class="messageValue"></p>
         </div>
     </div>
