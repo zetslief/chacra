@@ -1,3 +1,8 @@
+const ROOT = "http://localhost:5000";
+const LOBBY_START = ROOT + "/lobby/start";
+const LOBBY_STOP = ROOT + "/lobby/leave";
+const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
+const LOBBY_DATA = ROOT + "/lobby/data";
 
 window.onload = async () => {
     const labelName = document.getElementById("lobbyName");
@@ -5,7 +10,7 @@ window.onload = async () => {
     const template = document.getElementById("playerTemplate");
 
     const lobbyData = await requestLobbyData();
-    renderLobbyName(lobbyData.Name, labelName);
+    renderLobbyName(lobbyData.name, labelName);
     renderLobbyPlayers(lobbyData.players, template, players);
     setInterval(async () => {
         const data = await requestLobbyData();
@@ -13,9 +18,16 @@ window.onload = async () => {
     }, 1000)
 };
 
+async function saveLobbyName() {
+    const response = await fetch(LOBBY_LOBBY_NAME,
+        { method: "POST" });
+    if (!response.ok) {
+        console.error("Failed to save lobby name", response);
+    }
+}
+
 async function startGame() {
-    const response = await fetch(
-        "http://localhost:5000/lobby/start", 
+    const response = await fetch(LOBBY_START, 
         { method: "POST", redirect: "follow" }
     );
     if (response.ok && response.redirected) {
@@ -31,7 +43,7 @@ async function leaveLobby() {
 }
 
 async function requestLobbyData() {
-    var response = await fetch("http://localhost:5000/lobby/data");
+    var response = await fetch(LOBBY_DATA);
     return response.json();
 } 
 

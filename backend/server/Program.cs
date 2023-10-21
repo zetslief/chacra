@@ -9,8 +9,13 @@ var lobbyBrowserHostPage = Path.GetFullPath("./../../ui/dist/lobby.browser.host.
 var lobbyBrowserGuestPage = Path.GetFullPath("./../../ui/dist/lobby.browser.guest.html");
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
+var games = new []
+{
+    new Game("tennis", 2),
+};
+
 var lobbyStarted = false;
-Lobby? lobby = null;
+LobbyData? lobby = null;
 var inputQueue = new BlockingCollection<InputState>();
 
 var app = builder.Build();
@@ -47,8 +52,18 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
 
 app.MapPost("/lobby/create", (CreateLobby createLobby) =>
 {
-    lobby = new(createLobby.LobbyName, new Player(createLobby.PlayerName));
+    lobby = new(createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     return Results.Redirect("/lobby/host");
+});
+
+app.MapPost("/lobby/rename", (RenameLobby rename) =>
+{
+    if (lobby is null) {
+        return Results.BadRequest("Lobby not created");
+    } else {
+        lobby = lobby with { Name = rename.NewName };
+        return Results.Ok();
+    }
 });
 
 app.MapGet("/lobby/host", () => {
@@ -106,15 +121,17 @@ app.Run();
 
 namespace Chacra {
     public record CreateLobby(string LobbyName, string PlayerName);
+    public record RenameLobby(string CurrentName, string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
-    public record Disconnect(string PlayerName);
     public record LobbyStatus(bool Started);
+    public record LobbyData(string Name, Player Host, Game game, HashSet<Player> Players)
+    {
+        public LobbyData(string name, Player host, Game game)
+            : this(name, host, game, new() { host }) { }
+    }
+
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
 
     public record Player(string Name);
-    public record Lobby(string Name, Player Host, HashSet<Player> Players)
-    {
-        public Lobby(string name, Player host)
-            : this(name, host, new() { host }) { }
-    }
+    public record Game(string Name, int NumberOfPlayers);
 }
