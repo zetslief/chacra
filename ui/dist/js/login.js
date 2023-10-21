@@ -51,7 +51,7 @@ async function createLobby() {
         {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName })
+            body: JSON.stringify({ lobbyName: playerName, playerName })
         }
     );
     if (result.ok) {

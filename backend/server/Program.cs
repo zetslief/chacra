@@ -1,8 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
 using Chacra;
-using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +11,6 @@ var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
 var lobbyStarted = false;
 Lobby? lobby = null;
-var players = new List<string>(); 
 var inputQueue = new BlockingCollection<InputState>();
 
 var app = builder.Build();
@@ -50,7 +47,7 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
 
 app.MapPost("/lobby/create", (CreateLobby createLobby) =>
 {
-    lobby = new(new Player(createLobby.PlayerName));
+    lobby = new(createLobby.LobbyName, new Player(createLobby.PlayerName));
     return Results.Redirect("/lobby/host");
 });
 
@@ -63,7 +60,9 @@ app.MapGet("/lobby/guest", () => {
 });
 
 app.MapGet("/lobby/data", () => {
-    return Results.Json(players);
+    return lobby is null
+        ? Results.BadRequest("Lobby is not created!")
+        : Results.Json(lobby);
 });
 
 app.MapGet("/lobby/status", () => {
@@ -106,16 +105,16 @@ app.MapPost("/game/state", async (ctx) => {
 app.Run();
 
 namespace Chacra {
-    public record CreateLobby(string PlayerName);
-    public record JoinLobby(string PlayerName);
+    public record CreateLobby(string LobbyName, string PlayerName);
+    public record JoinLobby(string LobbyName, string PlayerName);
     public record Disconnect(string PlayerName);
     public record LobbyStatus(bool Started);
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
 
     public record Player(string Name);
-    public record Lobby(Player Host, HashSet<Player> Players)
+    public record Lobby(string Name, Player Host, HashSet<Player> Players)
     {
-        public Lobby(Player host)
-            : this(host, new() { host }) { }
+        public Lobby(string name, Player host)
+            : this(name, host, new() { host }) { }
     }
 }
