@@ -7,6 +7,8 @@ const LOBBY_DATA = ROOT + "/lobby/data";
 const chat = document.getElementById("chat");
 const chatMessageTemplate = document.getElementById("chatMessageTemplate");
 
+const messageInput = document.getElementById("messageInput");
+
 window.onload = async () => {
     const labelName = document.getElementById("lobbyName");
     const players = document.getElementById("players");
@@ -53,6 +55,10 @@ async function startGame() {
 async function leaveLobby() {
     writeMessage("host", "leaving lobby...");
     console.error("Leave Lobby: not implemented!");
+}
+
+function sendMessage() {
+    writeMessage("host", messageInput.value);
 }
 
 async function requestLobbyData() {

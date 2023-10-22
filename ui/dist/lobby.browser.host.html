@@ -7,7 +7,7 @@
 <body>
     <div id="main" class="row">
         <div class="column grow">
-            <div id="lobbyDeclaration" class="group lobby-name pad">
+            <div id="lobbyDeclaration" class="group lobby-name gap pad">
                 <label for="lobbyName">Lobby</label>
                 <input name="lobbyName" id="lobbyName" type="text" placeholder="enter lobby name...">
                 <button class="accept-button" onclick="saveLobbyName()">Save</button>
@@ -38,10 +38,10 @@
         </div>
         <div class="group column grow">
             <h3 style="text-align: center;">Chat</h3>
-            <div id="chat" class="column-reverse scroll"></div>
-            <div class="row pad">
-                <input class="grow">
-                <button class="accept-button">Send</button>
+            <div id="chat" class="column-reverse grow scroll"></div>
+            <div class="row gap pad">
+                <input id="messageInput" class="grow" maxlength="50">
+                <button class="accept-button" onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>

@@ -99,21 +99,24 @@
     align-items: center;
 }
 
-.lobby-name {
-    display: flex;
-    gap: 1vh;
+.pad > * {
+    padding: 0.5em;
 }
 
-.pad > * {
-    padding: 0.1em;
+.scroll {
+    overflow: auto;
+}
+
+.grow {
+    flex: 1;
+}
+
+.gap {
+    gap: 0.5em;
 }
 
 .lobby-name > input {
     width: 30%;
-
-    background: transparent;
-    border-color: rgba(100, 100, 100, 0.3);
-    border-style: solid;
     border-radius: 0.5em;
 }
 
@@ -137,20 +140,4 @@ input:focus {
 .accept-button:hover {
     background-color: green;
     border-color: darkgreen;
-}
-
-.scroll {
-    overflow: auto;
-}
-
-.scorll * {
-    overflow-anchor: none;
-}
-
-.grow {
-    flex: 1;
-}
-
-.gap {
-    gap: 0.5em;
 }
