@@ -9,6 +9,10 @@
     border-radius: 0.5em;
 
     padding: 0.5em;
+
+    border-style: solid;
+    border-color: rgba(100, 100, 100, 0.3);
+    border-width: 1px;
 }
 
 .row {
@@ -23,6 +27,17 @@
     flex-direction: column;
 
     gap: 0.5em;
+}
+
+.column-reverse {
+    display: flex;
+    flex-direction: column-reverse;
+
+    gap: 0.5em;
+}
+
+.wrap {
+    flex-wrap: wrap;
 }
 
 .leave-button {
@@ -59,52 +74,28 @@
 #main {
     height: 98vh;
 
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-
     padding: 1vh;
     gap: 1vh;
 
     background: darkorange;
 }
 
-#main > div:first-child {
-    flex: 0 0 auto;
-}
-
-#main > div:nth-child(2) {
-    flex: 1 0 10%;
-}
-
-#main > div {
-    flex: 2 0 50%;
-
-    border-style: solid;
-    border-color: rgba(100, 100, 100, 0.3);
-    border-width: 1px;
-}
-
-#main > div:last-child {
-    flex: 0;
-}
-
 .button-bar {
+    height: 50px;
+    gap: 0.5em;
+
     display: flex;
 }
 
 .button-bar > button {
     flex: 1;
 
-    margin: 0.5em;
-    padding: 1em;
-
     border-radius: 0.5em;
 }
 
 #players {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
+
     align-items: center;
 }
 
@@ -113,8 +104,8 @@
     gap: 1vh;
 }
 
-.lobby-name > * {
-    padding: 1vh;
+.pad > * {
+    padding: 0.1em;
 }
 
 .lobby-name > input {
@@ -126,17 +117,40 @@
     border-radius: 0.5em;
 }
 
-.lobby-name > input:focus {
+input {
+    background: transparent;
+    border-color: rgba(100, 100, 100, 0.3);
+    border-style: solid;
+    border-radius: 0.5em;
+}
+
+input:focus {
     outline: none;
 }
 
-.lobby-name > button {
+.accept-button {
     background-color: darkgreen;
     border-color: darkgreen;
     border-radius:  0.5em;
 }
 
-.lobby-name > button:hover {
+.accept-button:hover {
     background-color: green;
     border-color: darkgreen;
+}
+
+.scroll {
+    overflow: auto;
+}
+
+.scorll * {
+    overflow-anchor: none;
+}
+
+.grow {
+    flex: 1;
+}
+
+.gap {
+    gap: 0.5em;
 }

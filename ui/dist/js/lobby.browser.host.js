@@ -23,6 +23,7 @@ window.onload = async () => {
     renderLobbyPlayers(lobbyData.players, template, players);
     setInterval(async () => {
         const data = await requestLobbyData();
+        writeMessage("host", "data updated for lobby " + data.name);
         renderLobbyPlayers(data.players, template, players);
     }, 1000)
 };
@@ -80,6 +81,12 @@ function renderLobbyPlayers(data, template, players) {
     }
 }
 
+function spam() {
+    for (let index = 0; index < 100; ++index) {
+        writeMessage("debug", index);
+    }
+}
+
 function writeMessage(sender, content) {
     appendChatMessage(sender + ": " + content);
 }
@@ -88,5 +95,5 @@ function appendChatMessage(message) {
     const chatMessageElement = chatMessageTemplate.cloneNode(true);
     chatMessageElement.removeAttribute("id");
     chatMessageElement.lastChild.textContent = message;
-    chat.appendChild(chatMessageElement);
+    chat.prepend(chatMessageElement);
 }
