@@ -58,7 +58,10 @@ async function leaveLobby() {
 }
 
 function sendMessage() {
-    writeMessage("host", messageInput.value);
+    if (messageInput.value) {
+        writeMessage("host", messageInput.value);
+        messageInput.value = "";
+    }
 }
 
 async function requestLobbyData() {
