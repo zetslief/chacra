@@ -5,7 +5,7 @@ const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
 const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
 
-const bots = [];
+let bots = [];
 let savedLobbyName = "";
 
 const labelName = document.getElementById("lobbyName");
@@ -25,13 +25,14 @@ window.onload = async () => {
     const lobbyData = await requestLobbyData();
     writeMessage("host", "lobby created");
     savedLobbyName = lobbyData.name;
+    bots = lobbyData.bots;
     renderLobbyName(lobbyData.name, labelName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
-    renderLobbyPlayers(lobbyData.players, playerTemplate, players);
+    renderPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
         const data = await requestLobbyData();
         writeMessage("host", "data updated for lobby " + data.name);
-        renderLobbyPlayers(data.players, playerTemplate, players);
+        renderPlayers(data.players, playerTemplate, players);
     }, 1000)
 };
 
@@ -102,15 +103,21 @@ function renderGameInformation(game, gameNameElement, numberOfPlayersElement) {
     numberOfPlayersElement.textContent = game.numberOfPlayers;
 }
 
-function renderLobbyPlayers(data, template, players) {
+function renderPlayers(data, playerTemplate, players) {
     while (players.firstChild) {
         players.removeChild(players.firstChild);
     }
-    for (const item of [...data, ...bots]) {
-        const playerElement = template.cloneNode(true);
+    for (const player of data) {
+        const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
-        playerElement.lastChild.textContent = item.name.toString();
+        playerElement.lastChild.textContent = player.name.toString();
         players.appendChild(playerElement);
+    }
+    for (const bot of bots) {
+        const botElement = playerTemplate.cloneNode(true);
+        botElement.removeAttribute("id");
+        botElement.lastChild.textContent = bot.name.toString();
+        players.appendChild(botElement);
     }
 }
 
