@@ -92,6 +92,8 @@ app.MapPost("/lobby/start", () => {
 app.MapPost("/lobby/bot/add", (AddBot bot) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Name != bot.LobbyName) return Results.BadRequest($"{bot.LobbyName} lobby is not found!");
+    if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
+        return Results.BadRequest("Too many players");
     lobby.Bots.Add(new(bot.Name));
     return Results.Ok();
 });

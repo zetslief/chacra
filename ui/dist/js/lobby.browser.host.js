@@ -7,8 +7,9 @@ const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
 
 let bots = [];
 let savedLobbyName = "";
+let host = "host";
 
-const labelName = document.getElementById("lobbyName");
+const lobbyName = document.getElementById("lobbyName");
 
 const gameName = document.getElementById("gameName");
 const numberOfPlayers = document.getElementById("numberOfPlayers");
@@ -23,25 +24,34 @@ const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
     const lobbyData = await requestLobbyData();
-    writeMessage("host", "lobby created");
+    host = lobbyData.host.name;
+    writeInfoMessage("lobby created!");
     savedLobbyName = lobbyData.name;
     bots = lobbyData.bots;
-    renderLobbyName(lobbyData.name, labelName);
+    renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     renderPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
         const data = await requestLobbyData();
-        writeMessage("host", "data updated for lobby " + data.name);
+        bots = data.bots;
         renderPlayers(data.players, playerTemplate, players);
     }, 1000)
 };
 
 async function saveLobbyName() {
-    writeMessage("host", "lobby name changed");
+    const newName = lobbyName.value;
     const response = await fetch(LOBBY_LOBBY_NAME,
-        { method: "POST" });
-    if (!response.ok) {
+    {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({currentName: saveLobbyName, newName}),
+    });
+    if (response.ok) {
+        writeErrorMessage("Failed to save lobby name!", response);
         console.error("Failed to save lobby name", response);
+    } else {
+        writeInfoMessage("lobby name changed");
+        saveLobbyName = newName;
     }
 }
 
@@ -63,7 +73,6 @@ async function addBot() {
         lobbyName: lobbyName.value,
         name: "Bot " + bots.length
     };
-    bots.push(bot);
     const response = await fetch(LOBBY_ADD_BOT,
     {
         method: "POST",
@@ -73,18 +82,18 @@ async function addBot() {
     if (response.ok) {
         writeInfoMessage("But is added to the lobby: " + bot.name, bot);
     } else {
-        writeErrorMessage("Failed to add bot. Error code: " + response.error, response);
+        writeErrorMessage("Failed to add bot.", response);
     }
 }
 
 async function leaveLobby() {
-    writeMessage("host", "leaving lobby...");
+    writeErrorMessage("leaving lobby... :(");
     console.error("Leave Lobby: not implemented!");
 }
 
 function sendMessage() {
     if (messageInput.value) {
-        writeMessage("host", messageInput.value);
+        writeInfoMessage(messageInput.value);
         messageInput.value = "";
     }
 }
@@ -130,13 +139,13 @@ function spam() {
 function writeInfoMessage(content, debugContent) {
     console.log(content);
     console.log(debugContent);
-    writeMessage("host", content);
+    writeMessage(host, content);
 }
 
 function writeErrorMessage(content, debugContent) {
     console.error(content);
     console.error(debugContent);
-    writeMessage("host", content);
+    writeMessage(host, content);
 }
 
 function writeMessage(sender, content) {
