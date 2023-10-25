@@ -3,6 +3,9 @@ const LOBBY_START = ROOT + "/lobby/start";
 const LOBBY_STOP = ROOT + "/lobby/leave";
 const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
+const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
+
+const bots = [];
 
 const chat = document.getElementById("chat");
 const chatMessageTemplate = document.getElementById("chatMessageTemplate");
@@ -52,6 +55,24 @@ async function startGame() {
     }
 }
 
+async function addBotButton() {
+    const bot = { 
+        lobbyName: "TODO? Lobby name is unknown",
+        name: "Bot " + bots.length
+    };
+    bots.push(bot);
+    const response = await fetch(LOBBY_ADD_BOT,
+    {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bot),
+    });
+    if (!response.ok) {
+        writeErrorMessage("Failed to add bot. Error code: " + response.error, response);
+        return;
+    }
+}
+
 async function leaveLobby() {
     writeMessage("host", "leaving lobby...");
     console.error("Leave Lobby: not implemented!");
@@ -94,6 +115,12 @@ function spam() {
     for (let index = 0; index < 100; ++index) {
         writeMessage("debug", index);
     }
+}
+
+function writeErrorMessage(content, debugContent) {
+    console.error(content);
+    console.error(debugContent);
+    writeMessage("host", content);
 }
 
 function writeMessage(sender, content) {
