@@ -6,30 +6,33 @@ const LOBBY_DATA = ROOT + "/lobby/data";
 const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
 
 const bots = [];
+let savedLobbyName = "";
+
+const labelName = document.getElementById("lobbyName");
+
+const gameName = document.getElementById("gameName");
+const numberOfPlayers = document.getElementById("numberOfPlayers");
 
 const chat = document.getElementById("chat");
 const chatMessageTemplate = document.getElementById("chatMessageTemplate");
 
+const players = document.getElementById("players");
+const playerTemplate = document.getElementById("playerTemplate");
+
 const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
-    const labelName = document.getElementById("lobbyName");
-    const players = document.getElementById("players");
-    const template = document.getElementById("playerTemplate");
-
-    const gameName = document.getElementById("gameName");
-    const numberOfPlayers = document.getElementById("numberOfPlayers");
-
     const lobbyData = await requestLobbyData();
     console.log(lobbyData);
     writeMessage("host", "lobby created");
+    savedLobbyName = lobbyData.name;
     renderLobbyName(lobbyData.name, labelName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
-    renderLobbyPlayers(lobbyData.players, template, players);
+    renderLobbyPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
         const data = await requestLobbyData();
         writeMessage("host", "data updated for lobby " + data.name);
-        renderLobbyPlayers(data.players, template, players);
+        renderLobbyPlayers(data.players, playerTemplate, players);
     }, 1000)
 };
 
@@ -55,9 +58,9 @@ async function startGame() {
     }
 }
 
-async function addBotButton() {
+async function addBot() {
     const bot = { 
-        lobbyName: "TODO? Lobby name is unknown",
+        lobbyName,
         name: "Bot " + bots.length
     };
     bots.push(bot);
@@ -103,7 +106,7 @@ function renderLobbyPlayers(data, template, players) {
     while (players.firstChild) {
         players.removeChild(players.firstChild);
     }
-    for (const item of data) {
+    for (const item of [...data, ...bots]) {
         const playerElement = template.cloneNode(true);
         playerElement.removeAttribute("id");
         playerElement.lastChild.textContent = item.name.toString();
