@@ -89,6 +89,13 @@ app.MapPost("/lobby/start", () => {
     return Results.Redirect("/game", true);
 });
 
+app.MapPost("/lobby/bot/add", (AddBot bot) => {
+    if (lobby is null) return Results.BadRequest("Lobby is not created");
+    if (lobby.Name != bot.LobbyName) return Results.BadRequest($"{bot.LobbyName} lobby is not found!");
+    lobby.Bots.Add(new(bot.Name));
+    return Results.Ok();
+});
+
 app.MapGet("/game", () => {
     return Results.Content(File.ReadAllText(indexPagePath), "text/html");
 });
@@ -124,14 +131,17 @@ namespace Chacra {
     public record RenameLobby(string CurrentName, string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
-    public record LobbyData(string Name, Player Host, Game game, HashSet<Player> Players)
+    public record AddBot(string LobbyName, string Name);
+
+    public record LobbyData(string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots)
     {
         public LobbyData(string name, Player host, Game game)
-            : this(name, host, game, new() { host }) { }
+            : this(name, host, game, new() { host }, new()) { }
     }
 
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
 
     public record Player(string Name);
+    public record Bot(string Name);
     public record Game(string Name, int NumberOfPlayers);
 }
