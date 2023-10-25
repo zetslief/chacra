@@ -23,7 +23,6 @@ const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
     const lobbyData = await requestLobbyData();
-    console.log(lobbyData);
     writeMessage("host", "lobby created");
     savedLobbyName = lobbyData.name;
     renderLobbyName(lobbyData.name, labelName);
@@ -60,7 +59,7 @@ async function startGame() {
 
 async function addBot() {
     const bot = { 
-        lobbyName,
+        lobbyName: lobbyName.value,
         name: "Bot " + bots.length
     };
     bots.push(bot);
@@ -70,9 +69,10 @@ async function addBot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bot),
     });
-    if (!response.ok) {
+    if (response.ok) {
+        writeInfoMessage("But is added to the lobby: " + bot.name, bot);
+    } else {
         writeErrorMessage("Failed to add bot. Error code: " + response.error, response);
-        return;
     }
 }
 
@@ -118,6 +118,12 @@ function spam() {
     for (let index = 0; index < 100; ++index) {
         writeMessage("debug", index);
     }
+}
+
+function writeInfoMessage(content, debugContent) {
+    console.log(content);
+    console.log(debugContent);
+    writeMessage("host", content);
 }
 
 function writeErrorMessage(content, debugContent) {
