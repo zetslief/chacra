@@ -80,7 +80,7 @@ async function addBot() {
         body: JSON.stringify(bot),
     });
     if (response.ok) {
-        writeInfoMessage("But is added to the lobby: " + bot.name, bot);
+        writeInfoMessage("But is added to the lobby: " + bot.name);
     } else {
         writeErrorMessage("Failed to add bot.", response);
     }
@@ -152,9 +152,8 @@ function spam() {
     }
 }
 
-function writeInfoMessage(content, debugContent) {
+function writeInfoMessage(content) {
     console.log(content);
-    console.log(debugContent);
     writeMessage(host, content);
 }
 
