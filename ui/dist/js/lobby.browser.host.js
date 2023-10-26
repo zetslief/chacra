@@ -4,6 +4,7 @@ const LOBBY_STOP = ROOT + "/lobby/leave";
 const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
 const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
+const LOBBY_DELETE_BOT = ROOT + "/lobby/bot/add";
 
 let bots = [];
 let savedLobbyName = "";
@@ -50,7 +51,7 @@ async function saveLobbyName() {
         writeErrorMessage("Failed to save lobby name!", response);
         console.error("Failed to save lobby name", response);
     } else {
-        writeInfoMessage("lobby name changed");
+        writeInfoMessage("lobby name updated");
         saveLobbyName = newName;
     }
 }
@@ -83,6 +84,22 @@ async function addBot() {
         writeInfoMessage("But is added to the lobby: " + bot.name, bot);
     } else {
         writeErrorMessage("Failed to add bot.", response);
+    }
+}
+
+async function kickBot(event) {
+    const botElement = event.target.parentNode.querySelector("p");
+    const botName = botElement.textContent;
+    const bot = {lobbyName: saveLobbyName, name: botName}
+    const response = await fetch(LOBBY_DELETE_BOT, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(bot),
+    });
+    if (response.ok) {
+        writeInfoMessage(botName + " was removed from the lobby.");
+    } else {
+        writeErrorMessage("Failed to remove " + botName + " from the lobby!", response);
     }
 }
 
@@ -119,13 +136,13 @@ function renderPlayers(data, playerTemplate, players) {
     for (const player of data) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
-        playerElement.lastChild.textContent = player.name.toString();
+        playerElement.querySelector("p").textContent = player.name.toString();
         players.appendChild(playerElement);
     }
     for (const bot of bots) {
         const botElement = playerTemplate.cloneNode(true);
         botElement.removeAttribute("id");
-        botElement.lastChild.textContent = bot.name.toString();
+        botElement.querySelector("p").textContent = bot.name.toString();
         players.appendChild(botElement);
     }
 }
