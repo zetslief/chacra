@@ -60,15 +60,22 @@
     border-color: darkgreen;
 }
 
-.player {
+.item {
     border-style: solid;
     border-radius: 0.5em;
     border-color: black;
     border-width: 1px;
-    background-color: steelblue;
     padding: 1em;
     margin-top: 0.5em;
     width: 50%;
+}
+
+.player {
+    background-color: steelblue;
+}
+
+.bot {
+    background-color: blue;
 }
 
 #main {

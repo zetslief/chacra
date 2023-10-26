@@ -52,8 +52,12 @@
     </div>
 
     <div hidden>
-        <div id="playerTemplate" class="player row">
-            <p class="playerValue grow"></p>
+        <div id="playerTemplate" class="item player row">
+            <p class="grow"></p>
+            <button class="leave-button" onclick="kickPlayer(event)">X</button>
+        </div>
+        <div id="botTemplate" class="item bot row">
+            <p class="grow"></p>
             <button class="leave-button" onclick="kickBot(event)">X</button>
         </div>
         <div id="chatMessageTemplate" class="group">

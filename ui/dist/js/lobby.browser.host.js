@@ -20,6 +20,7 @@ const chatMessageTemplate = document.getElementById("chatMessageTemplate");
 
 const players = document.getElementById("players");
 const playerTemplate = document.getElementById("playerTemplate");
+const botTemplate = document.getElementById("botTemplate");
 
 const messageInput = document.getElementById("messageInput");
 
@@ -139,7 +140,7 @@ function renderPlayers(data, playerTemplate, players) {
         players.appendChild(playerElement);
     }
     for (const bot of bots) {
-        const botElement = playerTemplate.cloneNode(true);
+        const botElement = botTemplate.cloneNode(true);
         botElement.removeAttribute("id");
         botElement.querySelector("p").textContent = bot.name.toString();
         players.appendChild(botElement);
