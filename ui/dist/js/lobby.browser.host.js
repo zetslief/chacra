@@ -41,8 +41,7 @@ window.onload = async () => {
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
-    const response = await fetch(LOBBY_LOBBY_NAME,
-    {
+    const response = await fetch(LOBBY_LOBBY_NAME, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({currentName: saveLobbyName, newName}),
@@ -58,9 +57,10 @@ async function saveLobbyName() {
 
 async function startGame() {
     writeMessage("host", "starting game...");
-    const response = await fetch(LOBBY_START, 
-        { method: "POST", redirect: "follow" }
-    );
+    const response = await fetch(LOBBY_START, {
+        method: "POST",
+        redirect: "follow",
+    });
     if (response.ok && response.redirected) {
         window.location = response.url;
     } else {
@@ -74,8 +74,7 @@ async function addBot() {
         lobbyName: lobbyName.value,
         name: "Bot " + bots.length
     };
-    const response = await fetch(LOBBY_ADD_BOT,
-    {
+    const response = await fetch(LOBBY_ADD_BOT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bot),
@@ -90,7 +89,7 @@ async function addBot() {
 async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
-    const bot = {lobbyName: saveLobbyName, name: botName}
+    const bot = {lobbyName: saveLobbyName, name: botName};
     const response = await fetch(LOBBY_DELETE_BOT, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
