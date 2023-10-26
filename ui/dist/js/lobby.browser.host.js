@@ -87,6 +87,26 @@ async function addBot() {
     }
 }
 
+async function kickPlayer(event) {
+    const playerElement = event.target.parentNode.querySelector("p");
+    const playerName = playerElement.textContent;
+    if (playerName == host) {
+        writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
+        return;
+    }
+    const player = {lobbyName: saveLobbyName, name: playerName};
+    const response = await fetch(LOBBY_DELETE_BOT, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(player),
+    });
+    if (response.ok) {
+        writeInfoMessage(playerName + " was removed from the lobby.");
+    } else {
+        writeErrorMessage("Failed to remove " + playerName + " from the lobby!", response);
+    }
+}
+
 async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
