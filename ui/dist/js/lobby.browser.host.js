@@ -4,7 +4,8 @@ const LOBBY_STOP = ROOT + "/lobby/leave";
 const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
 const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
-const LOBBY_DELETE_BOT = ROOT + "/lobby/bot/add";
+const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
+const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 
 let bots = [];
 let savedLobbyName = "";
@@ -95,7 +96,7 @@ async function kickPlayer(event) {
         return;
     }
     const player = {lobbyName: saveLobbyName, name: playerName};
-    const response = await fetch(LOBBY_DELETE_BOT, {
+    const response = await fetch(LOBBY_DELETE_PLAYER, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(player),
