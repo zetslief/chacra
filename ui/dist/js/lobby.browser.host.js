@@ -33,8 +33,8 @@ window.onload = async () => {
     renderPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
-        bots = data.bots;
-        renderPlayers(data.players, playerTemplate, players);
+        bots = lobbyData.bots;
+        renderPlayers(lobbyData.players, playerTemplate, players);
     }, 1000)
 };
 
@@ -87,7 +87,7 @@ async function addBot() {
 async function kickPlayer(event) {
     const playerElement = event.target.parentNode.querySelector("p");
     const playerName = playerElement.textContent;
-    if (playerName == lobbyData.host) {
+    if (playerName == lobbyData.host.name) {
         writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
         return;
     }
@@ -172,13 +172,13 @@ function spam() {
 
 function writeInfoMessage(content) {
     console.log(content);
-    writeMessage(host, content);
+    writeMessage(lobbyData.host.name, content);
 }
 
 function writeErrorMessage(content, debugContent) {
     console.error(content);
     console.error(debugContent);
-    writeMessage(host, content);
+    writeMessage(lobbyData.host.name, content);
 }
 
 function writeMessage(sender, content) {
