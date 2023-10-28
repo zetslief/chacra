@@ -7,6 +7,7 @@ const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
 const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
 const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 
+let lobbyData = null;
 let bots = [];
 let savedLobbyName = "";
 let host = "host";
@@ -26,16 +27,13 @@ const botTemplate = document.getElementById("botTemplate");
 const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
-    const lobbyData = await requestLobbyData();
-    host = lobbyData.host.name;
+    lobbyData = await requestLobbyData();
     writeInfoMessage("lobby created!");
-    savedLobbyName = lobbyData.name;
-    bots = lobbyData.bots;
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     renderPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
-        const data = await requestLobbyData();
+        lobbyData = await requestLobbyData();
         bots = data.bots;
         renderPlayers(data.players, playerTemplate, players);
     }, 1000)
