@@ -7,7 +7,7 @@
 <body>
     <div id="main" class="row">
         <div class="column grow">
-            <div id="lobbyDeclaration" class="group lobby-name gap pad">
+            <div id="lobbyDeclaration" class="group lobby-name pad-children">
                 <label for="lobbyName">Lobby</label>
                 <input name="lobbyName" id="lobbyName" type="text" placeholder="enter lobby name...">
                 <button class="accept-button" onclick="saveLobbyName()">Save</button>
@@ -40,7 +40,7 @@
         <div style="flex: 0 0 40%" class="group column">
             <h3 style="text-align: center;">Chat</h3>
             <div id="chat" class="column-reverse grow scroll"></div>
-            <div class="row gap pad">
+            <div class="row gap pad-children">
                 <input id="messageInput" class="grow" maxlength="50">
                 <button class="accept-button" onclick="sendMessage()">Send</button>
             </div>
@@ -48,13 +48,13 @@
     </div>
 
     <div hidden>
-        <div id="playerTemplate" class="item player row">
+        <div id="playerTemplate" class="item player row center pad-children margin-children">
             <p class="grow"></p>
-            <button class="leave-button" onclick="kickPlayer(event)">X</button>
+            <button class="leave-button" onclick="kickPlayer(event)">Kick</button>
         </div>
-        <div id="botTemplate" class="item bot row">
+        <div id="botTemplate" class="item bot row center pad-children margin-children">
             <p class="grow"></p>
-            <button class="leave-button" onclick="kickBot(event)">X</button>
+            <button class="leave-button" onclick="kickBot(event)">Kick</button>
         </div>
         <div id="chatMessageTemplate" class="group">
             <p class="messageValue"></p>

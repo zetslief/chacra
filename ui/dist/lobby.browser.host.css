@@ -36,6 +36,11 @@
     gap: 0.5em;
 }
 
+.center {
+    justify-content: center;
+    align-items: center;
+}
+
 .wrap {
     flex-wrap: wrap;
 }
@@ -43,6 +48,7 @@
 .leave-button {
     background-color: darkred;
     border-color: darkred;
+    border-radius:  0.5em;
 }
 
 .leave-button:hover {
@@ -65,9 +71,8 @@
     border-radius: 0.5em;
     border-color: black;
     border-width: 1px;
-    padding: 1em;
-    margin-top: 0.5em;
-    width: 50%;
+
+    width: 100%;
 }
 
 .player {
@@ -106,8 +111,16 @@
     align-items: center;
 }
 
-.pad > * {
+.pad-children > * {
     padding: 0.5em;
+}
+
+.pad {
+    padding: 0.5em;
+}
+
+.margin-children > * {
+    margin: 0.2em;
 }
 
 .scroll {
