@@ -1,11 +1,11 @@
-const ROOT = "http://localhost:5000";
-const LOBBY_START = ROOT + "/lobby/start";
-const LOBBY_STOP = ROOT + "/lobby/leave";
-const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
-const LOBBY_DATA = ROOT + "/lobby/data";
-const LOBBY_ADD_BOT = ROOT + "/lobby/bot";
-const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
-const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
+const BASE = new URL("http://localhost:5000");
+const LOBBY = new URL("./lobby", BASE);
+const LOBBY_START = new URL("./lobby/start", BASE);
+const LOBBY_STOP = new URL("./lobby/leave", BASE);
+const LOBBY_LOBBY_NAME = new URL("./lobby/name", BASE);
+const LOBBY_DATA = new URL("./lobby/data", BASE);
+const LOBBY_BOT = new URL("./lobby/bot", BASE);
+const LOBBY_PLAYER = new URL("./lobby/player", BASE);
 
 let lobbyData = null;
 
@@ -68,7 +68,7 @@ async function addBot() {
         lobbyName: lobbyName.value,
         name: "Bot " + lobbyData.bots.length
     };
-    const response = await fetch(LOBBY_ADD_BOT, {
+    const response = await fetch(LOBBY_BOT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bot),
@@ -88,7 +88,7 @@ async function kickPlayer(event) {
         return;
     }
     const player = {lobbyName: lobbyData.name, name: playerName};
-    const response = await fetch(LOBBY_DELETE_PLAYER, {
+    const response = await fetch(LOBBY_PLAYER, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(player),
@@ -104,7 +104,7 @@ async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
     const bot = {lobbyName: lobbyData.name, name: botName};
-    const response = await fetch(LOBBY_DELETE_BOT, {
+    const response = await fetch(LOBBY_BOT, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(bot),
@@ -146,7 +146,6 @@ function renderPlayers(players, bots, playerTemplate, botTemplate, storage) {
     while (storage.firstChild) {
         storage.removeChild(storage.firstChild);
     }
-    console.log(players);
     for (const player of players) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
