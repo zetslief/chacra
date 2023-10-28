@@ -10,7 +10,6 @@ const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 let lobbyData = null;
 let bots = [];
 let savedLobbyName = "";
-let host = "host";
 
 const lobbyName = document.getElementById("lobbyName");
 
@@ -56,7 +55,7 @@ async function saveLobbyName() {
 }
 
 async function startGame() {
-    writeMessage("host", "starting game...");
+    writeInfoMessage("Starting game...");
     const response = await fetch(LOBBY_START, {
         method: "POST",
         redirect: "follow",
@@ -64,8 +63,7 @@ async function startGame() {
     if (response.ok && response.redirected) {
         window.location = response.url;
     } else {
-        console.error("Failed to start the lobby!");
-        console.error(response);
+        writeErrorMessage("Failed to start the lobby!", response);
     }
 }
 
@@ -89,7 +87,7 @@ async function addBot() {
 async function kickPlayer(event) {
     const playerElement = event.target.parentNode.querySelector("p");
     const playerName = playerElement.textContent;
-    if (playerName == host) {
+    if (playerName == lobbyData.host) {
         writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
         return;
     }
