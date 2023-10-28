@@ -8,7 +8,6 @@ const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
 const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 
 let lobbyData = null;
-let bots = [];
 let savedLobbyName = "";
 
 const lobbyName = document.getElementById("lobbyName");
@@ -33,7 +32,6 @@ window.onload = async () => {
     renderPlayers(lobbyData.players, playerTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
-        bots = lobbyData.bots;
         renderPlayers(lobbyData.players, playerTemplate, players);
     }, 1000)
 };
@@ -70,7 +68,7 @@ async function startGame() {
 async function addBot() {
     const bot = { 
         lobbyName: lobbyName.value,
-        name: "Bot " + bots.length
+        name: "Bot " + lobbyData.bots.length
     };
     const response = await fetch(LOBBY_ADD_BOT, {
         method: "POST",
@@ -156,7 +154,7 @@ function renderPlayers(data, playerTemplate, players) {
         playerElement.querySelector("p").textContent = player.name.toString();
         players.appendChild(playerElement);
     }
-    for (const bot of bots) {
+    for (const bot of lobbyData.bots) {
         const botElement = botTemplate.cloneNode(true);
         botElement.removeAttribute("id");
         botElement.querySelector("p").textContent = bot.name.toString();
