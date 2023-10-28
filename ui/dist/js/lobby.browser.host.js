@@ -28,10 +28,10 @@ window.onload = async () => {
     writeInfoMessage("lobby created!");
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
-    renderPlayers(lobbyData.players, playerTemplate, players);
+    renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
-        renderPlayers(lobbyData.players, playerTemplate, players);
+        renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     }, 1000)
 };
 
@@ -142,17 +142,17 @@ function renderGameInformation(game, gameNameElement, numberOfPlayersElement) {
     numberOfPlayersElement.textContent = game.numberOfPlayers;
 }
 
-function renderPlayers(data, playerTemplate, players) {
+function renderPlayers(players, bots, playerTemplate, botTemplate, players) {
     while (players.firstChild) {
         players.removeChild(players.firstChild);
     }
-    for (const player of data) {
+    for (const player of players) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
         playerElement.querySelector("p").textContent = player.name.toString();
         players.appendChild(playerElement);
     }
-    for (const bot of lobbyData.bots) {
+    for (const bot of bots) {
         const botElement = botTemplate.cloneNode(true);
         botElement.removeAttribute("id");
         botElement.querySelector("p").textContent = bot.name.toString();
