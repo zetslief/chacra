@@ -8,7 +8,6 @@ const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
 const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 
 let lobbyData = null;
-let savedLobbyName = "";
 
 const lobbyName = document.getElementById("lobbyName");
 
@@ -41,14 +40,13 @@ async function saveLobbyName() {
     const response = await fetch(LOBBY_LOBBY_NAME, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({currentName: saveLobbyName, newName}),
+        body: JSON.stringify({currentName: lobbyData.name, newName}),
     });
     if (response.ok) {
         writeErrorMessage("Failed to save lobby name!", response);
         console.error("Failed to save lobby name", response);
     } else {
         writeInfoMessage("lobby name updated");
-        saveLobbyName = newName;
     }
 }
 
@@ -89,7 +87,7 @@ async function kickPlayer(event) {
         writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
         return;
     }
-    const player = {lobbyName: saveLobbyName, name: playerName};
+    const player = {lobbyName: lobbyData.name, name: playerName};
     const response = await fetch(LOBBY_DELETE_PLAYER, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
@@ -105,7 +103,7 @@ async function kickPlayer(event) {
 async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
-    const bot = {lobbyName: saveLobbyName, name: botName};
+    const bot = {lobbyName: lobbyData.name, name: botName};
     const response = await fetch(LOBBY_DELETE_BOT, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
