@@ -3,7 +3,7 @@ const LOBBY_START = ROOT + "/lobby/start";
 const LOBBY_STOP = ROOT + "/lobby/leave";
 const LOBBY_LOBBY_NAME = ROOT + "/lobby/name";
 const LOBBY_DATA = ROOT + "/lobby/data";
-const LOBBY_ADD_BOT = ROOT + "/lobby/bot/add";
+const LOBBY_ADD_BOT = ROOT + "/lobby/bot";
 const LOBBY_DELETE_BOT = ROOT + "/lobby/bot";
 const LOBBY_DELETE_PLAYER = ROOT + "/lobby/player";
 
@@ -142,21 +142,22 @@ function renderGameInformation(game, gameNameElement, numberOfPlayersElement) {
     numberOfPlayersElement.textContent = game.numberOfPlayers;
 }
 
-function renderPlayers(players, bots, playerTemplate, botTemplate, players) {
-    while (players.firstChild) {
-        players.removeChild(players.firstChild);
+function renderPlayers(players, bots, playerTemplate, botTemplate, storage) {
+    while (storage.firstChild) {
+        storage.removeChild(storage.firstChild);
     }
+    console.log(players);
     for (const player of players) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
         playerElement.querySelector("p").textContent = player.name.toString();
-        players.appendChild(playerElement);
+        storage.appendChild(playerElement);
     }
     for (const bot of bots) {
         const botElement = botTemplate.cloneNode(true);
         botElement.removeAttribute("id");
         botElement.querySelector("p").textContent = bot.name.toString();
-        players.appendChild(botElement);
+        storage.appendChild(botElement);
     }
 }
 

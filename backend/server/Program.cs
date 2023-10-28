@@ -89,12 +89,19 @@ app.MapPost("/lobby/start", () => {
     return Results.Redirect("/game", true);
 });
 
-app.MapPost("/lobby/bot/add", (AddBot bot) => {
+app.MapPost("/lobby/bot", (AddBot bot) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Name != bot.LobbyName) return Results.BadRequest($"{bot.LobbyName} lobby is not found!");
     if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
         return Results.BadRequest("Too many players");
     lobby.Bots.Add(new(bot.Name));
+    return Results.Ok();
+});
+
+app.MapDelete("/lobby/{lobbyName}/bot/{botName}", (string lobbyName, string botName) => {
+    if (lobby is null) return Results.BadRequest("Lobby is not created");
+    if (lobby.Name != lobbyName) return Results.BadRequest($"{botName} lobby is not found!");
+    lobby.Bots.Remove(new(botName));
     return Results.Ok();
 });
 
@@ -134,6 +141,7 @@ namespace Chacra {
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
     public record AddBot(string LobbyName, string Name);
+    public record DeleteBot(string LobbyName, string Name);
 
     public record LobbyData(string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots)
     {
