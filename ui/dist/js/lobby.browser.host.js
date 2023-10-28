@@ -1,7 +1,7 @@
 const BASE = new URL("http://localhost:5000");
 const LOBBY = new URL("./lobby", BASE);
-const LOBBY_START = new URL("./lobby/start", BASE);
-const LOBBY_STOP = new URL("./lobby/leave", BASE);
+const LOBBY_START = new URL("./lobby/start", BASE); // Consider something like /game-session
+const LOBBY_STOP = new URL("./lobby/leave", BASE); // Replate with DELETE method.
 const LOBBY_LOBBY_NAME = new URL("./lobby/name", BASE);
 const LOBBY_DATA = new URL("./lobby/data", BASE);
 const LOBBY_BOT = new URL("./lobby/bot", BASE);
@@ -24,13 +24,14 @@ const botTemplate = document.getElementById("botTemplate");
 const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
-    lobbyData = await requestLobbyData();
+    lobbyData = await requestLobbyData(sessionStorage.getItem("playerName"));
+    console.log(lobbyData, sessionStorage.getItem("playerName"));
     writeInfoMessage("lobby created!");
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     setInterval(async () => {
-        lobbyData = await requestLobbyData();
+        lobbyData = await requestLobbyData(lobbyData.name);
         renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     }, 1000)
 };
@@ -128,8 +129,9 @@ function sendMessage() {
     }
 }
 
-async function requestLobbyData() {
-    var response = await fetch(LOBBY_DATA);
+async function requestLobbyData(name) {
+    const url = new URL(`/lobby/${name}`, BASE);
+    const response = await fetch(url);
     return response.json();
 } 
 

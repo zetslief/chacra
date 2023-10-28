@@ -74,10 +74,12 @@ app.MapGet("/lobby/guest", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
 });
 
-app.MapGet("/lobby/data", () => {
-    return lobby is null
-        ? Results.BadRequest("Lobby is not created!")
-        : Results.Json(lobby);
+app.MapGet("/lobby/{lobbyName}", (string lobbyName) => {
+    return lobby is null ?
+        Results.BadRequest("Lobby is not created!")
+        : lobby.Name == lobbyName ?
+            Results.Json(lobby)
+            : Results.NotFound($"{lobbyName} lobby not found");
 });
 
 app.MapGet("/lobby/status", () => {
