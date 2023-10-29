@@ -3,7 +3,6 @@ const LOBBY = new URL("./lobby", BASE);
 const LOBBY_START = new URL("./lobby/start", BASE); // Consider something like /game-session
 const LOBBY_STOP = new URL("./lobby/leave", BASE); // Replate with DELETE method.
 const LOBBY_LOBBY_NAME = new URL("./lobby/name", BASE);
-const LOBBY_DATA = new URL("./lobby/data", BASE);
 const LOBBY_BOT = new URL("./lobby/bot", BASE);
 const LOBBY_PLAYER = new URL("./lobby/player", BASE);
 

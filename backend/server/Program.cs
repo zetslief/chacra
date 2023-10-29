@@ -75,10 +75,10 @@ app.MapGet("/lobby/guest", () => {
 });
 
 app.MapGet("/lobby/{lobbyName}", (string lobbyName) => {
-    return lobby is null ?
-        Results.BadRequest("Lobby is not created!")
-        : lobby.Name == lobbyName ?
-            Results.Json(lobby)
+    return lobby is null 
+        ?  Results.BadRequest("Lobby is not created!")
+        : lobby.Name == lobbyName 
+            ? Results.Json(lobby)
             : Results.NotFound($"{lobbyName} lobby not found");
 });
 
