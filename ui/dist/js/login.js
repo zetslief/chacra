@@ -1,8 +1,8 @@
 const PLAYER_NAME = "playerName";
 
-const ROOT = "http://localhost:5000";
-const JOIN_ENDPOINT = ROOT + "/lobby/join";
-const CREATE_NEW_LOBBY_ENDPOINT = ROOT +"/lobby/create";
+const BASE = new URL("http://localhost:5000");
+const JOIN_ENDPOINT = new URL("/lobby/join", BASE);
+const CREATE_NEW_LOBBY_ENDPOINT = new URL("/lobby/create", BASE);
 
 const input = document.getElementById(PLAYER_NAME);
 
