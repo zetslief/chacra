@@ -50,22 +50,6 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
     return lobby.Host == newPlayer ?  Results.Redirect("/lobby/host") : Results.Redirect("/lobby/host");
 });
 
-app.MapPost("/lobby/create", (CreateLobby createLobby) =>
-{
-    lobby = new(createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
-    return Results.Redirect("/lobby/host");
-});
-
-app.MapPost("/lobby/rename", (RenameLobby rename) =>
-{
-    if (lobby is null) {
-        return Results.BadRequest("Lobby not created");
-    } else {
-        lobby = lobby with { Name = rename.NewName };
-        return Results.Ok();
-    }
-});
-
 app.MapGet("/lobby/host", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html");
 });
@@ -80,6 +64,27 @@ app.MapGet("/lobby/{lobbyName}", (string lobbyName) => {
         : lobby.Name == lobbyName 
             ? Results.Json(lobby)
             : Results.NotFound($"{lobbyName} lobby not found");
+});
+
+app.MapPost("/lobby/{lobbyName}", (string lobbyName, RenameLobby rename) =>
+{
+    static IResult UpdateLobby(RenameLobby rename, LobbyData data, out LobbyData newData)
+    {
+        newData = data with { Name = rename.NewName };
+        return Results.Ok();
+    }
+
+    return lobby is null
+        ? Results.BadRequest("Lobby is not created yet")
+        : lobby.Name == lobbyName
+            ? UpdateLobby(rename, lobby, out lobby)
+            : Results.NotFound("Lobby is not found");
+});
+
+app.MapPost("/lobby/create", (CreateLobby createLobby) =>
+{
+    lobby = new(1, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
+    return Results.Redirect("/lobby/host");
 });
 
 app.MapGet("/lobby/status", () => {
@@ -139,16 +144,16 @@ app.Run();
 
 namespace Chacra {
     public record CreateLobby(string LobbyName, string PlayerName);
-    public record RenameLobby(string CurrentName, string NewName);
+    public record RenameLobby(string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
     public record AddBot(string LobbyName, string Name);
     public record DeleteBot(string LobbyName, string Name);
 
-    public record LobbyData(string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots)
+    public record LobbyData(int Id, string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots)
     {
-        public LobbyData(string name, Player host, Game game)
-            : this(name, host, game, new() { host }, new()) { }
+        public LobbyData(int id, string name, Player host, Game game)
+            : this(id, name, host, game, new() { host }, new()) { }
     }
 
     public record InputState(string PlayerName, string Type, float Dx, float Dy);

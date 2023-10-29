@@ -37,16 +37,18 @@ window.onload = async () => {
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
-    const response = await fetch(LOBBY_LOBBY_NAME, {
+    const url = new URL(`/lobby/${lobbyData.name}`, BASE);
+    const response = await fetch(url, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({currentName: lobbyData.name, newName}),
+        body: JSON.stringify({newName}),
     });
     if (response.ok) {
+        lobbyData.name = newName;
+        writeInfoMessage(`lobby name updated to ${newName}`);
+    } else {
         writeErrorMessage("Failed to save lobby name!", response);
         console.error("Failed to save lobby name", response);
-    } else {
-        writeInfoMessage("lobby name updated");
     }
 }
 
@@ -128,8 +130,8 @@ function sendMessage() {
     }
 }
 
-async function requestLobbyData(name) {
-    const url = new URL(`/lobby/${name}`, BASE);
+async function requestLobbyData(lobbyName) {
+    const url = new URL(`/lobby/${lobbyName}`, BASE);
     const response = await fetch(url);
     return response.json();
 } 
