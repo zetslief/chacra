@@ -54,12 +54,8 @@ async function createLobby() {
             body: JSON.stringify({ lobbyName: playerName, playerName })
         }
     );
-    if (result.ok) {
-        if (result.redirected && result.url) {
-            location.assign(result.url);
-        } else {
-            errorNoRedirection(result);
-        }
+    if (result.status == 201) {
+        location.assign(result.headers.get("location"));
     } else {
         errorFailedRequest(result);
     }

@@ -52,7 +52,7 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
 
 app.MapGet("/lobby/host", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html");
-});
+}).WithName("get-host-page");
 
 app.MapGet("/lobby/guest", () => {
     return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
@@ -84,7 +84,7 @@ app.MapPost("/lobby/{lobbyName}", (string lobbyName, RenameLobby rename) =>
 app.MapPost("/lobby/create", (CreateLobby createLobby) =>
 {
     lobby = new(1, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
-    return Results.Redirect("/lobby/host");
+    return Results.CreatedAtRoute("get-host-page");
 });
 
 app.MapGet("/lobby/status", () => {
