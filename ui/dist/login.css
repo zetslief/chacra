@@ -8,48 +8,65 @@
     height: 100vh;
 
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
 
     background-color: blueviolet;
 }
 
-#login {
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.column {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    
+}
+
+.gap {
+    gap: 0.5em;
+    padding: 0.5em;
+}
+
+#login {
     border-width: 3px;
-    border-radius: 1em;
+    border-radius: 0.1em;
     border-style: solid;
     border-color: black;
 }
 
-#login > * {
-    padding: 0.2em;
-    margin: 0.3em;
-    font-size: 2em;
+label {
+    font-size: 32px;
 }
 
 input {
     border-width: 1px;
-    border-radius: 0.5em;
+    border-radius: 0.1em;
     border-style: solid;
     border-color: black;
+
+    font-size: 32px;
 }
 
 #login > button {
     border-width: 1px;
-    border-radius: 0.5em;
+    border-radius: 0.1em;
     border-style: solid;
     border-color: black;
 
     background-color: rgba(255, 255, 255, 0.5);
 
-    align-self:stretch;
+    font-size: 32px;
 }
 
 #login > button:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+#login > button:active {
+    outline-color: black;
+    outline-width: 3px;
+    outline-style: solid;
 }

@@ -6,9 +6,17 @@
 </head>
 <body>
     <div class="page">
-        <div id="login"> 
-            <label for="playerName">Enter your name</label>
-            <input id="playerName" name="playerName" type="text" placeholder="name..." minlength="3"/>
+        <div id="login" class="column gap"> 
+            <div class="row">
+                <div class="column gap">
+                    <label for="playerName">Player</label>
+                    <label for="lobbyName">Lobby</label>
+                </div>
+                <div class="column gap">
+                    <input id="playerName" name="playerName" type="text" placeholder="name..." minlength="3"/>
+                    <input id="lobbyName" name="lobbyName" type="text" placeholder="lobby..." minlength="3" value="Hello Chacra"/>
+                </div>
+            </div>
             <button onclick="createLobby()">Create New Lobby</button>
             <button onclick="join()">Join Lobby</button>
         </div>

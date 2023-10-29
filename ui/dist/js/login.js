@@ -1,20 +1,22 @@
 const PLAYER_NAME = "playerName";
+const LOBBY_NAME = "lobbyName";
 
 const BASE = new URL("http://localhost:5000");
 const JOIN_ENDPOINT = new URL("/lobby/join", BASE);
 const CREATE_NEW_LOBBY_ENDPOINT = new URL("/lobby/create", BASE);
 
-const input = document.getElementById(PLAYER_NAME);
+const playerInput = document.getElementById(PLAYER_NAME);
+const lobbyInput = document.getElementById(LOBBY_NAME);
 
 window.onload = () => {
     const playerName = sessionStorage.getItem(PLAYER_NAME);
     if (playerName) {
-        input.value = playerName;
+        playerInput.value = playerName;
     }
 }
 
 async function join() {
-    const playerName = input.value;
+    const playerName = playerInput.value;
     if (!playerName) {
         console.error("Player name is not specified!");
         return;
@@ -29,7 +31,7 @@ async function join() {
         }
     );
     if (result.ok) {
-        console.log(input.value, "is connected!");
+        console.log(playerInput.value, "is connected!");
         if (result.redirected && result.url) {
             location.assign(result.url);
         } else {
@@ -41,19 +43,18 @@ async function join() {
 }
 
 async function createLobby() {
-    const playerName = input.value;
-    if (!playerName) {
-        console.error("Player name is not specified!");
+    const playerName = playerInput.value;
+    const lobbyName = lobbyInput.value;
+    if (!(playerName && lobbyName)) {
+        console.error("Player or Lobby name is not specified! (or both)");
         return;
     }
-    sessionStorage.setItem("playerName", playerName);
-    const result = await fetch(CREATE_NEW_LOBBY_ENDPOINT,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ lobbyName: playerName, playerName })
-        }
-    );
+    sessionStorage.setItem(PLAYER_NAME, playerName);
+    const result = await fetch(CREATE_NEW_LOBBY_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lobbyName: playerName, playerName })
+    });
     if (result.status == 201) {
         location.assign(result.headers.get("location"));
     } else {
