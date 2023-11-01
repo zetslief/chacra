@@ -83,7 +83,7 @@ app.MapPost("/lobbies/{lobbyName}", (string lobbyName, RenameLobby rename) =>
             : Results.NotFound("Lobby is not found");
 });
 
-app.MapPost("/lobbies/create", (CreateLobby createLobby) =>
+app.MapPost("/lobbies", (CreateLobby createLobby) =>
 {
     lobby = new(1, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     return Results.CreatedAtRoute("get-host-page", createLobby);
