@@ -35,7 +35,7 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
-app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
+app.MapPost("/lobbies/join", (JoinLobby joinLobby) => {
     Console.WriteLine($"Join lobby: {joinLobby}");
     var newPlayer = new Player(joinLobby.PlayerName);
     if (lobby is null)
@@ -47,10 +47,10 @@ app.MapPost("/lobby/join", (JoinLobby joinLobby) => {
     {
         lobby.Players.Add(newPlayer);
     }
-    return lobby.Host == newPlayer ?  Results.Redirect("/lobby/host") : Results.Redirect("/lobby/host");
+    return lobby.Host == newPlayer ?  Results.Redirect("/lobbies/host") : Results.Redirect("/lobbies/host");
 });
 
-app.MapGet("/lobby/{lobbyName}/{playerName}", (string lobbyName, string playerName) => {
+app.MapGet("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string playerName) => {
     return lobby?.Name != lobbyName
         ? Results.NotFound("Lobby is not yet created")
         : lobby.Host.Name == playerName
@@ -60,7 +60,7 @@ app.MapGet("/lobby/{lobbyName}/{playerName}", (string lobbyName, string playerNa
                 : Results.NotFound("Player in not part of the lobby");
 }).WithName("get-host-page");
 
-app.MapGet("/lobby/{lobbyName}", (string lobbyName) => {
+app.MapGet("/lobbies/{lobbyName}", (string lobbyName) => {
     return lobby is null 
         ?  Results.BadRequest("Lobby is not created!")
         : lobby.Name == lobbyName 
@@ -68,7 +68,7 @@ app.MapGet("/lobby/{lobbyName}", (string lobbyName) => {
             : Results.NotFound($"{lobbyName} lobby not found");
 });
 
-app.MapPost("/lobby/{lobbyName}", (string lobbyName, RenameLobby rename) =>
+app.MapPost("/lobbies/{lobbyName}", (string lobbyName, RenameLobby rename) =>
 {
     static IResult UpdateLobby(RenameLobby rename, LobbyData data, out LobbyData newData)
     {
@@ -83,22 +83,22 @@ app.MapPost("/lobby/{lobbyName}", (string lobbyName, RenameLobby rename) =>
             : Results.NotFound("Lobby is not found");
 });
 
-app.MapPost("/lobby/create", (CreateLobby createLobby) =>
+app.MapPost("/lobbies/create", (CreateLobby createLobby) =>
 {
     lobby = new(1, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     return Results.CreatedAtRoute("get-host-page", createLobby);
 });
 
-app.MapGet("/lobby/status", () => {
+app.MapGet("/lobbies/status", () => {
     return Results.Json(new LobbyStatus(lobbyStarted));
 });
 
-app.MapPost("/lobby/start", () => {
+app.MapPost("/lobbies/start", () => {
     lobbyStarted = true;
     return Results.Redirect("/game", true);
 });
 
-app.MapPost("/lobby/bot", (AddBot bot) => {
+app.MapPost("/lobbies/bot", (AddBot bot) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Name != bot.LobbyName) return Results.BadRequest($"{bot.LobbyName} lobby is not found!");
     if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
@@ -107,7 +107,7 @@ app.MapPost("/lobby/bot", (AddBot bot) => {
     return Results.Ok();
 });
 
-app.MapDelete("/lobby/{lobbyName}/bot/{botName}", (string lobbyName, string botName) => {
+app.MapDelete("/lobbies/{lobbyName}/bot/{botName}", (string lobbyName, string botName) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Name != lobbyName) return Results.BadRequest($"{botName} lobby is not found!");
     lobby.Bots.Remove(new(botName));
