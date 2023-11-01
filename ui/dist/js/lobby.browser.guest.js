@@ -12,7 +12,7 @@ window.onload = async () => {
 };
 
 async function requestLobbyData() {
-    var response = await fetch("http://localhost:5000/lobby/data");
+    var response = await fetch("http://localhost:5000/lobbies/data");
     return response.json();
 } 
 

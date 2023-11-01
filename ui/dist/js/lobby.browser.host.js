@@ -1,10 +1,10 @@
 const BASE = new URL("http://localhost:5000");
-const LOBBY = new URL("./lobby", BASE);
-const LOBBY_START = new URL("./lobby/start", BASE); // Consider something like /game-session
-const LOBBY_STOP = new URL("./lobby/leave", BASE); // Replate with DELETE method.
-const LOBBY_LOBBY_NAME = new URL("./lobby/name", BASE);
-const LOBBY_BOT = new URL("./lobby/bot", BASE);
-const LOBBY_PLAYER = new URL("./lobby/player", BASE);
+const LOBBY = new URL("./lobbies", BASE);
+const LOBBY_START = new URL("./lobbies/start", BASE); // Consider something like /game-session
+const LOBBY_STOP = new URL("./lobbies/leave", BASE); // Replate with DELETE method.
+const LOBBY_LOBBY_NAME = new URL("./lobbies/name", BASE);
+const LOBBY_BOT = new URL("./lobbies/bot", BASE);
+const LOBBY_PLAYER = new URL("./lobbies/player", BASE);
 
 let lobbyData = null;
 
@@ -37,7 +37,7 @@ window.onload = async () => {
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
-    const url = new URL(`/lobby/${lobbyData.name}`, BASE);
+    const url = new URL(`/lobbies/${lobbyData.name}`, BASE);
     const response = await fetch(url, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -131,7 +131,7 @@ function sendMessage() {
 }
 
 async function requestLobbyData(lobbyName) {
-    const url = new URL(`/lobby/${lobbyName}`, BASE);
+    const url = new URL(`/lobbies/${lobbyName}`, BASE);
     const response = await fetch(url);
     return response.json();
 } 

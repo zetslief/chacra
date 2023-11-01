@@ -2,8 +2,8 @@ import { InputState } from './lib/types';
 
 const root = "http://localhost:5000";
 
-const connectUri = root + "/lobby/connect";
-const statusUri = root + "/lobby/status";
+const connectUri = root + "/lobbies/connect";
+const statusUri = root + "/lobbies/status";
 const inputUpdateUri = root + "/game/input";
 
 const inputUpdateDelay = 50;
