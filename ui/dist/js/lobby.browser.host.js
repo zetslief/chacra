@@ -37,9 +37,9 @@ window.onload = async () => {
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
-    const url = new URL(`/lobbies/${lobbyData.name}`, BASE);
+    const url = new URL(`/lobbies/${lobbyData.name}/${lobbyData.host.name}`, BASE);
     const response = await fetch(url, {
-        method: "POST",
+        method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({newName}),
     });
