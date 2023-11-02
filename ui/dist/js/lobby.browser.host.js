@@ -130,8 +130,8 @@ function sendMessage() {
     }
 }
 
-async function requestLobbyData(lobbyName) {
-    const url = new URL(`/lobbies/${lobbyName}`, BASE);
+async function requestLobbyData() {
+    const url = new URL(".", window.location);
     const response = await fetch(url);
     return response.json();
 } 

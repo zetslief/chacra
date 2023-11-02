@@ -50,7 +50,7 @@ app.MapPost("/lobbies/join", (JoinLobby joinLobby) => {
     return lobby.Host == newPlayer ?  Results.Redirect("/lobbies/host") : Results.Redirect("/lobbies/host");
 });
 
-app.MapGet("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string playerName) => {
+app.MapGet("/lobbies/{lobbyName}/{playerName}/view", (string lobbyName, string playerName) => {
     return lobby?.Name != lobbyName
         ? Results.NotFound("Lobby is not yet created")
         : lobby.Host.Name == playerName
@@ -60,12 +60,12 @@ app.MapGet("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string player
                 : Results.NotFound("Player in not part of the lobby");
 }).WithName("get-host-page");
 
-app.MapGet("/lobbies/{lobbyName}", (string lobbyName) => {
+app.MapGet("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string playerName) => {
     return lobby is null 
         ?  Results.BadRequest("Lobby is not created!")
         : lobby.Name == lobbyName 
             ? Results.Json(lobby)
-            : Results.NotFound($"{lobbyName} lobby not found");
+            : Results.NotFound($"{lobbyName} lobby not found for {playerName} user");
 });
 
 app.MapPost("/lobbies/{lobbyName}", (string lobbyName, RenameLobby rename) =>
