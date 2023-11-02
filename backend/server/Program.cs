@@ -141,7 +141,7 @@ app.MapPost("/lobbies/{lobbyId}/players", (int lobbyId, AddPlayer player) => {
     if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != player.PlayerName)
         return Results.BadRequest("Only host user is allowed to approve player join requests.");
-    if (lobby.PlayerJoinRequests.Remove(new(player.NewPlayer)))
+    if (!lobby.PlayerJoinRequests.Remove(new(player.NewPlayer)))
         return Results.BadRequest($"{player.NewPlayer} player join request is not found.");
     if (lobby.Players.Contains(new(player.NewPlayer)))
         return Results.BadRequest($"{player.NewPlayer} is already in the lobby.");
@@ -156,7 +156,7 @@ app.MapPost("/lobbies/{lobbyId}/bots", (int lobbyId, AddBot bot) => {
     if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != bot.PlayerName)
         return Results.BadRequest("Only host user is allowed to approve bot join requests.");
-    if (lobby.BotJoinRequests.Remove(new(bot.BotName)))
+    if (!lobby.BotJoinRequests.Remove(new(bot.BotName)))
         return Results.BadRequest($"{bot.BotName} bot join request is not found.");
     if (lobby.Bots.Contains(new(bot.BotName)))
         return Results.BadRequest($"{bot.BotName} is already in the lobby.");

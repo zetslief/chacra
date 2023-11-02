@@ -30,10 +30,18 @@ window.onload = async () => {
     writeInfoMessage("lobby created!");
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
-    renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
+    clearPlayers(players);
+    renderPlayers(lobbyData.players, playerTemplate, players);
+    renderPlayers(lobbyData.bots, botTemplate, players);
+    renderPlayers(lobbyData.playerJoinRequests, playerJoinRequestTemplate, players);
+    renderPlayers(lobbyData.botJoinRequests, botJoinRequestTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
-        renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
+        clearPlayers(players);
+        renderPlayers(lobbyData.players, playerTemplate, players);
+        renderPlayers(lobbyData.bots, botTemplate, players);
+        renderPlayers(lobbyData.playerJoinRequests, playerJoinRequestTemplate, players);
+        renderPlayers(lobbyData.botJoinRequests, botJoinRequestTemplate, players);
     }, 1000)
 };
 
@@ -159,21 +167,18 @@ function renderGameInformation(game, gameNameElement, numberOfPlayersElement) {
     numberOfPlayersElement.textContent = game.numberOfPlayers;
 }
 
-function renderPlayers(players, bots, playerTemplate, botTemplate, storage) {
+function clearPlayers(storage) {
     while (storage.firstChild) {
         storage.removeChild(storage.firstChild);
     }
+}
+
+function renderPlayers(players, playerTemplate, storage) {
     for (const player of players) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
         playerElement.querySelector("p").textContent = player.name.toString();
         storage.appendChild(playerElement);
-    }
-    for (const bot of bots) {
-        const botElement = botTemplate.cloneNode(true);
-        botElement.removeAttribute("id");
-        botElement.querySelector("p").textContent = bot.name.toString();
-        storage.appendChild(botElement);
     }
 }
 
@@ -192,6 +197,9 @@ function writeErrorMessage(content, debugContent) {
     console.error(content);
     console.error(debugContent);
     writeMessage(lobbyData.host.name, content);
+    if (debugContent.json) {
+        debugContent.json().then((d) => console.error(d));
+    }
 }
 
 function writeMessage(sender, content) {
