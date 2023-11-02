@@ -52,6 +52,16 @@
             <p class="grow"></p>
             <button class="leave-button" onclick="kickPlayer(event)">Kick</button>
         </div>
+        <div id="playerJoinRequestTemplate" class="item player row center pad-children margin-children">
+            <p class="grow"></p>
+            <button class="accept-button" onclick="acceptPlayer(event)">Accept</button>
+            <button class="leave-button" onclick="rejectPlayer(event)">Reject</button>
+        </div>
+        <div id="botJoinRequestTemplate" class="item player row center pad-children margin-children">
+            <p class="grow"></p>
+            <button class="accept-button" onclick="acceptBot(event)">Accept</button>
+            <button class="leave-button" onclick="rejectBot(event)">Reject</button>
+        </div>
         <div id="botTemplate" class="item bot row center pad-children margin-children">
             <p class="grow"></p>
             <button class="leave-button" onclick="kickBot(event)">Kick</button>

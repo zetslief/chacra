@@ -19,6 +19,8 @@ const chatMessageTemplate = document.getElementById("chatMessageTemplate");
 const players = document.getElementById("players");
 const playerTemplate = document.getElementById("playerTemplate");
 const botTemplate = document.getElementById("botTemplate");
+const playerJoinRequestTemplate = document.getElementById("playerJoinRequestTemplate");
+const botJoinRequestTemplate = document.getElementById("botJoinRequestTemplate");
 
 const messageInput = document.getElementById("messageInput");
 
