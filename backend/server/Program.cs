@@ -92,18 +92,32 @@ app.MapPost("/lobbies", (CreateLobby createLobby) =>
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
 });
 
+app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", (int lobbyId, string playerName) => {
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    var request = lobby.PlayerJoinReqests.FirstOrDefault(r => r.PlayerName == playerName);
+    return request is null ? Results.NotFound() : Results.Json(request);
+}).WithName("get-player-join-request");
+
+app.MapGet("/lobbies/{lobbyId}/join/bots/{botName}", (int lobbyId, string botName) => {
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    var request = lobby.BotJoinRequests.FirstOrDefault(r => r.BotName == botName);
+    return request is null ? Results.NotFound() : Results.Json(request);
+}).WithName("get-bot-join-request");
+
 app.MapPost("/lobbies/{lobbyId}/join/players", (int lobbyId, PlayerJoinRequest request) => {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     lobby.PlayerJoinReqests.Add(request);
-    return Results.Ok();
+    return Results.CreatedAtRoute("get-plyaer-join-request", new {lobbyId, request.PlayerName});
 });
 
 app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request) => {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     lobby.BotJoinRequests.Add(request);
-    return Results.Ok();
+    return Results.CreatedAtRoute("get-plyaer-join-request", new {lobbyId, request.BotName});
 });
 
 app.MapGet("/lobbies/status", () => {
@@ -166,8 +180,8 @@ namespace Chacra {
     public record RenameLobby(string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
-    public record PlayerJoinRequest(string Name);
-    public record BotJoinRequest(string Name);
+    public record PlayerJoinRequest(string PlayerName);
+    public record BotJoinRequest(string BotName);
     public record AddBot(string LobbyName, string Name);
     public record DeleteBot(string LobbyName, string Name);
 
