@@ -121,13 +121,19 @@ app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request
 });
 
 app.MapGet("/lobbies/{lobbyId}/players/{plyaerName}", (int lobbyId, string playerName) => {
-    // TODO: implement this.
-    return Results.NotFound("get-player api is not implemented yet.");
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    return lobby.Players.TryGetValue(new(playerName), out var player)
+        ? Results.Json(player)
+        : Results.NotFound($"{playerName} is not found in {lobbyId} lobby.");
 }).WithName("get-player");
 
 app.MapGet("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
-    // TODO: implement this.
-    return Results.NotFound("get-bot api is not implemented yet.");
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    return lobby.Bots.TryGetValue(new(botName), out var bot)
+        ? Results.Json(bot)
+        : Results.NotFound($"{botName} is not found in {lobbyId} lobby.");
 }).WithName("get-bot");
 
 app.MapPost("/lobbies/{lobbyId}/players", (int lobbyId, AddPlayer player) => {
