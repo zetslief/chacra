@@ -53,7 +53,7 @@ async function createLobby() {
     const result = await fetch(CREATE_NEW_LOBBY_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lobbyName: playerName, playerName })
+        body: JSON.stringify({ lobbyName, playerName })
     });
     if (result.status == 201) {
         location.assign(result.headers.get("location"));
