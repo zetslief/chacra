@@ -95,7 +95,7 @@ app.MapPost("/lobbies", (CreateLobby createLobby) =>
 app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", (int lobbyId, string playerName) => {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
-    var request = lobby.PlayerJoinReqests.FirstOrDefault(r => r.PlayerName == playerName);
+    var request = lobby.PlayerJoinRequests.FirstOrDefault(r => r.PlayerName == playerName);
     return request is null ? Results.NotFound() : Results.Json(request);
 }).WithName("get-player-join-request");
 
@@ -109,7 +109,7 @@ app.MapGet("/lobbies/{lobbyId}/join/bots/{botName}", (int lobbyId, string botNam
 app.MapPost("/lobbies/{lobbyId}/join/players", (int lobbyId, PlayerJoinRequest request) => {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
-    lobby.PlayerJoinReqests.Add(request);
+    lobby.PlayerJoinRequests.Add(request);
     return Results.CreatedAtRoute("get-plyaer-join-request", new {lobbyId, request.PlayerName});
 });
 
@@ -120,16 +120,36 @@ app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request
     return Results.CreatedAtRoute("get-bot-join-request", new {lobbyId, request.BotName});
 });
 
+app.MapGet("/lobbies/{lobbyId}/players/{plyaerName}", (int lobbyId, string playerName) => {
+    // TODO: implement this.
+    return Results.NotFound("get-player api is not implemented yet.");
+}).WithName("get-player");
+
 app.MapGet("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
     // TODO: implement this.
-    return Results.NotFound("This api is not implemented yet.");
+    return Results.NotFound("get-bot api is not implemented yet.");
 }).WithName("get-bot");
+
+app.MapPost("/lobbies/{lobbyId}/players", (int lobbyId, AddPlayer player) => {
+    if (lobby is null) return Results.BadRequest("Lobby is not created");
+    if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
+    if (lobby.Host.Name != player.PlayerName)
+        return Results.BadRequest("Only host user is allowed to approve player join requests.");
+    if (lobby.PlayerJoinRequests.Remove(new(player.NewPlayer)))
+        return Results.BadRequest($"{player.NewPlayer} player join request is not found.");
+    if (lobby.Players.Contains(new(player.NewPlayer)))
+        return Results.BadRequest($"{player.NewPlayer} is already in the lobby.");
+    if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
+        return Results.BadRequest("Too many players");
+    lobby.Players.Add(new(player.NewPlayer));
+    return Results.CreatedAtRoute("get-player", new {lobbyId, PlayerName=player.NewPlayer});
+});
 
 app.MapPost("/lobbies/{lobbyId}/bots", (int lobbyId, AddBot bot) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
-    if (lobby.Id != lobbyId) return Results.BadRequest($"{bot.BotName} lobby is not found!");
+    if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != bot.PlayerName)
-        return Results.BadRequest("Only host user is allowed to approve bot joint requests.");
+        return Results.BadRequest("Only host user is allowed to approve bot join requests.");
     if (lobby.BotJoinRequests.Remove(new(bot.BotName)))
         return Results.BadRequest($"{bot.BotName} bot join request is not found.");
     if (lobby.Bots.Contains(new(bot.BotName)))
@@ -193,6 +213,7 @@ namespace Chacra {
     public record LobbyStatus(bool Started);
     public record PlayerJoinRequest(string PlayerName);
     public record BotJoinRequest(string BotName);
+    public record AddPlayer(string PlayerName, string NewPlayer);
     public record AddBot(string PlayerName, string BotName);
     public record DeleteBot(string LobbyName, string Name);
 
@@ -203,7 +224,7 @@ namespace Chacra {
         Game Game,
         HashSet<Player> Players,
         HashSet<Bot> Bots,
-        HashSet<PlayerJoinRequest> PlayerJoinReqests,
+        HashSet<PlayerJoinRequest> PlayerJoinRequests,
         HashSet<BotJoinRequest> BotJoinRequests)
     {
         public LobbyData(int id, string name, Player host, Game game)
