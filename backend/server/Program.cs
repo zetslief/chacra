@@ -175,7 +175,7 @@ app.MapPost("/lobbies/start", () => {
     return Results.Redirect("/game", true);
 });
 
-app.MapDelete("/lobbies/{lobbyId}/bot/{botName}", (int lobbyId, string botName) => {
+app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Id != lobbyId) return Results.BadRequest($"Lobby is not found!");
     lobby.Bots.Remove(new(botName));

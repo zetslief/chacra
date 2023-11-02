@@ -127,12 +127,11 @@ async function kickPlayer(event) {
 async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
-    const bot = {lobbyName: lobbyData.name, name: botName};
-    const response = await fetch(LOBBY_BOT, {
-        method: "DELETE",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(bot),
-    });
+    if (!botName) {
+        writeErrorMessage("Bot name cannot be empty", botElement);
+    }
+    const url = new URL(`/lobbies/${lobbyData.id}/bots/${botName}`, BASE);
+    const response = await fetch(url, { method: "DELETE" });
     if (response.ok) {
         writeInfoMessage(botName + " was removed from the lobby.");
     } else {
