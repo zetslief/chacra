@@ -68,7 +68,7 @@ app.MapGet("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string player
             : Results.NotFound($"{lobbyName} lobby not found for {playerName} user");
 });
 
-app.MapPost("/lobbies/{lobbyName}", (string lobbyName, RenameLobby rename) =>
+app.MapPut("/lobbies/{lobbyName}/{playerName}", (string lobbyName, string playerName, RenameLobby rename) =>
 {
     static IResult UpdateLobby(RenameLobby rename, LobbyData data, out LobbyData newData)
     {
@@ -79,8 +79,10 @@ app.MapPost("/lobbies/{lobbyName}", (string lobbyName, RenameLobby rename) =>
     return lobby is null
         ? Results.BadRequest("Lobby is not created yet")
         : lobby.Name == lobbyName
-            ? UpdateLobby(rename, lobby, out lobby)
-            : Results.NotFound("Lobby is not found");
+            ? lobby.Host.Name == playerName
+                ? UpdateLobby(rename, lobby, out lobby)
+                : Results.BadRequest("Only host is allowed to rename a lobby.")
+            : Results.NotFound("Lobby is not found or player is not a host of this lobby.");
 });
 
 app.MapPost("/lobbies", (CreateLobby createLobby) =>
