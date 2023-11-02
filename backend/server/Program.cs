@@ -117,7 +117,27 @@ app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     lobby.BotJoinRequests.Add(request);
-    return Results.CreatedAtRoute("get-plyaer-join-request", new {lobbyId, request.BotName});
+    return Results.CreatedAtRoute("get-bot-join-request", new {lobbyId, request.BotName});
+});
+
+app.MapGet("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
+    // TODO: implement this.
+    return Results.NotFound("This api is not implemented yet.");
+}).WithName("get-bot");
+
+app.MapPost("/lobbies/{lobbyId}/bots", (int lobbyId, AddBot bot) => {
+    if (lobby is null) return Results.BadRequest("Lobby is not created");
+    if (lobby.Id != lobbyId) return Results.BadRequest($"{bot.BotName} lobby is not found!");
+    if (lobby.Host.Name != bot.PlayerName)
+        return Results.BadRequest("Only host user is allowed to approve bot joint requests.");
+    if (lobby.BotJoinRequests.Remove(new(bot.BotName)))
+        return Results.BadRequest($"{bot.BotName} bot join request is not found.");
+    if (lobby.Bots.Contains(new(bot.BotName)))
+        return Results.BadRequest($"{bot.BotName} is already in the lobby.");
+    if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
+        return Results.BadRequest("Too many players");
+    lobby.Bots.Add(new(bot.BotName));
+    return Results.CreatedAtRoute("get-bot", new {lobbyId, bot.BotName});
 });
 
 app.MapGet("/lobbies/status", () => {
@@ -127,15 +147,6 @@ app.MapGet("/lobbies/status", () => {
 app.MapPost("/lobbies/start", () => {
     lobbyStarted = true;
     return Results.Redirect("/game", true);
-});
-
-app.MapPost("/lobbies/bot", (AddBot bot) => {
-    if (lobby is null) return Results.BadRequest("Lobby is not created");
-    if (lobby.Name != bot.LobbyName) return Results.BadRequest($"{bot.LobbyName} lobby is not found!");
-    if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
-        return Results.BadRequest("Too many players");
-    lobby.Bots.Add(new(bot.Name));
-    return Results.Ok();
 });
 
 app.MapDelete("/lobbies/{lobbyId}/bot/{botName}", (int lobbyId, string botName) => {
@@ -182,7 +193,7 @@ namespace Chacra {
     public record LobbyStatus(bool Started);
     public record PlayerJoinRequest(string PlayerName);
     public record BotJoinRequest(string BotName);
-    public record AddBot(string LobbyName, string Name);
+    public record AddBot(string PlayerName, string BotName);
     public record DeleteBot(string LobbyName, string Name);
 
     public record LobbyData(

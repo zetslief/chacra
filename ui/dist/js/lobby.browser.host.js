@@ -67,18 +67,30 @@ async function startGame() {
 
 async function addBot() {
     const bot = { 
-        lobbyName: lobbyName.value,
-        name: "Bot " + lobbyData.bots.length
+        botName: "Bot " + lobbyData.bots.length
     };
-    const response = await fetch(LOBBY_BOT, {
+    const requestBotJoinUrl = new URL(`/lobbies/${lobbyData.id}/join/bots`, BASE);
+    const response = await fetch(requestBotJoinUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(bot),
     });
-    if (response.ok) {
-        writeInfoMessage("But is added to the lobby: " + bot.name);
+    if (response.status == 201) {
+        writeInfoMessage(`${bot.botName} has requested to join the lobby.`);
+        const addBotUrl = new URL(`/lobbies/${lobbyData.id}/bots`, BASE);
+        const addBot = { playerName: lobbyData.host.name, botName: bot.botName};
+        const addResponse = await fetch(addBotUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(addBot),
+        });
+        if (addResponse.ok) {
+            writeInfoMessage(`${bot.botName} is added to the lobby`);
+        } else {
+            writeErrorMessage("Failed to approve bot join request", addResponse);
+        }
     } else {
-        writeErrorMessage("Failed to add bot.", response);
+        writeErrorMessage("Failed to send request to add a bot.", response);
     }
 }
 
