@@ -92,6 +92,20 @@ app.MapPost("/lobbies", (CreateLobby createLobby) =>
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
 });
 
+app.MapPost("/lobbies/{lobbyId}/join/players", (int lobbyId, PlayerJoinRequest request) => {
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    lobby.PlayerJoinReqests.Add(request);
+    return Results.Ok();
+});
+
+app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request) => {
+    if (lobby is null) return Results.NotFound("Lobby is not created yet!");
+    if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
+    lobby.BotJoinRequests.Add(request);
+    return Results.Ok();
+});
+
 app.MapGet("/lobbies/status", () => {
     return Results.Json(new LobbyStatus(lobbyStarted));
 });
@@ -153,13 +167,22 @@ namespace Chacra {
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
     public record PlayerJoinRequest(string Name);
+    public record BotJoinRequest(string Name);
     public record AddBot(string LobbyName, string Name);
     public record DeleteBot(string LobbyName, string Name);
 
-    public record LobbyData(int Id, string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots, HashSet<PlayerJoinRequest> JoinRequests)
+    public record LobbyData(
+        int Id,
+        string Name,
+        Player Host,
+        Game Game,
+        HashSet<Player> Players,
+        HashSet<Bot> Bots,
+        HashSet<PlayerJoinRequest> PlayerJoinReqests,
+        HashSet<BotJoinRequest> BotJoinRequests)
     {
         public LobbyData(int id, string name, Player host, Game game)
-            : this(id, name, host, game, new() { host }, new(), new()) { }
+            : this(id, name, host, game, new() { host }, new(), new(), new()) { }
     }
 
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
