@@ -3,7 +3,7 @@ const LOBBY_NAME = "lobbyName";
 
 const BASE = new URL("http://localhost:5000");
 const JOIN_ENDPOINT = new URL("/lobbies/join", BASE);
-const CREATE_NEW_LOBBY_ENDPOINT = new URL("/lobbies/create", BASE);
+const CREATE_NEW_LOBBY_ENDPOINT = new URL("/lobbies", BASE);
 
 const playerInput = document.getElementById(PLAYER_NAME);
 const lobbyInput = document.getElementById(LOBBY_NAME);
