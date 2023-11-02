@@ -23,21 +23,21 @@ const botTemplate = document.getElementById("botTemplate");
 const messageInput = document.getElementById("messageInput");
 
 window.onload = async () => {
-    lobbyData = await requestLobbyData(sessionStorage.getItem("playerName"));
+    lobbyData = await requestLobbyData();
     console.log(lobbyData, sessionStorage.getItem("playerName"));
     writeInfoMessage("lobby created!");
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     setInterval(async () => {
-        lobbyData = await requestLobbyData(lobbyData.name);
+        lobbyData = await requestLobbyData();
         renderPlayers(lobbyData.players, lobbyData.bots, playerTemplate, botTemplate, players);
     }, 1000)
 };
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
-    const url = new URL(`/lobbies/${lobbyData.name}/${lobbyData.host.name}`, BASE);
+    const url = new URL(`/lobbies/${lobbyData.id}/${lobbyData.host.name}`, BASE);
     const response = await fetch(url, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
