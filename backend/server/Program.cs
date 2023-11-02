@@ -152,13 +152,14 @@ namespace Chacra {
     public record RenameLobby(string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
+    public record PlayerJoinRequest(string Name);
     public record AddBot(string LobbyName, string Name);
     public record DeleteBot(string LobbyName, string Name);
 
-    public record LobbyData(int Id, string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots)
+    public record LobbyData(int Id, string Name, Player Host, Game Game, HashSet<Player> Players, HashSet<Bot> Bots, HashSet<PlayerJoinRequest> JoinRequests)
     {
         public LobbyData(int id, string name, Player host, Game game)
-            : this(id, name, host, game, new() { host }, new()) { }
+            : this(id, name, host, game, new() { host }, new(), new()) { }
     }
 
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
