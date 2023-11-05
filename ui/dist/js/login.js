@@ -2,7 +2,7 @@ const PLAYER_NAME = "playerName";
 const LOBBY_NAME = "lobbyName";
 
 const BASE = new URL("http://localhost:5000");
-const JOIN_ENDPOINT = new URL("/lobbies/join", BASE);
+const JOIN_ENDPOINT = new URL("/lobbies", BASE);
 const CREATE_NEW_LOBBY_ENDPOINT = new URL("/lobbies", BASE);
 
 const playerInput = document.getElementById(PLAYER_NAME);
@@ -17,19 +17,16 @@ window.onload = () => {
 
 async function join() {
     const playerName = playerInput.value;
-    if (!playerName) {
-        console.error("Player name is not specified!");
+    const lobbyName = lobbyInput.value;
+    if (!playerName || !lobbyName) {
+        console.error("Player name or lobby name is not specified!");
         return;
     }
     sessionStorage.setItem(PLAYER_NAME, playerName);
-    const result = await fetch(
-        JOIN_ENDPOINT,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ playerName }),
-        }
-    );
+    const url = new URL(`/lobbies/${lobbyName}/${playerName}`, BASE);
+    const result = await fetch(url, {
+        method: "POST",
+    });
     if (result.ok) {
         console.log(playerInput.value, "is connected!");
         if (result.redirected && result.url) {
