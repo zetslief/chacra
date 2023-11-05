@@ -35,21 +35,6 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
-app.MapPost("/lobbies/join", (JoinLobby joinLobby) => {
-    Console.WriteLine($"Join lobby: {joinLobby}");
-    var newPlayer = new Player(joinLobby.PlayerName);
-    if (lobby is null)
-    {
-        Console.WriteLine($"Error: lobby not created");
-        return Results.BadRequest("Failed to join lobby: not found!");
-    }
-    if (!lobby.Players.Contains(newPlayer))
-    {
-        lobby.Players.Add(newPlayer);
-    }
-    return lobby.Host == newPlayer ?  Results.Redirect("/lobbies/host") : Results.Redirect("/lobbies/host");
-});
-
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerName) => {
     return lobby?.Id != lobbyId
         ? Results.NotFound("Lobby is not yet created")
@@ -90,6 +75,14 @@ app.MapPost("/lobbies", (CreateLobby createLobby) =>
     var id = 1;
     lobby = new(id, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
+});
+
+app.MapPost("/lobbies/{playerName}", (string playerName) =>
+{
+    if (lobby is null) return Results.BadRequest("Lobby is not created yet.");
+    if (lobby.Players.Contains(new(playerName)))
+        return Results.BadRequest($"{playerName} cannot be used to join this lobby.");
+    return Results.CreatedAtRoute("get-host-page", new {LobbyId = lobby.Id, playerName});
 });
 
 app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", (int lobbyId, string playerName) => {
