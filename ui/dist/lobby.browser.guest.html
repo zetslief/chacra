@@ -6,22 +6,32 @@
 </head>
 <body>
     <div class="main">
-        <div style="display: flex; flex-direction: column; flex: 2;">
+        <div>
             <div>
-                <h1 id="connectedTitle">Connected</h1>
+                <h1>Connected</h1>
             </div>
-            <div id="storage"></div>
-        </div>
-        <div style="flex: 1">
-            <input>
+            <div class="column">
+                <h1>Lobbies</h1>
+                <div id="lobbies" class="column">
+                    <div class="lobbyItem row gap">
+                        <p>My Lobby</p>
+                        <p>Tennis</p>
+                        <p>5</p>
+                        <p>/</p>
+                        <p>10</p>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+            </div>
         </div>
     </div>
 
     <script src="/js/lobby.browser.guest.js"></script>
 
     <div hidden>
-        <div id="storageItemTemplate" class="storageItem">
-            <p id="storageItemValue"></p>
+        <div id="lobbyItemTemplate" class="lobbyItem">
+            <p></p>
         </div>
     </div>
 </body>
