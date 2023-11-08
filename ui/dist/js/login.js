@@ -27,10 +27,10 @@ async function join() {
     const result = await fetch(url, {
         method: "POST",
     });
-    const location = result.headers.get("location");
-    if (result.status == 201 && location) {
-        console.log(`${player.Name} go to the lobby browser at ${location}`);
-            location.assign(result.url);
+    const guestPageLocation = result.headers.get("location");
+    if (result.status == 201 && guestPageLocation) {
+        console.log(`${playerName} go to the lobby browser at ${guestPageLocation}`);
+        location.assign(guestPageLocation);
     } else {
         errorFailedRequest();
     }
