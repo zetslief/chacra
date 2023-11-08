@@ -35,6 +35,10 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
+app.MapGet("/lobbies", () => {
+    return Results.Json(lobby is null ? Array.Empty<LobbyData>() : new [] { lobby });
+});
+
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerName) => {
     return lobby?.Id != lobbyId
         ? Results.NotFound("Lobby is not yet created")

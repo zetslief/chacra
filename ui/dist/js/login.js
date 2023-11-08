@@ -23,7 +23,7 @@ async function join() {
         return;
     }
     sessionStorage.setItem(PLAYER_NAME, playerName);
-    const url = new URL(`/lobbies/${lobbyName}/${playerName}`, BASE);
+    const url = new URL(`/lobbies/${playerName}`, BASE);
     const result = await fetch(url, {
         method: "POST",
     });
