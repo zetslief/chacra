@@ -36,7 +36,9 @@ app.MapGet("/", () => {
 });
 
 app.MapGet("/lobbies", () => {
-    return Results.Json(lobby is null ? Array.Empty<LobbyData>() : new [] { lobby });
+    return lobby is null
+        ? Array.Empty<LobbyInformation>()
+        : new LobbyInformation[] { new(lobby.Id, lobby.Name, lobby.Players.Count, lobby.Game.NumberOfPlayers) };
 });
 
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerName) => {
@@ -233,6 +235,8 @@ namespace Chacra {
         public LobbyData(int id, string name, Player host, Game game)
             : this(id, name, host, game, new() { host }, new(), new(), new()) { }
     }
+
+    public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, int RequiredNumberOfPlayers);
 
     public record InputState(string PlayerName, string Type, float Dx, float Dy);
 
