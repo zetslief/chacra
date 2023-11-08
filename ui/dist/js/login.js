@@ -27,13 +27,10 @@ async function join() {
     const result = await fetch(url, {
         method: "POST",
     });
-    if (result.ok) {
-        console.log(playerInput.value, "is connected!");
-        if (result.redirected && result.url) {
+    const location = result.headers.get("location");
+    if (result.status == 201 && location) {
+        console.log(`${player.Name} go to the lobby browser at ${location}`);
             location.assign(result.url);
-        } else {
-            errorNoRedirection(result);
-        }
     } else {
         errorFailedRequest();
     }
