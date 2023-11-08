@@ -46,9 +46,7 @@ app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerNa
         ? Results.NotFound("Lobby is not yet created")
         : lobby.Host.Name == playerName
             ?  Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html")
-            :  lobby.Players.Contains(new Player(playerName))
-                ? Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html")
-                : Results.NotFound("Player in not part of the lobby");
+            :  Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
 }).WithName("get-host-page");
 
 app.MapGet("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName) => {
