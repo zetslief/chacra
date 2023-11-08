@@ -35,10 +35,6 @@ body {
     padding: 0.5em;
 }
 
-.gap-children > * {
-    gap: 0.5em;
-}
-
 .pad-children > * {
     padding: 0.5em;
 }
