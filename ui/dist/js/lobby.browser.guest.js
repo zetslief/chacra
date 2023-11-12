@@ -1,7 +1,7 @@
 const BASE = new URL("http://localhost:5000/");
 
-const storage = document.getElementById("storage");
-const template = document.getElementById("storageItemTemplate");
+const lobbies = document.getElementById("lobbies");
+const lobbyItemTemplate = document.getElementById("lobbyItemTemplate");
 
 window.onload = async () => {
     const data = await requestLobbies(location);
@@ -16,7 +16,6 @@ window.onload = async () => {
 
 async function requestLobbies(baseUrl) {
     const url = new URL("./", baseUrl);
-    console.log(url);
     var response = await fetch(url);
     return response.json();
 } 
