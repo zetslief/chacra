@@ -4,18 +4,19 @@ const storage = document.getElementById("storage");
 const template = document.getElementById("storageItemTemplate");
 
 window.onload = async () => {
-    const data = await requestLobbies();
+    const data = await requestLobbies(location);
     console.log(data);
     renderLobbyData(data, template, storage);
 
     setInterval(async () => {
-        const data = await requestLobbies();
+        const data = await requestLobbies(location);
         renderLobbyData(data, template, storage);
     }, 1000)
 };
 
-async function requestLobbies(playerName) {
-    const url = new URL(`./lobbies/${playerName}`, BASE);
+async function requestLobbies(baseUrl) {
+    const url = new URL("./", baseUrl);
+    console.log(url);
     var response = await fetch(url);
     return response.json();
 } 
