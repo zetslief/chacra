@@ -49,6 +49,10 @@ app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerNa
             :  Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
 }).WithName("get-host-page");
 
+app.MapGet("/lobbies/{playerName}/view", (string playerName) => {
+    return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
+}).WithName("get-guest-page");
+
 app.MapGet("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName) => {
     return lobby is null 
         ?  Results.BadRequest("Lobby is not created!")
@@ -83,10 +87,7 @@ app.MapPost("/lobbies", (CreateLobby createLobby) =>
 
 app.MapPost("/lobbies/{playerName}", (string playerName) =>
 {
-    if (lobby is null) return Results.BadRequest("Lobby is not created yet.");
-    if (lobby.Players.Contains(new(playerName)))
-        return Results.BadRequest($"{playerName} cannot be used to join this lobby.");
-    return Results.CreatedAtRoute("get-host-page", new {LobbyId = lobby.Id, playerName});
+    return Results.CreatedAtRoute("get-guest-page", new {playerName});
 });
 
 app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", (int lobbyId, string playerName) => {
