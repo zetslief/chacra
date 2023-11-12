@@ -1,18 +1,22 @@
-window.onload = async () => {
-    const storage = document.getElementById("storage");
-    const template = document.getElementById("storageItemTemplate");
+const BASE = new URL("http://localhost:5000/");
 
-    const data = await requestLobbyData();
+const storage = document.getElementById("storage");
+const template = document.getElementById("storageItemTemplate");
+
+window.onload = async () => {
+    const data = await requestLobbies();
+    console.log(data);
     renderLobbyData(data, template, storage);
 
     setInterval(async () => {
-        const data = await requestLobbyData();
+        const data = await requestLobbies();
         renderLobbyData(data, template, storage);
     }, 1000)
 };
 
-async function requestLobbyData() {
-    var response = await fetch("http://localhost:5000/lobbies/data");
+async function requestLobbies(playerName) {
+    const url = new URL(`./lobbies/${playerName}`, BASE);
+    var response = await fetch(url);
     return response.json();
 } 
 
