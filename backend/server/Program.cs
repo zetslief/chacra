@@ -35,7 +35,7 @@ app.MapGet("/", () => {
     return Results.Content(File.ReadAllText(loginPagePath), "text/html");
 });
 
-app.MapGet("/lobbies", () => {
+app.MapGet("/lobbies/{playerName}", (string playerName) => {
     return lobby is null
         ? Array.Empty<LobbyInformation>()
         : new LobbyInformation[] { new(lobby.Id, lobby.Name, lobby.Players.Count, lobby.Game) };
