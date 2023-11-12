@@ -53,3 +53,10 @@ p {
     border-color: black;
     border-radius: 0.2em;
 }
+
+.cancel-button {
+    background-color: darksalmon;
+
+    border-color: black;
+    border-radius: 0.2em;
+}
