@@ -12,29 +12,7 @@
             </div>
             <div class="column">
                 <h1>Lobbies</h1>
-                <div id="lobbies" class="column center">
-                    <div class="lobbyItem row gap">
-                        <p>My Lobby</p>
-                        <p>Tennis</p>
-                        <p>5</p>
-                        <p>/</p>
-                        <p>10</p>
-                        <button class="join-button pad">Join</button>
-                    </div>
-                    <div class="lobbyItem row gap">
-                        <p>My Lobby</p>
-                        <p>Tennis</p>
-                        <p>Waiting...</p>
-                        <button class="cancel-button pad" style="background-color: brightblue;">Cancel</button>
-                    </div>
-                    <div class="lobbyItem row gap">
-                        <p>My Lobby</p>
-                        <p>Tennis</p>
-                        <p>5</p>
-                        <p>/</p>
-                        <p>10</p>
-                    </div>
-                </div>
+                <div id="lobbies" class="column center"></div>
             </div>
             <div class="column">
             </div>
@@ -45,7 +23,15 @@
 
     <div hidden>
         <div id="lobbyItemTemplate" class="lobbyItem">
-            <p></p>
+            <p>Lobby</p>
+            <button class="join-button pad">Join</button>
+        </div>
+        <div id="requstedLobbyItemTemplate" class="lobbyItem">
+            <p>Requested</p>
+            <button class="cancel-button pad">Cancel</button>
+        </div>
+        <div id="disabledLobbyItemTemplate" class="lobbyItem">
+            <p>Disabled</p>
         </div>
     </div>
 </body>
