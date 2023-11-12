@@ -60,3 +60,16 @@ p {
     border-color: black;
     border-radius: 0.2em;
 }
+
+.lobbyItem {
+    border-style: solid;
+    border-color: grey;
+    border-radius: 0.2em;
+    border-width: 2px;
+}
+
+.border-right {
+    border-width: 0px 1px 0px 0px;
+    border-color: grey;
+    border-style: solid;
+}
