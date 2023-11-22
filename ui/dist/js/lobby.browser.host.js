@@ -179,11 +179,11 @@ function clearPlayers(storage) {
     }
 }
 
-function renderPlayers(players, getNameFromPlayer, playerTemplate, storage) {
+function renderPlayers(players, playerParser, template, storage) {
     for (const player of players) {
-        const playerElement = playerTemplate.cloneNode(true);
+        const playerElement = template.cloneNode(true);
         playerElement.removeAttribute("id");
-        let playerName = getNameFromPlayer(player);
+        let playerName = playerParser(player);
         playerElement.querySelector("p").textContent = playerName.toString();
         storage.appendChild(playerElement);
     }
