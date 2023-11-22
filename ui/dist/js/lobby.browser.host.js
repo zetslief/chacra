@@ -31,19 +31,26 @@ window.onload = async () => {
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     clearPlayers(players);
-    renderPlayers(lobbyData.players, playerTemplate, players);
-    renderPlayers(lobbyData.bots, botTemplate, players);
-    renderPlayers(lobbyData.playerJoinRequests, playerJoinRequestTemplate, players);
-    renderPlayers(lobbyData.botJoinRequests, botJoinRequestTemplate, players);
+    renderPlayers(lobbyData.players, getNameFromPlayer, playerTemplate, players);
+    renderPlayers(lobbyData.bots, getNameFromPlayer, botTemplate, players);
+    renderPlayers(lobbyData.playerJoinRequests, getNameFromJoinRequest, playerJoinRequestTemplate, players);
+    renderPlayers(lobbyData.botJoinRequests, getNameFromJoinRequest, botJoinRequestTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
         clearPlayers(players);
-        renderPlayers(lobbyData.players, playerTemplate, players);
-        renderPlayers(lobbyData.bots, botTemplate, players);
-        renderPlayers(lobbyData.playerJoinRequests, playerJoinRequestTemplate, players);
-        renderPlayers(lobbyData.botJoinRequests, botJoinRequestTemplate, players);
+        renderPlayers(lobbyData.players, getNameFromPlayer, playerTemplate, players);
+        renderPlayers(lobbyData.bots, getNameFromPlayer, botTemplate, players);
+        renderPlayers(lobbyData.playerJoinRequests, getNameFromJoinRequest, playerJoinRequestTemplate, players);
+        renderPlayers(lobbyData.botJoinRequests, getNameFromJoinRequest, botJoinRequestTemplate, players);
     }, 1000)
 };
+
+function getNameFromPlayer(player) {
+    return player.name;
+}
+function getNameFromJoinRequest(request) {
+    return request.playerName;
+}
 
 async function saveLobbyName() {
     const newName = lobbyName.value;
@@ -172,11 +179,12 @@ function clearPlayers(storage) {
     }
 }
 
-function renderPlayers(players, playerTemplate, storage) {
+function renderPlayers(players, getNameFromPlayer, playerTemplate, storage) {
     for (const player of players) {
         const playerElement = playerTemplate.cloneNode(true);
         playerElement.removeAttribute("id");
-        playerElement.querySelector("p").textContent = player.name.toString();
+        let playerName = getNameFromPlayer(player);
+        playerElement.querySelector("p").textContent = playerName.toString();
         storage.appendChild(playerElement);
     }
 }
