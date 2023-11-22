@@ -108,7 +108,7 @@ app.MapPost("/lobbies/{lobbyId}/join/players", (int lobbyId, PlayerJoinRequest r
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     lobby.PlayerJoinRequests.Add(request);
-    return Results.CreatedAtRoute("get-plyaer-join-request", new {lobbyId, request.PlayerName});
+    return Results.CreatedAtRoute("get-player-join-request", new {lobbyId, request.PlayerName});
 });
 
 app.MapPost("/lobbies/{lobbyId}/join/bots", (int lobbyId, BotJoinRequest request) => {
