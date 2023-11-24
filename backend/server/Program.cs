@@ -31,9 +31,10 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(builder.Environment.ContentRootPath, "./../../ui/dist/"))
 });
 
-app.MapGet("/", () => {
-    return Results.Content(File.ReadAllText(loginPagePath), "text/html");
-});
+app.MapGet("/", GetMainPage);
+
+IResult GetMainPage()
+    => Results.Content(File.ReadAllText(loginPagePath), "text/html");
 
 app.MapGet("/lobbies/{playerName}", (string playerName) => {
     return lobby is null
