@@ -39,7 +39,7 @@ app.MapGet("/lobbies/{lobbyId}/{playerName}", GetLobbyData);
 app.MapPut("/lobbies/{lobbyId}/{playerName}", RenameLobby);
 app.MapPost("/lobbies", CreateLobby);
 app.MapPost("/lobbies/{playerName}", PermissionToGoToGuestPage);
-app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", GetPlayerJoinRequest);
+app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", GetPlayerJoinRequest).WithName("get-player-join-request");
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -93,13 +93,13 @@ IResult CreateLobby(CreateLobby createLobby)
 IResult PermissionToGoToGuestPage(string playerName)
     => Results.CreatedAtRoute("get-guest-page", new {playerName});
 
-IResult GetPlayerJoinRequest(string playerName) 
+IResult GetPlayerJoinRequest(int lobbyId, string playerName) 
 {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     var request = lobby.PlayerJoinRequests.FirstOrDefault(r => r.PlayerName == playerName);
     return request is null ? Results.NotFound() : Results.Json(request);
-}).WithName("get-player-join-request");
+}
 
 app.MapGet("/lobbies/{lobbyId}/join/bots/{botName}", (int lobbyId, string botName) => {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
