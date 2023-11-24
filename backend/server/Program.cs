@@ -49,6 +49,8 @@ app.MapPost("/lobbies/{lobbyId}/players", AddNewPlayer);
 app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
 app.MapGet("/lobbies/status", GetLobbyStatus);
 app.MapPost("/lobbies/start", StartLobby);
+app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
+app.MapGet("/game", GetGame);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -193,16 +195,16 @@ IResult StartLobby()
     return Results.Redirect("/game", true);
 }
 
-app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
+IResult DeleteBot(int lobbyId, string botName)
+{
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Id != lobbyId) return Results.BadRequest($"Lobby is not found!");
     lobby.Bots.Remove(new(botName));
     return Results.Ok();
-});
+}
 
-app.MapGet("/game", () => {
-    return Results.Content(File.ReadAllText(indexPagePath), "text/html");
-});
+IResult GetGame()
+    => Results.Content(File.ReadAllText(indexPagePath), "text/html");
 
 app.MapGet("/game/inputStates", () => {
     var currentQueue = inputQueue;
