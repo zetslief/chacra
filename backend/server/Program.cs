@@ -54,6 +54,7 @@ app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
 app.MapGet("/game", GetGame);
 app.MapGet("/game/inputStates", GetInputStates);
 app.MapPost("/game/input", PushInputState);
+app.MapGet("/game/state", GetGameState);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -219,11 +220,12 @@ IResult GetInputStates()
 void PushInputState(InputState state)
     => inputQueue.Add(state);
 
-app.MapGet("/game/state", () => {
+IResult GetGameState()
+{
     var result = Results.Json(state);
     state = string.Empty;
     return result;
-});
+}
 
 app.MapPost("/game/state", async (ctx) => {
     using var reader = new StreamReader(ctx.Request.Body);
