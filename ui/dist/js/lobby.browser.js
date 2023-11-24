@@ -41,13 +41,10 @@ async function joinLobby(event) {
     const parent = event.target.parentNode;
     const idAttribute = parent.getAttribute("id");
     if (idAttribute) {
-        const url = new URL(`/lobbies/${idAttribute}/join/players`, BASE);
         const playerName = sessionStorage.getItem("playerName");
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({playerName}),
-        });
+        console.log(playerName);
+        const url = new URL(`/lobbies/${idAttribute}/join/players/${playerName}`, BASE);
+        const response = await fetch(url, { method: "POST" });
         if (response.status == 201) {
             joinRequestUrl = new URL(response.headers.get("location"));
             console.log("Successfully sent the join request", joinRequestUrl);
