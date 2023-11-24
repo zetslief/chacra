@@ -35,6 +35,7 @@ app.MapGet("/", GetMainPage);
 app.MapGet("/lobbies/{playerName}", GetLobbyInformation);
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetHostPage).WithName("get-host-page");
 app.MapGet("/lobbies/{playerName}/view", GetGuestPage).WithName("get-guest-page");
+app.MapGet("/lobbies/{lobbyId}/{playerName}", GetLobbyData);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -54,13 +55,12 @@ IResult GetHostPage(int lobbyId, string playerName)
 IResult GetGuestPage(string playerName)
     => Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
 
-app.MapGet("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName) => {
-    return lobby is null 
+IResult GetLobbyData(int lobbyId, string playerName)
+    => lobby is null 
         ?  Results.BadRequest("Lobby is not created!")
         : lobby.Id == lobbyId 
             ? Results.Json(lobby)
             : Results.NotFound($"{lobbyId} lobby not found for {playerName} user");
-});
 
 app.MapPut("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName, RenameLobby rename) =>
 {
