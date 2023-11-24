@@ -17,6 +17,7 @@ var games = new []
 var lobbyStarted = false;
 LobbyData? lobby = null;
 var inputQueue = new BlockingCollection<InputState>();
+string state = string.Empty;
 
 var app = builder.Build();
 
@@ -51,6 +52,8 @@ app.MapGet("/lobbies/status", GetLobbyStatus);
 app.MapPost("/lobbies/start", StartLobby);
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
 app.MapGet("/game", GetGame);
+app.MapGet("/game/inputStates", GetInputStates);
+app.MapPost("/game/input", PushInputState);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -206,18 +209,16 @@ IResult DeleteBot(int lobbyId, string botName)
 IResult GetGame()
     => Results.Content(File.ReadAllText(indexPagePath), "text/html");
 
-app.MapGet("/game/inputStates", () => {
+IResult GetInputStates()
+{
     var currentQueue = inputQueue;
     inputQueue = new BlockingCollection<InputState>();
     return Results.Json(currentQueue.ToArray());
-});
+}
 
+void PushInputState(InputState state)
+    => inputQueue.Add(state);
 
-app.MapPost("/game/input", (InputState state) => {
-    inputQueue.Add(state);
-});
-
-string state = string.Empty;
 app.MapGet("/game/state", () => {
     var result = Results.Json(state);
     state = string.Empty;
