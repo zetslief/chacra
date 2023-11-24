@@ -48,6 +48,7 @@ app.MapGet("/lobbies/{lobbyId}/bots/{botName}", GetBotInformation).WithName("get
 app.MapPost("/lobbies/{lobbyId}/players", AddNewPlayer);
 app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
 app.MapGet("/lobbies/status", GetLobbyStatus);
+app.MapPost("/lobbies/start", StartLobby);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -186,10 +187,11 @@ IResult AddNewBot(int lobbyId, AddBot bot)
 IResult GetLobbyStatus()
     => Results.Json(new LobbyStatus(lobbyStarted));
 
-app.MapPost("/lobbies/start", () => {
+IResult StartLobby()
+{
     lobbyStarted = true;
     return Results.Redirect("/game", true);
-});
+}
 
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", (int lobbyId, string botName) => {
     if (lobby is null) return Results.BadRequest("Lobby is not created");
