@@ -46,6 +46,7 @@ app.MapPost("/lobbies/{lobbyId}/join/bots", CreateBotJoinRequest);
 app.MapGet("/lobbies/{lobbyId}/players/{plyaerName}", GetPlayerInformation).WithName("get-player");
 app.MapGet("/lobbies/{lobbyId}/bots/{botName}", GetBotInformation).WithName("get-bot");
 app.MapPost("/lobbies/{lobbyId}/players", AddNewPlayer);
+app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -165,7 +166,8 @@ IResult AddNewPlayer(int lobbyId, AddPlayer player)
     return Results.CreatedAtRoute("get-player", new {lobbyId, PlayerName=player.NewPlayer});
 }
 
-app.MapPost("/lobbies/{lobbyId}/bots", (int lobbyId, AddBot bot) => {
+IResult AddNewBot(int lobbyId, AddBot bot)
+{
     if (lobby is null) return Results.BadRequest("Lobby is not created");
     if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != bot.PlayerName)
@@ -178,7 +180,7 @@ app.MapPost("/lobbies/{lobbyId}/bots", (int lobbyId, AddBot bot) => {
         return Results.BadRequest("Too many players");
     lobby.Bots.Add(new(bot.BotName));
     return Results.CreatedAtRoute("get-bot", new {lobbyId, bot.BotName});
-});
+}
 
 app.MapGet("/lobbies/status", () => {
     return Results.Json(new LobbyStatus(lobbyStarted));
