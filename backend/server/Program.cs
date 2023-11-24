@@ -36,6 +36,8 @@ app.MapGet("/lobbies/{playerName}", GetLobbyInformation);
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetHostPage).WithName("get-host-page");
 app.MapGet("/lobbies/{playerName}/view", GetGuestPage).WithName("get-guest-page");
 app.MapGet("/lobbies/{lobbyId}/{playerName}", GetLobbyData);
+app.MapPut("/lobbies/{lobbyId}/{playerName}", RenameLobby);
+app.MapPost("/lobbies", CreateLobby);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -62,7 +64,7 @@ IResult GetLobbyData(int lobbyId, string playerName)
             ? Results.Json(lobby)
             : Results.NotFound($"{lobbyId} lobby not found for {playerName} user");
 
-app.MapPut("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName, RenameLobby rename) =>
+IResult RenameLobby(int lobbyId, string playerName, RenameLobby rename)
 {
     static IResult UpdateLobby(RenameLobby rename, LobbyData data, out LobbyData newData)
     {
@@ -77,14 +79,14 @@ app.MapPut("/lobbies/{lobbyId}/{playerName}", (int lobbyId, string playerName, R
                 ? UpdateLobby(rename, lobby, out lobby)
                 : Results.BadRequest("Only host is allowed to rename a lobby.")
             : Results.NotFound("Lobby is not found or player is not a host of this lobby.");
-});
+}
 
-app.MapPost("/lobbies", (CreateLobby createLobby) =>
+IResult CreateLobby(CreateLobby createLobby)
 {
     var id = 1;
     lobby = new(id, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
-});
+}
 
 app.MapPost("/lobbies/{playerName}", (string playerName) =>
 {
