@@ -33,6 +33,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapGet("/", GetMainPage);
 app.MapGet("/lobbies/{playerName}", GetLobbyInformation);
+app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetHostPage).WithName("get-host-page");
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -42,13 +43,12 @@ LobbyInformation[] GetLobbyInformation(string playerName)
         ? Array.Empty<LobbyInformation>()
         : new LobbyInformation[] { new(lobby.Id, lobby.Name, lobby.Players.Count, lobby.Game) };
 
-app.MapGet("/lobbies/{lobbyId}/{playerName}/view", (int lobbyId, string playerName) => {
-    return lobby?.Id != lobbyId
+IResult GetHostPage(int lobbyId, string playerName)
+    => lobby?.Id != lobbyId
         ? Results.NotFound("Lobby is not yet created")
         : lobby.Host.Name == playerName
             ?  Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html")
             :  Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
-}).WithName("get-host-page");
 
 app.MapGet("/lobbies/{playerName}/view", (string playerName) => {
     return Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
