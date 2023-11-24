@@ -5,8 +5,8 @@ using Chacra;
 var builder = WebApplication.CreateBuilder(args);
 
 var loginPagePath = Path.GetFullPath("./../../ui/dist/login.html");
-var lobbyBrowserHostPage = Path.GetFullPath("./../../ui/dist/lobby.browser.host.html");
-var lobbyBrowserGuestPage = Path.GetFullPath("./../../ui/dist/lobby.browser.guest.html");
+var lobbyHostPage = Path.GetFullPath("./../../ui/dist/lobby.host.html");
+var lobbyGuestPage = Path.GetFullPath("./../../ui/dist/lobby.guest.html");
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
 var games = new []
@@ -34,7 +34,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapGet("/", GetMainPage);
 app.MapGet("/lobbies/{playerName}", GetLobbyInformation);
-app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetHostPage).WithName("get-host-page");
+app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetLobbyPage).WithName("get-host-page");
 app.MapGet("/lobbies/{playerName}/view", GetGuestPage).WithName("get-guest-page");
 app.MapGet("/lobbies/{lobbyId}/{playerName}", GetLobbyData);
 app.MapPut("/lobbies/{lobbyId}/{playerName}", RenameLobby);
@@ -65,15 +65,15 @@ LobbyInformation[] GetLobbyInformation(string playerName)
         ? Array.Empty<LobbyInformation>()
         : new LobbyInformation[] { new(lobby.Id, lobby.Name, lobby.Players.Count, lobby.Game) };
 
-IResult GetHostPage(int lobbyId, string playerName)
+IResult GetLobbyPage(int lobbyId, string playerName)
     => lobby?.Id != lobbyId
         ? Results.NotFound("Lobby is not yet created")
         : lobby.Host.Name == playerName
-            ?  Results.Content(File.ReadAllText(lobbyBrowserHostPage), "text/html")
-            :  Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
+            ?  Results.Content(File.ReadAllText(lobbyHostPage), "text/html")
+            :  Results.Content(File.ReadAllText(lobbyGuestPage), "text/html");
 
 IResult GetGuestPage(string playerName)
-    => Results.Content(File.ReadAllText(lobbyBrowserGuestPage), "text/html");
+    => Results.Content(File.ReadAllText(lobbyGuestPage), "text/html");
 
 IResult GetLobbyData(int lobbyId, string playerName)
     => lobby is null 
