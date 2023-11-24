@@ -55,6 +55,7 @@ app.MapGet("/game", GetGame);
 app.MapGet("/game/inputStates", GetInputStates);
 app.MapPost("/game/input", PushInputState);
 app.MapGet("/game/state", GetGameState);
+app.MapPost("/game/state", UpdateGameStateAsync);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -227,11 +228,12 @@ IResult GetGameState()
     return result;
 }
 
-app.MapPost("/game/state", async (ctx) => {
+async Task UpdateGameStateAsync(HttpContext ctx)
+{
     using var reader = new StreamReader(ctx.Request.Body);
-    var body = await reader.ReadToEndAsync();
+    var body = await reader.ReadToEndAsync().ConfigureAwait(false);
     state = body;
-});
+}
 
 app.Run();
 
