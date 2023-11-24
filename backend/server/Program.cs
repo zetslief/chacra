@@ -39,6 +39,7 @@ app.MapGet("/lobbies/{lobbyId}/{playerName}", GetLobbyData);
 app.MapPut("/lobbies/{lobbyId}/{playerName}", RenameLobby);
 app.MapPost("/lobbies", CreateLobby);
 app.MapPost("/lobbies/{playerName}", PermissionToGoToGuestPage);
+app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", GetPlayerJoinRequest);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -92,7 +93,8 @@ IResult CreateLobby(CreateLobby createLobby)
 IResult PermissionToGoToGuestPage(string playerName)
     => Results.CreatedAtRoute("get-guest-page", new {playerName});
 
-app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", (int lobbyId, string playerName) => {
+IResult GetPlayerJoinRequest(string playerName) 
+{
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     var request = lobby.PlayerJoinRequests.FirstOrDefault(r => r.PlayerName == playerName);
