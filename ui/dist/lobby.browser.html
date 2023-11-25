@@ -37,12 +37,20 @@
             </div>
             <button onclick="joinLobby(event)" class="join-button pad">Join</button>
         </div>
-        <div id="requstedLobbyItemTemplate" class="lobbyItem">
-            <p>Requested</p>
-            <button class="cancel-button pad">Cancel</button>
-        </div>
-        <div id="disabledLobbyItemTemplate" class="lobbyItem">
-            <p>Disabled</p>
+        <div id="disabledLobbyItemTemplate" class="lobbyItem pad row center gap">
+            <div class="border-right pad">
+                <p>Lobby</p>
+                <p class="lobbyName"></p>
+            </div>
+            <div class="border-right pad">
+                <p>Game</p>
+                <p class="gameName"></p>
+            </div>
+            <div class="border-right pad">
+                <p>Max Players</p>
+                <p class="numberOfPlayers"></p>
+            </div>
+            <button class="join-button pad" disabled>Join</button>
         </div>
     </div>
 </body>
