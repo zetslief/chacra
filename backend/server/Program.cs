@@ -130,7 +130,7 @@ IResult CreatePlayerJoinRequest(int lobbyId, string playerName)
 {
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
-    lobby.PlayerJoinRequests.Add(new(playerName, false));
+    lobby.PlayerJoinRequests.Add(new(playerName));
     return Results.CreatedAtRoute("get-player-join-request", new {lobbyId, playerName});
 }
 
@@ -166,10 +166,8 @@ IResult AddNewPlayer(int lobbyId, AddPlayer player)
     if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != player.PlayerName)
         return Results.BadRequest("Only host user is allowed to approve player join requests.");
-    if (!lobby.PlayerJoinRequests.Remove(new(player.PlayerName, true)))
-        return lobby.PlayerJoinRequests.Contains(new(player.PlayerName, false))
-            ? Results.BadRequest($"{player.NewPlayer} player join request is not approved.")
-            : Results.NotFound($"{player.NewPlayer} player join request is not found.");
+    if (!lobby.PlayerJoinRequests.Remove(new(player.PlayerName)))
+        return Results.NotFound($"{player.NewPlayer} player join request is not found.");
     if (lobby.Players.Contains(new(player.NewPlayer)))
         return Results.BadRequest($"{player.NewPlayer} is already in the lobby.");
     if (lobby.Bots.Count + lobby.Players.Count == lobby.Game.NumberOfPlayers)
@@ -245,7 +243,7 @@ namespace Chacra {
     public record RenameLobby(string NewName);
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
-    public record PlayerJoinRequest(string PlayerName, bool Approved);
+    public record PlayerJoinRequest(string PlayerName);
     public record BotJoinRequest(string BotName);
     public record AddPlayer(string PlayerName, string NewPlayer);
     public record AddBot(string PlayerName, string BotName);
