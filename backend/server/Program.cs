@@ -115,7 +115,11 @@ IResult GetPlayerJoinRequest(int lobbyId, string playerName)
     if (lobby is null) return Results.NotFound("Lobby is not created yet!");
     if (lobby.Id != lobbyId) return Results.NotFound($"Lobby {lobbyId} is not found");
     var request = lobby.PlayerJoinRequests.FirstOrDefault(r => r.PlayerName == playerName);
-    return request is null ? Results.NotFound() : Results.Json(request);
+    return request is null 
+        ? lobby.Players.Contains(new(playerName)) 
+            ? Results.Json(new PlayerJoinRequestInformation(playerName, true)) 
+            : Results.NotFound() 
+        : Results.Json(new PlayerJoinRequestInformation(playerName, false));
 }
 
 IResult GetBotJoinRequest(int lobbyId, string botName)
@@ -244,6 +248,7 @@ namespace Chacra {
     public record JoinLobby(string LobbyName, string PlayerName);
     public record LobbyStatus(bool Started);
     public record PlayerJoinRequest(string PlayerName);
+    public record PlayerJoinRequestInformation(string PlayerName, bool IsAccepted);
     public record BotJoinRequest(string BotName);
     public record AddPlayer(string PlayerName, string NewPlayer);
     public record AddBot(string PlayerName, string BotName);
