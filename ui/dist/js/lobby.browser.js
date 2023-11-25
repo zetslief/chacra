@@ -4,6 +4,7 @@ const lobbies = document.getElementById("lobbies");
 
 let data = null;
 let joinRequestUrl = null;
+let requestedLobbyId = null;
 
 window.onload = async () => {
     const templates = (() => ({
@@ -16,8 +17,17 @@ window.onload = async () => {
 
     setInterval(async () => {
         if (joinRequestUrl) {
-            const requestStatus = await getJoinRequestStatus(joinRequestUrl);
-            console.error("TODO: request staus analysis is not implemented", requestStatus);
+            const requestInformation = await getJoinRequestStatus(joinRequestUrl);
+            if (requestInformation) {
+                if (requestInformation.isAccepted) {
+                    location.assign(new URL(`/lobbies/${requestedLobbyId}/${requestInformation.playerName}/view`, BASE));
+                    // TODO: go the lobby guest page!
+                }
+            } else {
+                console.info("Player join reqest was rejected!");
+                joinRequestUrl = null;;
+                requestedLobbyId = null;;
+            }
         }
         data = await requestLobbies(location);
         renderLobbyData(data, templates, lobbies);
@@ -31,7 +41,8 @@ async function requestLobbies(baseUrl) {
 } 
 
 async function getJoinRequestStatus(joinRequestUrl) {
-    console.error("TODO: getJoinRequestStatus is not implemented", joinRequestUrl);
+    const response = await fetch(joinRequestUrl);
+    return response.ok ? await response.json() : undefined;
 }
 
 async function joinLobby(event) {
@@ -46,6 +57,7 @@ async function joinLobby(event) {
         const url = new URL(`/lobbies/${idAttribute}/join/players/${playerName}`, BASE);
         const response = await fetch(url, { method: "POST" });
         if (response.status == 201) {
+            requestedLobbyId = idAttribute;
             joinRequestUrl = new URL(response.headers.get("location"));
             console.log("Successfully sent the join request", joinRequestUrl);
         } else {
