@@ -4,7 +4,6 @@ const LOBBY_START = new URL("./lobbies/start", BASE); // Consider something like
 const LOBBY_STOP = new URL("./lobbies/leave", BASE); // Replate with DELETE method.
 const LOBBY_LOBBY_NAME = new URL("./lobbies/name", BASE);
 const LOBBY_BOT = new URL("./lobbies/bot", BASE);
-const LOBBY_PLAYER = new URL("./lobbies/player", BASE);
 
 let lobbyData = null;
 
@@ -111,6 +110,24 @@ async function addBot() {
     }
 }
 
+async function acceptPlayer(event) {
+    const playerElement = event.target.parentNode.querySelector("p");
+    const playerName = playerElement.textContent;
+    const addPlayer = {playerName: lobbyData.host.name, newPlayer:playerName};
+    console.log(addPlayer);
+    const addPlayerUrl = new URL(`/lobbies/${lobbyData.id}/players`, BASE);
+    const addPlayerResponse = await fetch(addPlayerUrl, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(addPlayer),
+    });
+    if (addPlayerResponse.ok) {
+        writeInfoMessage(`Player join request is accepted: ${playerName}`);
+    } else {
+        writeErrorMessage(`Failed to accept player join request: ${playerName}`, addPlayerResponse);
+    }
+}
+
 async function kickPlayer(event) {
     const playerElement = event.target.parentNode.querySelector("p");
     const playerName = playerElement.textContent;
@@ -118,11 +135,9 @@ async function kickPlayer(event) {
         writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
         return;
     }
-    const player = {lobbyName: lobbyData.name, name: playerName};
-    const response = await fetch(LOBBY_PLAYER, {
+    const kickPlayerUrl = new URL(`/lobbies/${lobbyData.id}/players/${playerName}`, BASE);
+    const response = await fetch(kickPlayerUrl, {
         method: "DELETE",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(player),
     });
     if (response.ok) {
         writeInfoMessage(playerName + " was removed from the lobby.");

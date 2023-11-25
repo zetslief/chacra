@@ -45,13 +45,14 @@ app.MapGet("/lobbies/{lobbyId}/join/players/{playerName}", GetPlayerJoinRequest)
 app.MapPost("/lobbies/{lobbyId}/join/players/{playerName}", CreatePlayerJoinRequest);
 app.MapGet("/lobbies/{lobbyId}/join/bots/{botName}", GetBotJoinRequest).WithName("get-bot-join-request");
 app.MapPost("/lobbies/{lobbyId}/join/bots", CreateBotJoinRequest);
-app.MapGet("/lobbies/{lobbyId}/players/{plyaerName}", GetPlayerInformation).WithName("get-player");
+app.MapGet("/lobbies/{lobbyId}/players/{playerName}", GetPlayerInformation).WithName("get-player");
 app.MapGet("/lobbies/{lobbyId}/bots/{botName}", GetBotInformation).WithName("get-bot");
 app.MapPost("/lobbies/{lobbyId}/players", AddNewPlayer);
 app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
 app.MapGet("/lobbies/status", GetLobbyStatus);
 app.MapPost("/lobbies/start", StartLobby);
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
+app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
 app.MapGet("/game", GetGame);
 app.MapGet("/game/inputStates", GetInputStates);
 app.MapPost("/game/input", PushInputState);
@@ -170,7 +171,7 @@ IResult AddNewPlayer(int lobbyId, AddPlayer player)
     if (lobby.Id != lobbyId) return Results.BadRequest($"{lobbyId} lobby is not found!");
     if (lobby.Host.Name != player.PlayerName)
         return Results.BadRequest("Only host user is allowed to approve player join requests.");
-    if (!lobby.PlayerJoinRequests.Remove(new(player.PlayerName)))
+    if (!lobby.PlayerJoinRequests.Remove(new(player.NewPlayer)))
         return Results.NotFound($"{player.NewPlayer} player join request is not found.");
     if (lobby.Players.Contains(new(player.NewPlayer)))
         return Results.BadRequest($"{player.NewPlayer} is already in the lobby.");
@@ -203,6 +204,13 @@ IResult StartLobby()
 {
     lobbyStarted = true;
     return Results.Redirect("/game", true);
+}
+
+IResult DeletePlayer(int lobbyId, string playerName)
+{
+    if (lobby is null) return Results.BadRequest("Lobby is not created");
+    if (lobby.Id != lobbyId) return Results.BadRequest($"Lobby is not found!");
+    return lobby.Players.Remove(new(playerName)) ? Results.Ok() : Results.NotFound();
 }
 
 IResult DeleteBot(int lobbyId, string botName)
@@ -252,7 +260,6 @@ namespace Chacra {
     public record BotJoinRequest(string BotName);
     public record AddPlayer(string PlayerName, string NewPlayer);
     public record AddBot(string PlayerName, string BotName);
-    public record DeleteBot(string LobbyName, string Name);
 
     public record LobbyData(
         int Id,
