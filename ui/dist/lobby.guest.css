@@ -10,10 +10,9 @@ body {
 }
 
 #main {
-    width: 98%;
-    height: 98%;
+    height: 98vh;
 
-    padding: 1%;
+    padding: 1.0vh;
 }
 
 h2 {
