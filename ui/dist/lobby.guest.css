@@ -9,7 +9,52 @@ body {
     background-color: seagreen;
 }
 
-h1 {
-    width: 100%;
+#main {
+    width: 98%;
+    height: 98%;
+
+    padding: 1%;
+}
+
+h2 {
     text-align: center;
+}
+
+.group {
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 0.1em;
+
+    background-color: rgba(150, 150, 150, 0.3);
+    border-color: dimgray;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
+.grow {
+    flex: 1;
+}
+
+.basis300 {
+    flex-basis: 300px;
+}
+
+.gap {
+    gap: 0.1em;
+}
+
+.pad {
+    padding: 0.1em;
 }

@@ -5,7 +5,35 @@
     <link rel="stylesheet" href="/lobby.guest.css">
 </head>
 <body>
-    <h1>Lobby Guest Page</h1>
+    <div id="main" class="row wrap gap">
+        <div class="left column basis300 grow gap">
+            <div class="lobby-info column group">
+                <h2>Lobby</h2>
+            </div>
+            <div class="players column grow group pad">
+                <h2>Players</h2>
+                <div id="players" class="column group gap pad">
+                </div>
+            </div>
+        </div>
+        <div class="right column basis300 grow gap" >
+            <div class="chat grow group">
+                <h2>Chat</h2>
+            </div>
+            <div class="button-bar group">
+                <h2>Button Bar</h2>
+            </div>
+        </div>
+    </div>
+
+    <div hidden>
+        <div class="group">
+            <div id="playerTemplate" class="group">
+                <p>Player Name</p>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/lobby.guest.js"></script>
 </body>
 </html>
