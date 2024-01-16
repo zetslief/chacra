@@ -12,16 +12,24 @@
             </div>
             <div class="players column grow group pad">
                 <h2>Players</h2>
-                <div id="players" class="column group gap pad">
+                <div id="players" class="grow column group gap pad">
                 </div>
             </div>
         </div>
         <div class="right column basis300 grow gap" >
-            <div class="chat grow group">
-                <h2>Chat</h2>
+            <div class="chat group grow column">
+                <h2 class="center">Chat</h2>
+                <div class="group grow">
+                    <p>Content</p>
+                </div>
             </div>
-            <div class="button-bar group">
-                <h2>Button Bar</h2>
+            <div class="button-bar group row gap">
+                <input 
+                    id="chatInput"
+                    type="text"
+                    placeholder="message..."
+                    class="grow">
+                <button onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
