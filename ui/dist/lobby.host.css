@@ -45,6 +45,10 @@
     flex-wrap: wrap;
 }
 
+.wordwrap {
+    overflow-wrap: break-word;
+}
+
 .leave-button {
     background-color: darkred;
     border-color: darkred;
