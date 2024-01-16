@@ -36,6 +36,9 @@ function createChatUpdate() {
     const messageTemplate = document.getElementById(MESSAGE_TEMPLATE);
     const chatMessages = document.getElementById(CHAT_MESSAGES);
     return async (lobbyData) => {
+        if (messages.length > 0) {
+            log(`${lobbyData.name} received a message!`);
+        }
         while (messages.length > 0) {
             const message = messages.pop();
             const messageElement = messageTemplate.cloneNode(true);
@@ -43,7 +46,6 @@ function createChatUpdate() {
             messageElement.querySelector("p").textContent = message;
             chatMessages.appendChild(messageElement);
         }
-        console.log("Chat messages:", lobbyData);
     };
 }
 
@@ -73,4 +75,8 @@ function sendMessage() {
     }
     const message = chatInput.value;
     messages.push(message);
+}
+
+function log(content) {
+    messages.push(content);
 }

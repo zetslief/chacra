@@ -16,7 +16,7 @@
                 </div>
             </div>
         </div>
-        <div class="right column basis300 grow gap" >
+        <div class="column basis300 grow gap" >
             <div class="chat group grow column">
                 <h2 class="center">Chat</h2>
                 <div id="chatMessages" class="group grow">
@@ -27,7 +27,7 @@
                     id="chatInput"
                     type="text"
                     placeholder="message..."
-                    maxlength="30"
+                    maxlength="50"
                     class="grow">
                 <button onclick="sendMessage()">Send</button>
             </div>
@@ -42,7 +42,7 @@
         </div>
         <div class "group">
             <div id="messageTemplate" class="group pad">
-                <p>Message Content</p>
+                <p class="wordwrap">Message Content</p>
             </div>
         </div>
     </div>

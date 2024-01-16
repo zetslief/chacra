@@ -42,6 +42,14 @@ h2 {
     flex-wrap: wrap;
 }
 
+.right {
+    min-width: 0;
+}
+
+.wordwrap {
+    overflow-wrap: break-word;
+}
+
 .grow {
     flex: 1;
 }
