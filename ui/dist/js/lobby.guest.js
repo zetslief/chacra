@@ -3,10 +3,16 @@ window.onload = main;
 const PLAYERS = "players";
 const PLAYER_TEMPLATE = "playerTemplate";
 
-const CHAT = "chat";
+const CHAT_MESSAGES = "chatMessages";
 const MESSAGE_TEMPLATE = "messageTemplate";
+const CHAT_INPUT = "chatInput";
+
+let chatInput = null;
+
+const messages = [];
 
 async function main() {
+    chatInput = document.getElementById(CHAT_INPUT);
     const playersUpdate = createPlayerUpdate();
     const chatUpdate = createChatUpdate();
     const mainUpdate = async () => {
@@ -28,10 +34,16 @@ function createPlayerUpdate() {
 
 function createChatUpdate() {
     const messageTemplate = document.getElementById(MESSAGE_TEMPLATE);
-    const chat = document.getElementById(CHAT);
+    const chatMessages = document.getElementById(CHAT_MESSAGES);
     return async (lobbyData) => {
-        console.log("Chat Update", chat, messageTemplate);
-        console.log("Chat data:", lobbyData);
+        while (messages.length > 0) {
+            const message = messages.pop();
+            const messageElement = messageTemplate.cloneNode(true);
+            messageElement.removeAttribute("id");
+            messageElement.querySelector("p").textContent = message;
+            chatMessages.appendChild(messageElement);
+        }
+        console.log("Chat messages:", lobbyData);
     };
 }
 
@@ -54,3 +66,11 @@ function renderPlayers(storage, players, playerTemplate) {
     });
 }
 
+function sendMessage() {
+    if (!chatInput) {
+        console.error("Cannot send message: chat input is missing.");
+        return;
+    }
+    const message = chatInput.value;
+    messages.push(message);
+}
