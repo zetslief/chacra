@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="/lobby.host.css">
 </head>
 <body>
-    <div id="main" class="row wrap">
+    <div id="main" class="row">
         <div class="column grow">
             <div id="lobbyDeclaration" class="group lobby-name pad-children">
                 <label for="lobbyName">Lobby</label>
@@ -37,11 +37,11 @@
                 <button class="start-button" onclick="startGame()">Start</button>
             </div>
         </div>
-        <div style="flex: 0 0 40%" class="group column">
+        <div class="right group grow column">
             <h3 style="text-align: center;">Chat</h3>
             <div id="chat" class="column-reverse grow scroll"></div>
             <div class="row gap pad-children">
-                <input id="messageInput" class="grow" maxlength="30">
+                <input id="messageInput" class="grow" maxlength="50">
                 <button class="accept-button" onclick="sendMessage()">Send</button>
             </div>
         </div>
@@ -66,8 +66,8 @@
             <p class="grow"></p>
             <button class="leave-button" onclick="kickBot(event)">Kick</button>
         </div>
-        <div id="chatMessageTemplate" class="group">
-            <p class="messageValue"></p>
+        <div id="chatMessageTemplate" class="message group">
+            <p class="messageValue wordwrap"></p>
         </div>
     </div>
 

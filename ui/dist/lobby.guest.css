@@ -5,7 +5,6 @@
 
 body {
     width: 100vw;
-    height: 100vh;
     background-color: seagreen;
 }
 
@@ -42,6 +41,10 @@ h2 {
     flex-wrap: wrap;
 }
 
+.scroll {
+    overflow: auto;
+}
+
 .right {
     min-width: 0;
 }
@@ -56,6 +59,10 @@ h2 {
 
 .basis300 {
     flex-basis: 300px;
+}
+
+.basis3p {
+    flex-basis: 3%;
 }
 
 .gap {

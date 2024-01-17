@@ -87,6 +87,10 @@
     background-color: blue;
 }
 
+.message {
+    flex: 0 0 3%;
+}
+
 #main {
     height: 98vh;
 
@@ -113,6 +117,11 @@
     flex: 1;
 
     align-items: center;
+}
+
+.right {
+    flex-basis: 5%;
+    min-width: 0;
 }
 
 .pad-children > * {

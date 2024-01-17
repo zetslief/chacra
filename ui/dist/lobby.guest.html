@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="/lobby.guest.css">
 </head>
 <body>
-    <div id="main" class="row wrap gap">
+    <div id="main" class="row gap">
         <div class="left column basis300 grow gap">
             <div class="lobby-info column group">
                 <h2>Lobby</h2>
@@ -16,20 +16,20 @@
                 </div>
             </div>
         </div>
-        <div class="column basis300 grow gap" >
-            <div class="chat group grow column">
+        <div class="right column basis300 grow gap" >
+            <div class="chat group grow column scroll">
                 <h2 class="center">Chat</h2>
-                <div id="chatMessages" class="group grow">
+                <div id="chatMessages" class="column grow scroll">
                 </div>
-            </div>
-            <div class="button-bar group row gap">
-                <input 
-                    id="chatInput"
-                    type="text"
-                    placeholder="message..."
-                    maxlength="50"
-                    class="grow">
-                <button onclick="sendMessage()">Send</button>
+                <div class="button-bar group row gap">
+                    <input 
+                        id="chatInput"
+                        type="text"
+                        placeholder="message..."
+                        maxlength="50"
+                        class="grow">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class "group">
-            <div id="messageTemplate" class="group pad">
+            <div id="messageTemplate" class="basis3p group pad">
                 <p class="wordwrap">Message Content</p>
             </div>
         </div>

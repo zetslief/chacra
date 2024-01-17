@@ -231,6 +231,6 @@ function writeMessage(sender, content) {
 function appendChatMessage(message) {
     const chatMessageElement = chatMessageTemplate.cloneNode(true);
     chatMessageElement.removeAttribute("id");
-    chatMessageElement.lastChild.textContent = message;
+    chatMessageElement.querySelector("p").textContent = message;
     chat.prepend(chatMessageElement);
 }
