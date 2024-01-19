@@ -26,7 +26,7 @@ const messageInput = document.getElementById("messageInput");
 window.onload = async () => {
     lobbyData = await requestLobbyData();
     console.log(lobbyData, sessionStorage.getItem("playerName"));
-    writeInfoMessage("lobby created!");
+    await writeInfoMessage("lobby created!");
     renderLobbyName(lobbyData.name, lobbyName);
     renderGameInformation(lobbyData.game, gameName, numberOfPlayers);
     clearPlayers(players);
@@ -36,6 +36,11 @@ window.onload = async () => {
     renderPlayers(lobbyData.botJoinRequests, getNameFromJoinRequest, botJoinRequestTemplate, players);
     setInterval(async () => {
         lobbyData = await requestLobbyData();
+        const messages = await requestMessages(lobbyData.host.name);
+        console.log(messages);
+        for (const message of messages) {
+            appendChatMessage(`${message.sender}: ${message.content}`);
+        }
         clearPlayers(players);
         renderPlayers(lobbyData.players, getNameFromPlayer, playerTemplate, players);
         renderPlayers(lobbyData.bots, getNameFromPlayer, botTemplate, players);
@@ -61,15 +66,15 @@ async function saveLobbyName() {
     });
     if (response.ok) {
         lobbyData.name = newName;
-        writeInfoMessage(`lobby name updated to ${newName}`);
+        await writeInfoMessage(`lobby name updated to ${newName}`);
     } else {
-        writeErrorMessage("Failed to save lobby name!", response);
+        await writeErrorMessage("Failed to save lobby name!", response);
         console.error("Failed to save lobby name", response);
     }
 }
 
 async function startGame() {
-    writeInfoMessage("Starting game...");
+    await writeInfoMessage("Starting game...");
     const response = await fetch(LOBBY_START, {
         method: "POST",
         redirect: "follow",
@@ -77,7 +82,7 @@ async function startGame() {
     if (response.ok && response.redirected) {
         window.location = response.url;
     } else {
-        writeErrorMessage("Failed to start the lobby!", response);
+        await writeErrorMessage("Failed to start the lobby!", response);
     }
 }
 
@@ -92,7 +97,7 @@ async function addBot() {
         body: JSON.stringify(bot),
     });
     if (response.status == 201) {
-        writeInfoMessage(`${bot.botName} has requested to join the lobby.`);
+        await writeInfoMessage(`${bot.botName} has requested to join the lobby.`);
         const addBotUrl = new URL(`/lobbies/${lobbyData.id}/bots`, BASE);
         const addBot = { playerName: lobbyData.host.name, botName: bot.botName};
         const addResponse = await fetch(addBotUrl, {
@@ -103,10 +108,10 @@ async function addBot() {
         if (addResponse.ok) {
             writeInfoMessage(`${bot.botName} is added to the lobby`);
         } else {
-            writeErrorMessage("Failed to approve bot join request", addResponse);
+            await writeErrorMessage("Failed to approve bot join request", addResponse);
         }
     } else {
-        writeErrorMessage("Failed to send request to add a bot.", response);
+        await writeErrorMessage("Failed to send request to add a bot.", response);
     }
 }
 
@@ -124,7 +129,7 @@ async function acceptPlayer(event) {
     if (addPlayerResponse.ok) {
         writeInfoMessage(`Player join request is accepted: ${playerName}`);
     } else {
-        writeErrorMessage(`Failed to accept player join request: ${playerName}`, addPlayerResponse);
+        await writeErrorMessage(`Failed to accept player join request: ${playerName}`, addPlayerResponse);
     }
 }
 
@@ -132,7 +137,7 @@ async function kickPlayer(event) {
     const playerElement = event.target.parentNode.querySelector("p");
     const playerName = playerElement.textContent;
     if (playerName == lobbyData.host.name) {
-        writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
+        await writeErrorMessage("I cannot kick myself! Just leave the lobby :)", event);
         return;
     }
     const kickPlayerUrl = new URL(`/lobbies/${lobbyData.id}/players/${playerName}`, BASE);
@@ -142,7 +147,7 @@ async function kickPlayer(event) {
     if (response.ok) {
         writeInfoMessage(playerName + " was removed from the lobby.");
     } else {
-        writeErrorMessage("Failed to remove " + playerName + " from the lobby!", response);
+        await writeErrorMessage("Failed to remove " + playerName + " from the lobby!", response);
     }
 }
 
@@ -150,31 +155,37 @@ async function kickBot(event) {
     const botElement = event.target.parentNode.querySelector("p");
     const botName = botElement.textContent;
     if (!botName) {
-        writeErrorMessage("Bot name cannot be empty", botElement);
+        await writeErrorMessage("Bot name cannot be empty", botElement);
     }
     const url = new URL(`/lobbies/${lobbyData.id}/bots/${botName}`, BASE);
     const response = await fetch(url, { method: "DELETE" });
     if (response.ok) {
-        writeInfoMessage(botName + " was removed from the lobby.");
+        await writeInfoMessage(botName + " was removed from the lobby.");
     } else {
-        writeErrorMessage("Failed to remove " + botName + " from the lobby!", response);
+        await writeErrorMessage("Failed to remove " + botName + " from the lobby!", response);
     }
 }
 
 async function leaveLobby() {
-    writeErrorMessage("leaving lobby... :(");
+    await writeErrorMessage("leaving lobby... :(");
     console.error("Leave Lobby: not implemented!");
 }
 
-function sendMessage() {
+async function sendMessage() {
     if (messageInput.value) {
-        writeInfoMessage(messageInput.value);
+        await writeInfoMessage(messageInput.value);
         messageInput.value = "";
     }
 }
 
 async function requestLobbyData() {
     const url = new URL(".", window.location);
+    const response = await fetch(url);
+    return response.json();
+} 
+
+async function requestMessages(player) {
+    const url = new URL(`/lobbies/${lobbyData.id}/messages/${player}`, BASE);
     const response = await fetch(url);
     return response.json();
 } 
@@ -210,12 +221,12 @@ function spam() {
     }
 }
 
-function writeInfoMessage(content) {
+async function writeInfoMessage(content) {
     console.log(content);
-    writeMessage(lobbyData.host.name, content);
+    await writeMessage(lobbyData.host.name, content);
 }
 
-function writeErrorMessage(content, debugContent) {
+async function writeErrorMessage(content, debugContent) {
     console.error(content);
     console.error(debugContent);
     writeMessage(lobbyData.host.name, content);
@@ -224,8 +235,13 @@ function writeErrorMessage(content, debugContent) {
     }
 }
 
-function writeMessage(sender, content) {
-    appendChatMessage(sender + ": " + content);
+async function writeMessage(sender, content) {
+    const url = new URL(`./lobbies/${lobbyData.id}/messages/${sender}`, BASE);
+    await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ content })
+    });
 }
 
 function appendChatMessage(message) {

@@ -10,7 +10,7 @@ var lobbyGuestPage = Path.GetFullPath("./../../ui/dist/lobby.guest.html");
 var lobbyBrowserPage = Path.GetFullPath("./../../ui/dist/lobby.browser.html");
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
-var lobbyMessages = new ConcurrentStack<(string Sender, Message Content)>();
+var lobbyMessages = new ConcurrentQueue<(string Sender, Message Content)>();
 var sentMessagesMap = new ConcurrentDictionary<string, int>();
 
 var games = new []
@@ -208,11 +208,11 @@ IResult GetNewMessages(string lobbyId, string playerName) {
     }
     var messages = lobbyMessages.Skip(lastSentIndex).ToArray();
     sentMessagesMap.AddOrUpdate(playerName, messages.Length, (k, v) => v += messages.Length);
-    return Results.Json(messages);
+    return Results.Json(messages.Select((m) => new MessageOutput(m.Sender, m.Content.Content)));
 }
 
 IResult AddMessage(string lobbyId, string playerName, Message message) {
-    lobbyMessages.Push((playerName, message));
+    lobbyMessages.Enqueue((playerName, message));
     return Results.Ok();
 }
 
@@ -295,6 +295,7 @@ namespace Chacra {
     }
 
     public record Message(string Content);
+    public record MessageOutput(string Sender, string Content);
 
     public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
 
