@@ -10,6 +10,9 @@ var lobbyGuestPage = Path.GetFullPath("./../../ui/dist/lobby.guest.html");
 var lobbyBrowserPage = Path.GetFullPath("./../../ui/dist/lobby.browser.html");
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
 
+var lobbyMessages = new ConcurrentStack<(string Sender, Message Content)>();
+var sentMessagesMap = new ConcurrentDictionary<string, int>();
+
 var games = new []
 {
     new Game("tennis", 2),
@@ -49,6 +52,8 @@ app.MapGet("/lobbies/{lobbyId}/players/{playerName}", GetPlayerInformation).With
 app.MapGet("/lobbies/{lobbyId}/bots/{botName}", GetBotInformation).WithName("get-bot");
 app.MapPost("/lobbies/{lobbyId}/players", AddNewPlayer);
 app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
+app.MapGet("/lobbies/{lobbyId}/messages/{playerName}", GetNewMessages);
+app.MapPost("/lobbies/{lobbyId}/messages/{playerName}", AddMessage);
 app.MapGet("/lobbies/status", GetLobbyStatus);
 app.MapPost("/lobbies/start", StartLobby);
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
@@ -197,6 +202,20 @@ IResult AddNewBot(int lobbyId, AddBot bot)
     return Results.CreatedAtRoute("get-bot", new {lobbyId, bot.BotName});
 }
 
+IResult GetNewMessages(string lobbyId, string playerName) {
+    if (!sentMessagesMap.TryGetValue(playerName, out var lastSentIndex)) {
+        lastSentIndex = 0;
+    }
+    var messages = lobbyMessages.Skip(lastSentIndex).ToArray();
+    sentMessagesMap.AddOrUpdate(playerName, messages.Length, (k, v) => v += messages.Length);
+    return Results.Json(messages);
+}
+
+IResult AddMessage(string lobbyId, string playerName, Message message) {
+    lobbyMessages.Push((playerName, message));
+    return Results.Ok();
+}
+
 IResult GetLobbyStatus()
     => Results.Json(new LobbyStatus(lobbyStarted));
 
@@ -274,6 +293,8 @@ namespace Chacra {
         public LobbyData(int id, string name, Player host, Game game)
             : this(id, name, host, game, new() { host }, new(), new(), new()) { }
     }
+
+    public record Message(string Content);
 
     public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
 
