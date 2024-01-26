@@ -2,6 +2,9 @@ window.onload = main;
 
 const BASE = new URL("http://localhost:5000/");
 
+const GAME_NAME = "gameNameValue";
+const NUMBER_OF_PLAYERS = "numberOfPlayersValue";
+
 const PLAYERS = "players";
 const PLAYER_TEMPLATE = "playerTemplate";
 
@@ -23,7 +26,20 @@ async function main() {
         await chatUpdate(lobbyData);
     };
     await mainUpdate();
+    await updateLobbyInformation();
     setInterval(mainUpdate, 1000);
+}
+
+async function updateLobbyInformation() {
+    const playerName = sessionStorage.getItem("playerName");
+    const url = new URL(`/lobbies/${playerName}`, BASE);
+    const response = await fetch(url);
+    const information = (await response.json())[0];
+    console.log(information);
+    const gameNameElement = document.getElementById(GAME_NAME);
+    const numberOfPlayersElement = document.getElementById(NUMBER_OF_PLAYERS);
+    gameNameElement.textContent = information.game.name;
+    numberOfPlayersElement.textContent = information.game.numberOfPlayers;
 }
 
 function createPlayerUpdate() {
