@@ -32,6 +32,11 @@ h2 {
     flex-direction: column;
 }
 
+.column-reverse {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
 .row {
     display: flex;
     flex-direction: row;
@@ -69,6 +74,23 @@ h2 {
     gap: 0.1em;
 }
 
+.biggap {
+    gap: 0.3em;
+}
+
 .pad {
     padding: 0.1em;
+}
+
+.bigpad {
+    padding: 0.5em;
+}
+
+.accept-button {
+    background-color: lightgreen;
+    border-radius: 0.2em;
+}
+
+.accept-button {
+    background-color: limegreen;
 }
