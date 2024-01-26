@@ -37,7 +37,6 @@ window.onload = async () => {
     setInterval(async () => {
         lobbyData = await requestLobbyData();
         const messages = await requestMessages(lobbyData.host.name);
-        console.log(messages);
         for (const message of messages) {
             appendChatMessage(`${message.sender}: ${message.content}`);
         }

@@ -1,5 +1,7 @@
 window.onload = main;
 
+const BASE = new URL("http://localhost:5000/");
+
 const PLAYERS = "players";
 const PLAYER_TEMPLATE = "playerTemplate";
 
@@ -9,7 +11,7 @@ const CHAT_INPUT = "chatInput";
 
 let chatInput = null;
 
-const messages = [];
+let postMessages = [];
 
 async function main() {
     chatInput = document.getElementById(CHAT_INPUT);
@@ -33,18 +35,22 @@ function createPlayerUpdate() {
 }
 
 function createChatUpdate() {
+    const playerName = sessionStorage.getItem("playerName");
     const messageTemplate = document.getElementById(MESSAGE_TEMPLATE);
     const chatMessages = document.getElementById(CHAT_MESSAGES);
     return async (lobbyData) => {
-        if (messages.length > 0) {
-            log(`${lobbyData.name} received a message!`);
+        for (const message of postMessages) {
+            await postMessage(lobbyData.id, playerName, message);
         }
+        postMessages = [];
+        const messages = await requestMessages(lobbyData.Id, playerName);
         while (messages.length > 0) {
             const message = messages.pop();
+            const content = `${message.sender}: ${message.content}`;
             const messageElement = messageTemplate.cloneNode(true);
             messageElement.removeAttribute("id");
-            messageElement.querySelector("p").textContent = message;
-            chatMessages.appendChild(messageElement);
+            messageElement.querySelector("p").textContent = content;
+            chatMessages.prepend(messageElement);
         }
     };
 }
@@ -74,9 +80,24 @@ function sendMessage() {
         return;
     }
     const message = chatInput.value;
-    messages.push(message);
+    postMessages.push(message);
 }
 
 function log(content) {
-    messages.push(content);
+    postMessages.push(content);
+}
+
+async function requestMessages(lobbyId, playerName) {
+    const url = new URL(`lobbies/${lobbyId}/messages/${playerName}`, BASE);
+    const response = await fetch(url);
+    return response.json();
+}
+
+async function postMessage(lobbyId, playerName, content) {
+    const url = new URL(`lobbies/${lobbyId}/messages/${playerName}`, BASE);
+    await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type' : 'application/json'},
+        body: JSON.stringify({content})
+    });
 }
