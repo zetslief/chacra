@@ -19,9 +19,11 @@ let postMessages = [];
 async function main() {
     chatInput = document.getElementById(CHAT_INPUT);
     const playersUpdate = createPlayerUpdate();
+    const lobbyStatusUpdate = createLobbyStatusUpdate();
     const chatUpdate = createChatUpdate();
     const mainUpdate = async () => {
         const lobbyData = await getLobbyData(); 
+        await lobbyStatusUpdate(lobbyData);
         await playersUpdate(lobbyData);
         await chatUpdate(lobbyData);
     };
@@ -66,6 +68,34 @@ function createChatUpdate() {
             messageElement.removeAttribute("id");
             messageElement.querySelector("p").textContent = content;
             chatMessages.prepend(messageElement);
+        }
+    };
+}
+
+function createLobbyStatusUpdate() {
+    return async (_lobbyData) => {
+        const statusUrl = new URL(`/lobbies/status`, BASE);
+        const result = await fetch (statusUrl);
+        if (!result.ok) {
+            return
+        }
+        const status = await result.json();
+        if (!status.started) {
+            return;
+        }
+        if (!status.started) {
+            return;
+        }
+        const startUrl = new URL(`/lobbies/start`, BASE);
+        console.log(startUrl);
+        const startResponse = await fetch(startUrl, {
+            method: "POST",
+        });
+        console.log(startResponse);
+        if (startResponse.ok) {
+            const gameLocation = startResponse.url;
+            console.log(gameLocation);
+            location.assign(gameLocation);
         }
     };
 }

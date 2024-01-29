@@ -36,6 +36,7 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(builder.Environment.ContentRootPath, "./../../ui/dist/"))
 });
 
+// Lobby API.
 app.MapGet("/", GetMainPage);
 app.MapGet("/lobbies/{playerName}", GetLobbyInformation);
 app.MapGet("/lobbies/{lobbyId}/{playerName}/view", GetLobbyPage).WithName("get-host-page");
@@ -58,6 +59,8 @@ app.MapGet("/lobbies/status", GetLobbyStatus);
 app.MapPost("/lobbies/start", StartLobby);
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
 app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
+
+// Game API
 app.MapGet("/game", GetGame);
 app.MapGet("/game/inputStates", GetInputStates);
 app.MapPost("/game/input", PushInputState);
