@@ -35,7 +35,6 @@ async function updateLobbyInformation() {
     const url = new URL(`/lobbies/${playerName}`, BASE);
     const response = await fetch(url);
     const information = (await response.json())[0];
-    console.log(information);
     const gameNameElement = document.getElementById(GAME_NAME);
     const numberOfPlayersElement = document.getElementById(NUMBER_OF_PLAYERS);
     gameNameElement.textContent = information.game.name;
