@@ -2,6 +2,8 @@ import {
     GameState, InputState,
 } from './lib/types';
 
+const BASE = new URL("http://localhost:5000/");
+
 let port: MessagePort | null = null;
 let latestGameState: GameState | null = null;
 
@@ -23,7 +25,9 @@ onmessage = (event) => {
 
 async function loop() {
     async function poll() {
-        const response = await fetch("http://localhost:5000/game/inputStates");
+        const playerName = sessionStorage.getItem("playerName");
+        const url = new URL(`/game/inputStates/${playerName}`, BASE);
+        const response = await fetch(url.toString());
         if (!response.ok) {
             console.error(response.status);
             return;

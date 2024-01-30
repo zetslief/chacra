@@ -74,7 +74,9 @@ async function saveLobbyName() {
 
 async function startGame() {
     await writeInfoMessage("Starting game...");
-    const response = await fetch(LOBBY_START, {
+    const playerName = lobbyData.host.name;
+    const url = new URL(`/lobbies/start/${playerName}`, BASE);
+    const response = await fetch(url, {
         method: "POST",
         redirect: "follow",
     });
