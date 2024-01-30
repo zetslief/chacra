@@ -9,6 +9,7 @@ var lobbyHostPage = Path.GetFullPath("./../../ui/dist/lobby.host.html");
 var lobbyGuestPage = Path.GetFullPath("./../../ui/dist/lobby.guest.html");
 var lobbyBrowserPage = Path.GetFullPath("./../../ui/dist/lobby.browser.html");
 var indexPagePath = Path.GetFullPath("./../../ui/dist/index.html");
+var playerGamePagePath = indexPagePath;
 
 var lobbyMessages = new ConcurrentQueue<(string Sender, Message Content)>();
 var sentMessagesMap = new ConcurrentDictionary<string, int>();
@@ -20,7 +21,7 @@ var games = new []
 
 var lobbyStarted = false;
 LobbyData? lobby = null;
-var inputQueue = new BlockingCollection<InputState>();
+Dictionary<string, BlockingCollection<InputState>> inputQueue = new();
 string state = string.Empty;
 
 var app = builder.Build();
@@ -61,8 +62,8 @@ app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
 app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
 
 // Game API
-app.MapGet("/game", GetGame);
-app.MapGet("/game/inputStates", GetInputStates);
+app.MapGet("/game/{playerName}", GetGame);
+app.MapGet("/game/inputStates/{playerName}", GetInputStates);
 app.MapPost("/game/input", PushInputState);
 app.MapGet("/game/state", GetGameState);
 app.MapPost("/game/state", UpdateGameStateAsync);
@@ -224,7 +225,15 @@ IResult GetLobbyStatus()
 
 IResult StartLobby()
 {
-    lobbyStarted = true;
+    if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
+    if (!lobbyStarted)
+    {
+        foreach (var player in lobby!.Players)
+        {
+            inputQueue.Add(player.Name, new BlockingCollection<InputState>());
+        }
+        lobbyStarted = true;
+    }
     return Results.Redirect("/game", true);
 }
 
@@ -243,18 +252,25 @@ IResult DeleteBot(int lobbyId, string botName)
     return Results.Ok();
 }
 
-IResult GetGame()
-    => Results.Content(File.ReadAllText(indexPagePath), "text/html");
+IResult GetGame(string playerName)
+    => lobby!.Host.Name == playerName // check if lobby is null!
+        ? Results.Content(File.ReadAllText(indexPagePath), "text/html")
+        : Results.Content(File.ReadAllText(playerGamePagePath), "text/html");
 
-IResult GetInputStates()
+IResult GetInputStates(string playerName)
 {
-    var currentQueue = inputQueue;
-    inputQueue = new BlockingCollection<InputState>();
-    return Results.Json(currentQueue.ToArray());
+    var currentQueue = inputQueue[playerName];
+    var result = new List<InputState>(currentQueue.Count);
+    while (currentQueue.TryTake(out var input))
+        result.Add(input);
+    return Results.Json(currentQueue);
 }
 
 void PushInputState(InputState state)
-    => inputQueue.Add(state);
+{
+    var queue = inputQueue[state.PlayerName];
+    queue.Add(state);
+}
 
 IResult GetGameState()
 {
