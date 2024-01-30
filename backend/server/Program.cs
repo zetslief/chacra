@@ -57,7 +57,7 @@ app.MapPost("/lobbies/{lobbyId}/bots", AddNewBot);
 app.MapGet("/lobbies/{lobbyId}/messages/{playerName}", GetNewMessages);
 app.MapPost("/lobbies/{lobbyId}/messages/{playerName}", AddMessage);
 app.MapGet("/lobbies/status", GetLobbyStatus);
-app.MapPost("/lobbies/start", StartLobby);
+app.MapPost("/lobbies/start/{playerName}", StartLobby);
 app.MapDelete("/lobbies/{lobbyId}/bots/{botName}", DeleteBot);
 app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
 
@@ -223,7 +223,7 @@ IResult AddMessage(string lobbyId, string playerName, Message message) {
 IResult GetLobbyStatus()
     => Results.Json(new LobbyStatus(lobbyStarted));
 
-IResult StartLobby()
+IResult StartLobby(string playerName)
 {
     if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
     if (!lobbyStarted)
@@ -234,7 +234,7 @@ IResult StartLobby()
         }
         lobbyStarted = true;
     }
-    return Results.Redirect("/game", true);
+    return Results.Redirect($"/game/{playerName}", true);
 }
 
 IResult DeletePlayer(int lobbyId, string playerName)
