@@ -65,11 +65,7 @@ async function loop() {
 async function processGameState() {
     const state = latestGameState;
     latestGameState = null;
-    await fetch("http://localhost:5000/game/state", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state),
-    });
+    postMessage(state);
     // TODO: add this info into perf view.
     // console.log(stop - start, result.ok);
 }

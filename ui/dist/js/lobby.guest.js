@@ -86,10 +86,12 @@ function createLobbyStatusUpdate() {
         if (!status.started) {
             return;
         }
-        const startUrl = new URL(`/lobbies/start`, BASE);
+        const playerName = sessionStorage.getItem("playerName");
+        const startUrl = new URL(`/lobbies/start/${playerName}`, BASE);
         console.log(startUrl);
         const startResponse = await fetch(startUrl, {
             method: "POST",
+            redirect: "follow",
         });
         console.log(startResponse);
         if (startResponse.ok) {

@@ -133,6 +133,9 @@ async function main() {
     physicsWorker.onmessage = (e) => {
         perfView.write("physics time, ms", e.data);
     };
+    networkWorker.onmessage = (e) => {
+        newState = e.data as GameState;
+    };
     setupInputHandlers((input) => physicsWorker.postMessage(input));
     new BoostersView(b => physicsWorker.postMessage(b));
 
@@ -146,30 +149,7 @@ async function main() {
     physicsWorker.postMessage("start");
     networkWorker.postMessage("start");
 
-    while (!newState) {
-        newState = await getGameState();
-    }
-    setInterval(async () => {
-        const state = await getGameState();
-        if (state) {
-            newState = state;
-        }
-    }, 30);
     loop(renderer, perfView);
-}
-
-async function getGameState(): Promise<GameState | null> {
-    const response = await fetch("http://localhost:5000/game/state");
-    if (response.ok) {
-        const jsonString = await response.json();
-        if (jsonString.length > 0) {
-            return JSON.parse(jsonString);
-        }
-    } else {
-        console.error("Failed to get game state");
-        console.error(response);
-    }
-    return null;
 }
 
 type Set = (arg: number | string) => void;
