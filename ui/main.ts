@@ -140,6 +140,9 @@ async function main() {
     physicsWorker.postMessage("connect", [ messageChannel.port1 ]);
     networkWorker.postMessage("connect", [ messageChannel.port2 ]);
 
+    const playerName = sessionStorage.getItem("playerName");
+    networkWorker.postMessage(playerName);
+
     physicsWorker.postMessage("start");
     networkWorker.postMessage("start");
 

@@ -6,6 +6,7 @@ const BASE = new URL("http://localhost:5000/");
 
 let port: MessagePort | null = null;
 let latestGameState: GameState | null = null;
+let playerName: string | null = null;
 
 function assertPortConnected(port: MessagePort | null): asserts port is MessagePort {
     if (!port) {
@@ -13,19 +14,32 @@ function assertPortConnected(port: MessagePort | null): asserts port is MessageP
     }
 }
 
-onmessage = (event) => {
+onmessage = async (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
         port.onmessage = (e) => latestGameState = e.data as GameState;
     } else if (event.data === "start") {
         assertPortConnected(port);
         loop();
+    } else if (typeof event.data === "string") {
+        playerName = event.data;
+    } else {
+        if (!playerName) {
+            console.error("Input state is recieved before player name.");
+            return;
+        }
+        const input = event.data as InputState;
+        const url = new URL(`/game/inputStates/${playerName}`, BASE);
+        await fetch(url.toString(), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+        });
     }
 };
 
 async function loop() {
     async function poll() {
-        const playerName = sessionStorage.getItem("playerName");
         const url = new URL(`/game/inputStates/${playerName}`, BASE);
         const response = await fetch(url.toString());
         if (!response.ok) {

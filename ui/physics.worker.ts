@@ -28,17 +28,6 @@ onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
         port.onmessage = async (e) => {
-            const playerName = sessionStorage.getItem("playerName");
-            const url = `http://localhost:5000/game/InputStates/${playerName}`;
-            // WARNING: looks like a race condition here: UI and network worker can post this message.
-            await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    playerName,
-                    ...e.data
-                }),
-            });
             inputs.push(e.data as InputState);
         };
     } else if (event.data === "start") {
