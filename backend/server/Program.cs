@@ -263,13 +263,15 @@ IResult GetInputStates(string playerName)
     var result = new List<InputState>(currentQueue.Count);
     while (currentQueue.TryTake(out var input))
         result.Add(input);
-    return Results.Json(currentQueue);
+    return Results.Json(result);
 }
 
 void PushInputState(InputState state)
 {
-    var queue = inputQueue[state.PlayerName];
-    queue.Add(state);
+    foreach (var queue in inputQueue.Values)
+    {
+        queue.Add(state);
+    }
 }
 
 IResult GetGameState()
