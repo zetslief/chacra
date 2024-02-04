@@ -35,10 +35,7 @@ onmessage = (event) => {
         const dt = (1 / fps);
         loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {
-        if (event.data.type === "InputState") {
-            const input = event.data as InputState;
-            inputs.push(input);
-        } else if (event.data.type === "KnownBooster") {
+        if (event.data.type === "KnownBooster") {
             knownBoosterQueue.push(event.data as KnownBooster);
         }
     }
