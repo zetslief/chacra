@@ -1,9 +1,4 @@
 const BASE = new URL("http://localhost:5000");
-const LOBBY = new URL("./lobbies", BASE);
-const LOBBY_START = new URL("./lobbies/start", BASE); // Consider something like /game-session
-const LOBBY_STOP = new URL("./lobbies/leave", BASE); // Replate with DELETE method.
-const LOBBY_LOBBY_NAME = new URL("./lobbies/name", BASE);
-const LOBBY_BOT = new URL("./lobbies/bot", BASE);
 
 let lobbyData = null;
 
