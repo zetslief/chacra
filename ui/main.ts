@@ -136,7 +136,7 @@ async function main() {
     networkWorker.onmessage = (e) => {
         newState = e.data as GameState;
     };
-    setupInputHandlers((input) => physicsWorker.postMessage(input));
+    setupInputHandlers((input) => networkWorker.postMessage(input));
     new BoostersView(b => physicsWorker.postMessage(b));
 
     const messageChannel = new MessageChannel();

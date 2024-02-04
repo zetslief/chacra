@@ -24,12 +24,8 @@ onmessage = async (event) => {
     } else if (typeof event.data === "string") {
         playerName = event.data;
     } else {
-        if (!playerName) {
-            console.error("Input state is recieved before player name.");
-            return;
-        }
         const input = event.data as InputState;
-        const url = new URL(`/game/inputStates/${playerName}`, BASE);
+        const url = new URL(`/game/input`, BASE);
         await fetch(url.toString(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
