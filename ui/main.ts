@@ -92,9 +92,11 @@ function setupRenderState(): RenderState {
 }
 
 function setupInputHandlers(update: (state: InputState) => void) {
-    const input: InputState = new InputState("Player0");
+    const playerName = sessionStorage.getItem("playerName")!;
+    const input: InputState = new InputState(playerName);
     document.onclick = (e) => {
         input.click = { x: e.pageX, y: e.pageY };
+        console.log("click", input);
         update(input);
     };
     document.onkeydown = (e) => {

@@ -27,7 +27,7 @@ let port: MessagePort | null = null;
 onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
-        port.onmessage = async (e) => {
+        port.onmessage = (e) => {
             inputs.push(e.data as InputState);
         };
     } else if (event.data === "start") {
@@ -76,11 +76,13 @@ function loop(game: GameState, previousFrame: number, dt: number) {
 }
 
 function defaultState(): GameState {
-    type Pivot = Point;
-    function calculatePivots(): Pivot[] {
+    type Pivot = Point & {
+        name: string
+    };
+    function calculatePivots(playerOne: string, playerTwo: string): Pivot[] {
         return [
-            vec2(0.0, 0.5),
-            vec2(1.0, 0.5)
+            { name: playerOne, ...vec2(0.0, 0.5) },
+            { name: playerTwo, ... vec2(1.0, 0.5) }
         ];
     }
     function ball(position: Point): Ball {
@@ -92,7 +94,7 @@ function defaultState(): GameState {
         let players = []
         for (const pivot of pivots) {
             const index: number = Math.random();
-            const name: string = "Player" + players.length;
+            const name: string = pivot.name;
             const colorValue = Math.round(index * 360);
             const color = "hsl(" + colorValue + ", 80%, 70%)";
             const position = { x: pivot.x, y: pivot.y };
@@ -116,7 +118,7 @@ function defaultState(): GameState {
         ];
     }
     const numberOfPlayers = 2;
-    const playerPivots = calculatePivots();
+    const playerPivots = calculatePivots("New Player", "New Player2");
     const players = createPlayers(playerPivots);
     const randomPlayerIndex = Math.floor(Math.random() * players.length);
     return {
