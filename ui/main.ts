@@ -83,10 +83,6 @@ function loop(render: RenderState, view: PerfView) {
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    const parent = canvas.parentElement;
-    const size = Math.min(parent!.clientHeight, parent!.clientWidth);
-    canvas.width = size;
-    canvas.height = size;
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }

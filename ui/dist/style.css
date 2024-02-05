@@ -1,29 +1,40 @@
 * {
-  background-color: grey;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-  background-color: green;
+  background-color: slategray;
   margin: 1vh;
   height: 98vh;
-  width: auto;
 }
 
 #container {
   height: 100%;
-  display: flex;
-  justify-content: center;
-  background-color: orange;
-}
 
-canvas {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 1em;
 }
 
 #ui {
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  bottom: 0;
+
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  overflow: visible;
+
+  backgroud-color: transparent;
+
+  gap: 1em;
+}
+
+.renderer {
+  flex-basis: 500px;
 }
 
 #stats {
@@ -33,15 +44,12 @@ canvas {
 .column {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  flex-grow: 1;
+  gap: 0.1em;
+  flex-wrap: wrap;
 }
 
-.column > * {
-  border-style: dotted;
-  border-color: green;
-  border-width: 1px;
-  margin: 0px;
+.grow {
+  flex-grow: 1;
 }
 
 #labels {
@@ -50,6 +58,7 @@ canvas {
 #boosters {
   display: flex;
   flex-flow: column;
+  gap: 0.1em;
 }
 
 #boosters > * {
@@ -61,4 +70,22 @@ canvas {
 
 #boosters > *:hover {
   box-shadow: -3px -0px black;
+}
+
+@media (aspect-ratio < 1/1) {
+  canvas {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 3/2;
+  }
+}
+
+@media (aspect-ratio > 1/1) {
+  canvas {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 3/2;
+  }
 }

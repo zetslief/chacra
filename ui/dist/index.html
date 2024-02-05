@@ -5,21 +5,21 @@
         <link rel="stylesheet" href="./../style.css">
     </head>
     <body>
-        <div id="container">
-            <div id="ui">
-                <div id="stats">
-                    <div id="statsLabels" class="column">
-                    </div>
-                    <div id="statsValues" class="column">
-                    </div>
-                </div>
-                <div>
-                    <h2>Boosters</h2>
-                    <div id="boosters">
-                    </div>
+        <div id="container" style="flex-grow: 1; justify-content: center;">
+            <canvas id="gameField"></canvas>
+        </div>
+        <div id="ui">
+            <div>
+                <h2>Boosters</h2>
+                <div id="boosters">
                 </div>
             </div>
-            <canvas id="gameField"></canvas>
+            <div id="stats">
+                <div id="statsLabels" class="column">
+                </div>
+                <div id="statsValues" class="column grow">
+                </div>
+            </div>
         </div>
         <script type="text/javascript" src="./../main.js"></script>
     </body>
