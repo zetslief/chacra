@@ -5,12 +5,29 @@ import {
 } from './math';
 
 export type StateType = 
-    "GameState"
+    "InitialState"
+    | "GameState"
     | "InputState"
     | "KnownBooster";
 
+export function isInitialState(item: any): item is InitialState {
+    return typeof item === "object"
+        && "type" in item
+        && item.type === "InitialState";
+}
+
+export function isInputState(item: any): item is InputState {
+    return typeof item === "object"
+        && "type" in item
+        && item.type === "InitialState";
+}
+
 export type State = {
     readonly type: StateType;
+};
+
+export type InitialState = State & {
+    players: string[]
 };
 
 export type GameState = State & {

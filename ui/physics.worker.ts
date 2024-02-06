@@ -1,9 +1,12 @@
 import { 
+    InitialState,
     GameState,
     InputState,
     Player,
     Ball,
     KnownBooster,
+    isInitialState,
+    isInputState,
 } from './lib/types';
 
 import { updatePhysics } from './lib/physics';
@@ -28,16 +31,22 @@ onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
         port.onmessage = (e) => {
-            inputs.push(e.data as InputState);
+            if (isInputState(e.data)) {
+                inputs.push(e.data as InputState);
+            } else if (isInitialState(e.data)) {
+                const fps = 60;
+                const dt = (1 / fps);
+                loop(defaultState(e.data), Date.now() - dt, dt);
+            } else {
+                console.error(`Unsupported event data:`, e.data);
+            }
         };
-    } else if (event.data === "start") {
-        const fps = 60;
-        const dt = (1 / fps);
-        loop(defaultState(), Date.now() - dt, dt);
     } else if ("type" in event.data) {
         if (event.data.type === "KnownBooster") {
             knownBoosterQueue.push(event.data as KnownBooster);
         }
+    } else {
+        console.error("Unknown event data from message", event.data);
     }
 };
 
@@ -72,15 +81,23 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     }
 }
 
-function defaultState(): GameState {
+function defaultState(initialState: InitialState): GameState {
     type Pivot = Point & {
         name: string
     };
-    function calculatePivots(playerOne: string, playerTwo: string): Pivot[] {
-        return [
-            { name: playerOne, ...vec2(0.0, 0.5) },
-            { name: playerTwo, ... vec2(1.0, 0.5) }
-        ];
+    function calculatePivots(players: string[]): Pivot[] {
+        const result: Pivot[] = [];
+        const angleOffset = Math.PI / 2;
+        const stepAngle = Math.PI / players.length;
+        for (let index = 0; index < players.length; ++index) {
+            let x = Math.cos(stepAngle * index + angleOffset);
+            let y = Math.sin(stepAngle * index + angleOffset);
+            x += 1;
+            y += 1;
+            const name = players[index];
+            result.push({name, x, y});
+        }
+        return result;
     }
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
@@ -114,8 +131,8 @@ function defaultState(): GameState {
             { a: vec2(1.0, 0.0), b: vec2(0.0, 0.0) },
         ];
     }
-    const numberOfPlayers = 2;
-    const playerPivots = calculatePivots("New Player", "New Player2");
+    const numberOfPlayers = initialState.players.length;
+    const playerPivots = calculatePivots(initialState.players);
     const players = createPlayers(playerPivots);
     const randomPlayerIndex = Math.floor(Math.random() * players.length);
     return {

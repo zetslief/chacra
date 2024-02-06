@@ -144,7 +144,6 @@ async function main() {
     const playerName = sessionStorage.getItem("playerName");
     networkWorker.postMessage(playerName);
 
-    physicsWorker.postMessage("start");
     networkWorker.postMessage("start");
 
     loop(renderer, perfView);
