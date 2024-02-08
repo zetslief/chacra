@@ -114,6 +114,8 @@ IResult CreateLobby(CreateLobby createLobby)
 {
     var id = 1;
     lobby = new(id, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
+    lobbyStarted = false;
+    inputQueue.Clear();
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
 }
 
