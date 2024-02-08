@@ -27,11 +27,14 @@ onmessage = async (event) => {
     } else if (isInputState(event.data)) {
         console.log("post input state", event.data);
         const url = new URL(`/game/input`, BASE);
-        await fetch(url.toString(), {
+        const response = await fetch(url.toString(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(event.data),
         });
+        if (!response.ok) {
+            console.error("Failed to send input:", response);
+        }
     } else {
         console.error("Receive unknown message data", event.data);
     }
@@ -50,6 +53,9 @@ async function loop() {
             return;
         }
         const inputs = await response.json() as State[];
+        if (inputs.length > 0) {
+            console.log(inputs);
+        }
         for (const input of inputs) {
             port.postMessage(input);
         }
