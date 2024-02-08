@@ -25,6 +25,7 @@ onmessage = async (event) => {
     } else if (typeof event.data === "string") {
         playerName = event.data;
     } else if (isInputState(event.data)) {
+        console.log("post input state", event.data);
         const url = new URL(`/game/input`, BASE);
         await fetch(url.toString(), {
             method: "POST",
@@ -38,6 +39,10 @@ onmessage = async (event) => {
 
 async function loop() {
     async function poll() {
+        if (!port) {
+            console.warn("Polling before port is connected to the worker.");
+            return;
+        }
         const url = new URL(`/game/inputStates/${playerName}`, BASE);
         const response = await fetch(url.toString());
         if (!response.ok) {
@@ -45,10 +50,8 @@ async function loop() {
             return;
         }
         const inputs = await response.json() as State[];
-        if (port) {
-            for (const input of inputs) {
-                port.postMessage(input);
-            }
+        for (const input of inputs) {
+            port.postMessage(input);
         }
     }
 
