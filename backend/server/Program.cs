@@ -272,8 +272,10 @@ IResult GetInputStates(string playerName)
 
 void PushInputState(InputState state)
 {
-    var queue = inputQueue[state.PlayerName];
-    queue.Add(state);
+    foreach (var queue in inputQueue.Values)
+    {
+        queue.Add(state);
+    }
 }
 
 IResult GetGameState()
