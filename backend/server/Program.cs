@@ -1,6 +1,7 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
 using Chacra;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -230,13 +231,10 @@ IResult StartLobby(string playerName)
     if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
     if (!lobbyStarted)
     {
-        var initialState = InitialState.Create(lobby.Players.Select(p => p.Name).ToArray());
+        var initialState = new InitialState(lobby.Players.Select(p => p.Name).ToArray());
         foreach (var player in lobby.Players)
         {
-            inputQueue.Add(player.Name, new BlockingCollection<State>()
-            {
-                initialState
-            });
+            inputQueue.Add(player.Name, new() { initialState });
         }
         lobbyStarted = true;
     }
@@ -269,7 +267,7 @@ IResult GetInputStates(string playerName)
     var result = new List<State>(currentQueue.Count);
     while (currentQueue.TryTake(out var input))
         result.Add(input);
-    return Results.Json(currentQueue);
+    return Results.Json(result);
 }
 
 void PushInputState(InputState state)
@@ -324,13 +322,12 @@ namespace Chacra {
 
     public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
 
-    public record State(string Type);
-    public record InitialState(string Type, string[] Players) : State(Type)
-    {
-        public static InitialState Create(string[] players) => new("InitialState", players);
-    }
-
-    public record InputState(string Type, string PlayerName, float Dx, float Dy) : State(Type);
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+    [JsonDerivedType(typeof(InitialState), "InitialState")]
+    [JsonDerivedType(typeof(InputState), "InputState")]
+    public abstract record State();
+    public record InitialState(string[] Players) : State();
+    public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
 
     public record Player(string Name);
     public record Bot(string Name);
