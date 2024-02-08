@@ -1,5 +1,6 @@
 import {
-    GameState, InputState,
+    GameState, State,
+    isInputState
 } from './lib/types';
 
 const BASE = new URL("http://localhost:5000/");
@@ -23,14 +24,15 @@ onmessage = async (event) => {
         loop();
     } else if (typeof event.data === "string") {
         playerName = event.data;
-    } else {
-        const input = event.data as InputState;
+    } else if (isInputState(event.data)) {
         const url = new URL(`/game/input`, BASE);
         await fetch(url.toString(), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(input),
+            body: JSON.stringify(event.data),
         });
+    } else {
+        console.error("Receive unknown message data", event.data);
     }
 };
 
@@ -42,7 +44,7 @@ async function loop() {
             console.error(response.status);
             return;
         }
-        const inputs = await response.json() as InputState[];
+        const inputs = await response.json() as State[];
         if (port) {
             for (const input of inputs) {
                 port.postMessage(input);
