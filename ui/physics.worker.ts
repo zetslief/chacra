@@ -32,7 +32,7 @@ onmessage = (event) => {
         port = event.ports[0];
         port.onmessage = (e) => {
             if (isInputState(e.data)) {
-                inputs.push(e.data as InputState);
+                inputs.push(e.data);
             } else if (isInitialState(e.data)) {
                 const fps = 60;
                 const dt = (1 / fps);
@@ -87,14 +87,16 @@ function defaultState(initialState: InitialState): GameState {
     };
     function calculatePivots(players: string[]): Pivot[] {
         const result: Pivot[] = [];
-        const angleOffset = Math.PI / 2;
-        const stepAngle = Math.PI / players.length;
+        const angleOffset = Math.PI;
+        const stepAngle = 2 * Math.PI / players.length;
         for (let index = 0; index < players.length; ++index) {
-            let x = Math.cos(stepAngle * index + angleOffset);
-            let y = Math.sin(stepAngle * index + angleOffset);
-            x += 1;
-            y += 1;
             const name = players[index];
+            const angle = (stepAngle * index) + angleOffset;
+            let x = Math.cos(angle);
+            let y = Math.sin(angle);
+            console.log(x, y, angle, angleOffset);
+            x = (x + 1) * 0.5;
+            y = (y + 1) * 0.5;
             result.push({name, x, y});
         }
         return result;
