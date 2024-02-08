@@ -21,7 +21,7 @@ var games = new []
 
 var lobbyStarted = false;
 LobbyData? lobby = null;
-Dictionary<string, BlockingCollection<InputState>> inputQueue = new();
+Dictionary<string, BlockingCollection<State>> inputQueue = new();
 string state = string.Empty;
 
 var app = builder.Build();
@@ -228,9 +228,13 @@ IResult StartLobby(string playerName)
     if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
     if (!lobbyStarted)
     {
-        foreach (var player in lobby!.Players)
+        var initialState = InitialState.Create(lobby.Players.Select(p => p.Name).ToArray());
+        foreach (var player in lobby.Players)
         {
-            inputQueue.Add(player.Name, new BlockingCollection<InputState>());
+            inputQueue.Add(player.Name, new BlockingCollection<State>()
+            {
+                initialState
+            });
         }
         lobbyStarted = true;
     }
@@ -260,18 +264,16 @@ IResult GetGame(string playerName)
 IResult GetInputStates(string playerName)
 {
     var currentQueue = inputQueue[playerName];
-    var result = new List<InputState>(currentQueue.Count);
+    var result = new List<State>(currentQueue.Count);
     while (currentQueue.TryTake(out var input))
         result.Add(input);
-    return Results.Json(result);
+    return Results.Json(currentQueue);
 }
 
 void PushInputState(InputState state)
 {
-    foreach (var queue in inputQueue.Values)
-    {
-        queue.Add(state);
-    }
+    var queue = inputQueue[state.PlayerName];
+    queue.Add(state);
 }
 
 IResult GetGameState()
@@ -320,7 +322,13 @@ namespace Chacra {
 
     public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
 
-    public record InputState(string PlayerName, string Type, float Dx, float Dy);
+    public record State(string Type);
+    public record InitialState(string Type, string[] Players) : State(Type)
+    {
+        public static InitialState Create(string[] players) => new("InitialState", players);
+    }
+
+    public record InputState(string Type, string PlayerName, float Dx, float Dy) : State(Type);
 
     public record Player(string Name);
     public record Bot(string Name);
