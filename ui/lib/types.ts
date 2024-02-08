@@ -19,7 +19,7 @@ export function isInitialState(item: any): item is InitialState {
 export function isInputState(item: any): item is InputState {
     return typeof item === "object"
         && "type" in item
-        && item.type === "InitialState";
+        && item.type === "InputState";
 }
 
 export type State = {
