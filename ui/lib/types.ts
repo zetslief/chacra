@@ -6,6 +6,7 @@ import {
 
 export type StateType = 
     "InitialState"
+    | "GameStartState"
     | "GameState"
     | "InputState"
     | "KnownBooster";
@@ -16,6 +17,12 @@ export function isInitialState(item: any): item is InitialState {
         && item.type === "InitialState";
 }
 
+export function isGameStartState(item: any): item is GameStartState {
+    return typeof item === "object"
+        && "type" in item
+        && item.type === "GameStartState";
+}
+
 export function isInputState(item: any): item is InputState {
     return typeof item === "object"
         && "type" in item
@@ -23,11 +30,16 @@ export function isInputState(item: any): item is InputState {
 }
 
 export type State = {
-    readonly type: StateType;
+    readonly type: StateType,
 };
 
 export type InitialState = State & {
-    players: string[]
+    readonly players: string[],
+};
+
+export type GameStartState = State & {
+    readonly x: number,
+    readonly y: number,
 };
 
 export type GameState = State & {
