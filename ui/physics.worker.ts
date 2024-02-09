@@ -6,6 +6,7 @@ import {
     Ball,
     KnownBooster,
     isInitialState,
+    isGameStartState,
     isInputState,
 } from './lib/types';
 
@@ -26,6 +27,7 @@ import {
 let inputs: InputState[] = []; 
 let knownBoosterQueue: KnownBooster[] = [];
 let port: MessagePort | null = null;
+let defaultGameState: GameState | null = null;
 
 onmessage = (event) => {
     if (event.data === "connect") {
@@ -34,9 +36,17 @@ onmessage = (event) => {
             if (isInputState(e.data)) {
                 inputs.push(e.data);
             } else if (isInitialState(e.data)) {
+                defaultGameState = defaultState(e.data);
+            } else if (isGameStartState(e.data)) {
+                if (!defaultGameState) {
+                    console.error("Default game state is not initialzed, cannot process GameStart state.");
+                    return;
+                }
+                defaultGameState!.ball.position.x = e.data.x;
+                defaultGameState!.ball.position.y = e.data.y;
                 const fps = 60;
                 const dt = (1 / fps);
-                loop(defaultState(e.data), Date.now() - dt, dt);
+                loop(defaultGameState!, Date.now() - dt, dt);
             } else {
                 console.error(`Unsupported event data:`, e.data);
             }
