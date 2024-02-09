@@ -232,10 +232,9 @@ IResult StartLobby(string playerName)
     if (!lobbyStarted)
     {
         var initialState = new InitialState(lobby.Players.Select(p => p.Name).ToArray());
+        var startState = new StartState(0, 0);
         foreach (var player in lobby.Players)
-        {
-            inputQueue.Add(player.Name, new() { initialState });
-        }
+            inputQueue.Add(player.Name, new() { initialState, startState });
         lobbyStarted = true;
     }
     return Results.Redirect($"/game/{playerName}", true);
@@ -325,10 +324,12 @@ namespace Chacra {
     public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-    [JsonDerivedType(typeof(InitialState), "InitialState")]
-    [JsonDerivedType(typeof(InputState), "InputState")]
+    [JsonDerivedType(typeof(InitialState), nameof(InitialState))]
+    [JsonDerivedType(typeof(StartState), nameof(StartState))]
+    [JsonDerivedType(typeof(InputState), nameof(InputState))]
     public abstract record State();
     public record InitialState(string[] Players) : State();
+    public record StartState(int X, int Y) : State();
     public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
 
     public record Player(string Name);
