@@ -232,7 +232,7 @@ IResult StartLobby(string playerName)
     if (!lobbyStarted)
     {
         var initialState = new InitialState(lobby.Players.Select(p => p.Name).ToArray());
-        var startState = new GameStartState(0, 0);
+        var startState = new GameStartState(0f, 0.5f);
         foreach (var player in lobby.Players)
             inputQueue.Add(player.Name, new() { initialState, startState });
         lobbyStarted = true;
@@ -329,8 +329,9 @@ namespace Chacra {
     [JsonDerivedType(typeof(InputState), nameof(InputState))]
     public abstract record State();
     public record InitialState(string[] Players) : State();
-    public record GameStartState(int X, int Y) : State();
+    public record GameStartState(float X, float Y) : State();
     public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
+    public record GameFinished(string Won) : State();
 
     public record Player(string Name);
     public record Bot(string Name);
