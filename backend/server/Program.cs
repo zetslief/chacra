@@ -232,7 +232,7 @@ IResult StartLobby(string playerName)
     if (!lobbyStarted)
     {
         var initialState = new InitialState(lobby.Players.Select(p => p.Name).ToArray());
-        var startState = new GameStartState(0f, 0.5f);
+        var startState = new GameStartState(0.5f, 0.5f);
         foreach (var player in lobby.Players)
             inputQueue.Add(player.Name, new() { initialState, startState });
         lobbyStarted = true;
