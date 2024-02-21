@@ -23,7 +23,6 @@ var games = new []
 var lobbyStarted = false;
 LobbyData? lobby = null;
 Dictionary<string, BlockingCollection<State>> inputQueue = new();
-string state = string.Empty;
 
 var app = builder.Build();
 
@@ -66,8 +65,6 @@ app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
 app.MapGet("/game/{playerName}", GetGame);
 app.MapGet("/game/inputStates/{playerName}", GetInputStates);
 app.MapPost("/game/input", PushInputState);
-app.MapGet("/game/state", GetGameState);
-app.MapPost("/game/state", UpdateGameStateAsync);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -269,22 +266,12 @@ IResult GetInputStates(string playerName)
     return Results.Json(result);
 }
 
-void PushInputState(InputState state)
+void PushInputState(InputState state) => PushState(state);
+
+void PushState(State state)
 {
     foreach (var queue in inputQueue.Values)
         queue.Add(state);
-}
-
-IResult GetGameState()
-{
-    return Results.Json(Interlocked.Exchange(ref state, string.Empty));
-}
-
-async Task UpdateGameStateAsync(HttpContext ctx)
-{
-    using var reader = new StreamReader(ctx.Request.Body);
-    var body = await reader.ReadToEndAsync().ConfigureAwait(false);
-    state = body;
 }
 
 app.Run();
