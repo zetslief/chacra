@@ -9,7 +9,8 @@ export type StateType =
     | "GameStartState"
     | "GameState"
     | "InputState"
-    | "KnownBooster";
+    | "KnownBooster"
+    | "GameFinished";
 
 export function isInitialState(item: any): item is InitialState {
     return typeof item === "object"
@@ -29,6 +30,12 @@ export function isInputState(item: any): item is InputState {
         && item.type === "InputState";
 }
 
+export function isGameFinishedState(item: any): item is GameFinished {
+    return typeof item === "object"
+        && "type" in item
+        && item.type == "GameFinished";
+}
+
 export type State = {
     readonly type: StateType,
 };
@@ -40,6 +47,10 @@ export type InitialState = State & {
 export type GameStartState = State & {
     readonly x: number,
     readonly y: number,
+};
+
+export type GameFinished = State & {
+    won: string,
 };
 
 export type GameState = State & {
