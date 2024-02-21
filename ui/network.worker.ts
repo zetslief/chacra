@@ -1,6 +1,6 @@
 import {
     GameState, State,
-    isInputState
+    isInputState, isGameFinishedState
 } from './lib/types';
 
 const BASE = new URL("http://localhost:5000/");
@@ -34,6 +34,17 @@ onmessage = async (event) => {
         });
         if (!response.ok) {
             console.error("Failed to send input:", response);
+        }
+    } else if (isGameFinishedState(event.data)) {
+        console.log("Post game finished state");
+        const url = new URL(`/game/finished`, BASE);
+        const response = await fetch(url.toString(), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(event.data),
+        });
+        if (!response.ok) {
+            console.error("Failed to send game finished", response);
         }
     } else {
         console.error("Receive unknown message data", event.data);

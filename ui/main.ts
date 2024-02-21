@@ -133,6 +133,12 @@ async function main() {
     };
     networkWorker.onmessage = (e) => {
         newState = e.data as GameState;
+        if (newState.players.length == 1) {
+            networkWorker.postMessage({
+                type: "GameFinished",
+                won: newState.players[0],
+            });
+        }
     };
     setupInputHandlers((input) => networkWorker.postMessage(input));
     new BoostersView(b => physicsWorker.postMessage(b));
