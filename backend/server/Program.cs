@@ -272,16 +272,12 @@ IResult GetInputStates(string playerName)
 void PushInputState(InputState state)
 {
     foreach (var queue in inputQueue.Values)
-    {
         queue.Add(state);
-    }
 }
 
 IResult GetGameState()
 {
-    var result = Results.Json(state);
-    state = string.Empty;
-    return result;
+    return Results.Json(Interlocked.Exchange(ref state, string.Empty));
 }
 
 async Task UpdateGameStateAsync(HttpContext ctx)
