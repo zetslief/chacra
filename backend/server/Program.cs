@@ -1,7 +1,8 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
-using Chacra;
 using System.Text.Json.Serialization;
+
+using Chacra;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ var games = new []
 var lobbyStarted = false;
 LobbyData? lobby = null;
 Dictionary<string, BlockingCollection<State>> inputQueue = new();
+var entity = new Entity((s) => PushState(s));
+
+builder.Services.AddHostedService<Entity>((p) => entity);
+builder.Services.AddSingleton(entity.Writer);
 
 var app = builder.Build();
 
@@ -108,11 +113,12 @@ IResult RenameLobby(int lobbyId, string playerName, RenameLobby rename)
             : Results.NotFound("Lobby is not found or player is not a host of this lobby.");
 }
 
-IResult CreateLobby(CreateLobby createLobby)
+IResult CreateLobby(CreateLobby createLobby, EntityWriter writer)
 {
     var id = 1;
     lobby = new(id, createLobby.LobbyName, new Player(createLobby.PlayerName), games[0]);
     lobbyStarted = false;
+    writer.GameFinished();
     inputQueue.Clear();
     return Results.CreatedAtRoute("get-host-page", new {LobbyId = id, createLobby.PlayerName});
 }
@@ -223,7 +229,7 @@ IResult AddMessage(string lobbyId, string playerName, Message message) {
 IResult GetLobbyStatus()
     => Results.Json(new LobbyStatus(lobbyStarted));
 
-IResult StartLobby(string playerName)
+IResult StartLobby(string playerName, EntityWriter writer)
 {
     if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
     if (!lobbyStarted)
@@ -233,6 +239,7 @@ IResult StartLobby(string playerName)
         foreach (var player in lobby.Players)
             inputQueue.Add(player.Name, new() { initialState, startState });
         lobbyStarted = true;
+        writer.GameStarted();
     }
     return Results.Redirect($"/game/{playerName}", true);
 }
@@ -310,11 +317,13 @@ namespace Chacra {
     [JsonDerivedType(typeof(InitialState), nameof(InitialState))]
     [JsonDerivedType(typeof(GameStartState), nameof(GameStartState))]
     [JsonDerivedType(typeof(InputState), nameof(InputState))]
+    [JsonDerivedType(typeof(DeltaState), nameof(DeltaState))]
     public abstract record State();
     public record InitialState(string[] Players) : State();
     public record GameStartState(float X, float Y) : State();
     public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
     public record GameFinished(string Won) : State();
+    public record DeltaState(long Delta) : State();
 
     public record Player(string Name);
     public record Bot(string Name);
