@@ -4,12 +4,13 @@ import {
     LineCollider
 } from './math';
 
-export type StateType = 
+export type StateType =
     "InitialState"
     | "GameStartState"
     | "GameState"
     | "InputState"
     | "KnownBooster"
+    | "DeltaState"
     | "GameFinished";
 
 export function isInitialState(item: any): item is InitialState {
@@ -30,10 +31,16 @@ export function isInputState(item: any): item is InputState {
         && item.type === "InputState";
 }
 
-export function isGameFinishedState(item: any): item is GameFinished {
+export function isGameFinishedState(item: any): item is GameFinishedState {
     return typeof item === "object"
         && "type" in item
         && item.type == "GameFinished";
+}
+
+export function isDeltaState(data: any): data is DeltaState {
+    return typeof data === "object"
+        && "type" in data
+        && data.type === "DeltaState";
 }
 
 export type State = {
@@ -49,8 +56,12 @@ export type GameStartState = State & {
     readonly y: number,
 };
 
-export type GameFinished = State & {
+export type GameFinishedState = State & {
     won: string,
+};
+
+export type DeltaState = State & {
+    delta: number
 };
 
 export type GameState = State & {
@@ -74,7 +85,7 @@ export type Color = string | CanvasGradient | CanvasPattern;
 export type KnownBooster = State & { name: string, color: Color, weight: number };
 export type Booster = { name: string, color: Color, collider: CircleCollider };
 
-export type BoosterValidatorState = { };
+export type BoosterValidatorState = {};
 export type BoosterValidator = (gameState: GameState, booster: Booster) => boolean;
 
 export type BoostSpawnerState = {
