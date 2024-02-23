@@ -1,6 +1,6 @@
 import {
     GameState, State,
-    isInputState, isGameFinishedState
+    isInputState, isGameFinishedState,
 } from './lib/types';
 
 const BASE = new URL("http://localhost:5000/");

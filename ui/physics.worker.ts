@@ -1,13 +1,9 @@
 import { 
-    InitialState,
-    GameState,
-    InputState,
     Player,
     Ball,
     KnownBooster,
-    isInitialState,
-    isGameStartState,
-    isInputState,
+    InitialState, GameState, InputState, DeltaState,
+    isInitialState, isGameStartState, isInputState, isDeltaState
 } from './lib/types';
 
 import { updatePhysics } from './lib/physics';
@@ -29,6 +25,8 @@ let knownBoosterQueue: KnownBooster[] = [];
 let port: MessagePort | null = null;
 let defaultGameState: GameState | null = null;
 
+let state: GameState | null = null;
+
 onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
@@ -44,9 +42,13 @@ onmessage = (event) => {
                 }
                 defaultGameState!.ball.position.x = e.data.x;
                 defaultGameState!.ball.position.y = e.data.y;
-                const fps = 60;
-                const dt = (1 / fps);
-                loop(defaultGameState!, Date.now() - dt, dt);
+                state = {...defaultGameState};
+            } else if (isDeltaState(e.data)) {
+                if (!state) {
+                    console.warn("Skipping delta time, no state initialized!", e.data);
+                    return;
+                }
+                loop(state, e.data);
             } else {
                 console.error(`Unsupported event data:`, e.data);
             }
@@ -60,10 +62,9 @@ onmessage = (event) => {
     }
 };
 
-function loop(game: GameState, previousFrame: number, dt: number) {
-    const originalDt = dt; 
+function loop(game: GameState, delta: DeltaState) {
     const start = Date.now();
-    dt = (start - previousFrame) / 1000;
+    const dt = delta.delta;
     game.requestedBoosters = knownBoosterQueue;
     knownBoosterQueue = [];
     if (game.players.length > 1) {
@@ -82,13 +83,6 @@ function loop(game: GameState, previousFrame: number, dt: number) {
     }
     const stop = Date.now();
     postMessage((stop - start).toString());
-    const duration = (stop - start) / 1000;
-    previousFrame = start;
-    if (originalDt - duration < 0) {
-        loop(game, previousFrame, originalDt);
-    } else {
-        setTimeout(() => loop(game, previousFrame, originalDt), (originalDt - duration) * 1000);
-    }
 }
 
 function defaultState(initialState: InitialState): GameState {
