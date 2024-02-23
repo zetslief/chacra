@@ -30,32 +30,7 @@ let state: GameState | null = null;
 onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
-        port.onmessage = (e) => {
-            if (isInputState(e.data)) {
-                inputs.push(e.data);
-            } else if (isInitialState(e.data)) {
-                defaultGameState = defaultState(e.data);
-                console.log("game init");
-            } else if (isGameStartState(e.data)) {
-                console.log("game started");
-                if (!defaultGameState) {
-                    console.error("Default game state is not initialzed, cannot process GameStart state.");
-                    return;
-                }
-                state = {...defaultGameState};
-                state.ball.position.x = e.data.x;
-                state.ball.position.y = e.data.y;
-            } else if (isDeltaState(e.data)) {
-                console.log("game delta");
-                if (!state) {
-                    console.warn("Skipping delta time, no state initialized!", e.data);
-                    return;
-                }
-                physicsTick(state, e.data);
-            } else {
-                console.error(`Unsupported event data:`, e.data);
-            }
-        };
+        port.onmessage = (e) => e.data.forEach(processState);
     } else if ("type" in event.data) {
         if (event.data.type === "KnownBooster") {
             knownBoosterQueue.push(event.data as KnownBooster);
@@ -64,6 +39,32 @@ onmessage = (event) => {
         console.error("Unknown event data from message", event.data);
     }
 };
+
+function processState(data: any) {
+    if (isInputState(data)) {
+        inputs.push(data);
+    } else if (isInitialState(data)) {
+        defaultGameState = defaultState(data);
+        console.log("game init");
+    } else if (isGameStartState(data)) {
+        console.log("game started");
+        if (!defaultGameState) {
+            console.error("Default game state is not initialzed, cannot process GameStart state.");
+            return;
+        }
+        state = {...defaultGameState};
+        state.ball.position.x = data.x;
+        state.ball.position.y = data.y;
+    } else if (isDeltaState(data)) {
+        if (!state) {
+            console.warn("Skipping delta time, no state initialized!", data);
+            return;
+        }
+        physicsTick(state, data);
+    } else {
+        console.error(`Unsupported event data:`, data);
+    }
+}
 
 function physicsTick(game: GameState, delta: DeltaState) {
     const start = Date.now();

@@ -65,10 +65,7 @@ async function loop() {
         }
         const inputs = await response.json() as State[];
         if (inputs.length > 0) {
-            console.log(inputs);
-        }
-        for (const input of inputs) {
-            port.postMessage(input);
+            port.postMessage(inputs);
         }
     }
 
