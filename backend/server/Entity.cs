@@ -30,19 +30,21 @@ public class Entity : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (stoppingToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             if (started)
             {
                 started = false;
                 sending = true;
                 stopwatch.Start();
+                Console.WriteLine("Staring the game...");
             }
             if (finished)
             {
                 stopwatch.Stop();
                 sending = false;
                 finished = false;
+                Console.WriteLine("Finishing the game...");
             }
             if (!sending)
             {
@@ -57,6 +59,7 @@ public class Entity : BackgroundService
                 continue;
             }
             stopwatch.Restart();
+            Console.WriteLine($"Send delta: {elapsed}");
             send(new DeltaState(elapsed));
         }
     }

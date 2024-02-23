@@ -35,20 +35,23 @@ onmessage = (event) => {
                 inputs.push(e.data);
             } else if (isInitialState(e.data)) {
                 defaultGameState = defaultState(e.data);
+                console.log("game init");
             } else if (isGameStartState(e.data)) {
+                console.log("game started");
                 if (!defaultGameState) {
                     console.error("Default game state is not initialzed, cannot process GameStart state.");
                     return;
                 }
-                defaultGameState!.ball.position.x = e.data.x;
-                defaultGameState!.ball.position.y = e.data.y;
                 state = {...defaultGameState};
+                state.ball.position.x = e.data.x;
+                state.ball.position.y = e.data.y;
             } else if (isDeltaState(e.data)) {
+                console.log("game delta");
                 if (!state) {
                     console.warn("Skipping delta time, no state initialized!", e.data);
                     return;
                 }
-                loop(state, e.data);
+                physicsTick(state, e.data);
             } else {
                 console.error(`Unsupported event data:`, e.data);
             }
@@ -62,9 +65,9 @@ onmessage = (event) => {
     }
 };
 
-function loop(game: GameState, delta: DeltaState) {
+function physicsTick(game: GameState, delta: DeltaState) {
     const start = Date.now();
-    const dt = delta.delta;
+    const dt = delta.delta / 1000;
     game.requestedBoosters = knownBoosterQueue;
     knownBoosterQueue = [];
     if (game.players.length > 1) {
