@@ -135,8 +135,7 @@ async function main() {
         newState = e.data as GameState;
         if (newState.players.length == 1) {
             networkWorker.postMessage({
-                type: "GameFinished",
-                won: newState.players[0],
+                type: "GameFinishedState",
             });
         }
     };

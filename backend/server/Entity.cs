@@ -4,7 +4,7 @@ using Chacra;
 public class Entity : BackgroundService
 {
     private Stopwatch stopwatch = new();
-    private readonly int delayMs = 1000 / 30;
+    private readonly int delayMs = 1000 / 60;
     private readonly Action<State> send;
     private bool started = false;
     private bool finished = false;
@@ -59,7 +59,6 @@ public class Entity : BackgroundService
                 continue;
             }
             stopwatch.Restart();
-            Console.WriteLine($"Send delta: {elapsed}");
             send(new DeltaState(elapsed));
         }
     }

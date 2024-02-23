@@ -70,6 +70,7 @@ app.MapDelete("/lobbies/{lobbyId}/players/{playerName}", DeletePlayer);
 app.MapGet("/game/{playerName}", GetGame);
 app.MapGet("/game/inputStates/{playerName}", GetInputStates);
 app.MapPost("/game/input", PushInputState);
+app.MapPost("/game/finished", PushGameFinished);
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -275,8 +276,14 @@ IResult GetInputStates(string playerName)
 
 void PushInputState(InputState state) => PushState(state);
 
+void PushGameFinished(GameFinishedState gameFinished, EntityWriter writer)
+{
+    writer.GameFinished();
+}
+
 void PushState(State state)
 {
+    Console.WriteLine($"push state: {state}");
     foreach (var queue in inputQueue.Values)
         queue.Add(state);
 }
@@ -316,13 +323,14 @@ namespace Chacra {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
     [JsonDerivedType(typeof(InitialState), nameof(InitialState))]
     [JsonDerivedType(typeof(GameStartState), nameof(GameStartState))]
+    [JsonDerivedType(typeof(GameFinishedState), nameof(GameFinishedState))]
     [JsonDerivedType(typeof(InputState), nameof(InputState))]
     [JsonDerivedType(typeof(DeltaState), nameof(DeltaState))]
     public abstract record State();
     public record InitialState(string[] Players) : State();
     public record GameStartState(float X, float Y) : State();
     public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
-    public record GameFinished(string Won) : State();
+    public record GameFinishedState() : State();
     public record DeltaState(long Delta) : State();
 
     public record Player(string Name);

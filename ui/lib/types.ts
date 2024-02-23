@@ -34,7 +34,7 @@ export function isInputState(item: any): item is InputState {
 export function isGameFinishedState(item: any): item is GameFinishedState {
     return typeof item === "object"
         && "type" in item
-        && item.type == "GameFinished";
+        && item.type == "GameFinishedState";
 }
 
 export function isDeltaState(data: any): data is DeltaState {
