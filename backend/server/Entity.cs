@@ -3,8 +3,10 @@ using Chacra;
 
 public class Entity : BackgroundService
 {
-    private Stopwatch stopwatch = new();
+    private readonly Stopwatch stopwatch = new();
+    private readonly Stopwatch boosterStopwatch = new();
     private readonly int delayMs = 1000 / 60;
+    private readonly TimeSpan boosterDelayMs = TimeSpan.FromSeconds(3);
     private readonly Action<State> send;
     private bool started = false;
     private bool finished = false;
@@ -33,12 +35,16 @@ public class Entity : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             bool sent = ProcessDeltaTime(
-                stopwatch,
-                delayMs,
-                send,
-                ref started,
-                ref finished,
-                ref sending);
+                stopwatch, delayMs, send, ref started, ref finished, ref sending);
+            if (sending)
+            {
+                ProcessBoosterSpawner(boosterStopwatch, boosterDelayMs, send);
+            }
+            else
+            {
+                boosterStopwatch.Stop();
+            }
+
             if (sending && !sent)
             {
                 await Task.Yield();
@@ -86,16 +92,19 @@ public class Entity : BackgroundService
 
     private static bool ProcessBoosterSpawner(
         Stopwatch stopwatch,
-        int boosterSpawnDelay,
-        Action<State> send)
+        TimeSpan boosterSpawnDelay,
+        Action<KnownBoosterState> send)
     {
         static KnownBoosterState GenerateBooster()
             => new KnownBoosterState("BiggerPlayer", "purple", 40);
 
-        var elapsed = stopwatch.ElapsedMilliseconds;
+        if (!stopwatch.IsRunning) stopwatch.Start();
+        var elapsed = stopwatch.Elapsed;
         if (elapsed < boosterSpawnDelay) return false;
         var booster = GenerateBooster();
+        Console.WriteLine($"Generating the booster: {booster}");
         send(booster);
+        stopwatch.Restart();
         return true;
     }
 

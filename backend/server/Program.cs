@@ -283,7 +283,6 @@ void PushGameFinished(GameFinishedState gameFinished, EntityWriter writer)
 
 void PushState(State state)
 {
-    Console.WriteLine($"push state: {state}");
     foreach (var queue in inputQueue.Values)
         queue.Add(state);
 }
