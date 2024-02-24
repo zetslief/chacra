@@ -3,19 +3,18 @@ import {
     InputState,
     Player,
     Ball,
-    Booster, BoosterValidator, BoostSpawnerState, BoostShufflerState,
+    Booster, BoostShufflerState,
     AreaBooster, AreaBoosterSpawnerState,
     Obstacle,
 } from './types';
 
 import {
     BALL_MAX_RADIUS,
-    BOOSTER_RADIUS, BOOSTER_SCALE,
+    BOOSTER_SCALE,
     OBSTACLE_RADIUS,
     PLAYER_DEFAULT_SPEED,
     AREA_BOOSTER_RADIUS,
     AREA_BOOSTER_DURATION,
-    KNOWN_BOOSTERS,
 } from './configuration';
 
 import {
@@ -33,7 +32,6 @@ export function updatePhysics(
     for (const [player, input] of inputs) {
         processInput(player, input, dt);
     }
-    processBoostSpawner(dt, game.boostSpawner, game, game.boosters, validateBooster);
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
         processAreaBooster(areaBooster, dt);
@@ -279,36 +277,6 @@ function processInput(player: Player, input: InputState, dt: number) {
     input.click = undefined;
 }
 
-function validateBooster(gameState: GameState, booster: Booster): boolean {
-    return !collideAny(gameState, booster.collider);
-}
-
-function collideAny(
-    game: GameState,
-    collider: CircleCollider): boolean {
-    if (collideCC(collider, game.ball.collider)) {
-        return true;
-    }
-    for (const player of game.players) {
-        for (const playerCollider of [player.colliders.bottom, player.colliders.top]) {
-            if (collideCC(collider, playerCollider)) {
-                return true;
-            }
-        }
-    }
-    for (const booster of game.boosters) {
-        if (collideCC(collider, booster.collider)) {
-            return true;
-        }
-    }
-    for (const obstacle of game.obstacles) {
-        if (collideCC(collider, obstacle)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 function createAreaBoosterSpawner(player: Player): AreaBoosterSpawnerState {
     return {
         index: 0,
@@ -337,39 +305,5 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
             duration: AREA_BOOSTER_DURATION,
         });
         ++state.index;
-    }
-}
-
-function processBoostSpawner(dt: number, state: BoostSpawnerState, game: GameState, boosters: Booster[], validate: BoosterValidator) {
-    function randomBooster(): Booster {
-        const totalWeight = KNOWN_BOOSTERS.map(b => b.weight).reduce((prev, cur) => prev + cur);
-        const selectedWeight = Math.floor(Math.random() * totalWeight);
-        const offset = 0.2;
-        const collider = {
-            x: offset + Math.random() * (1 - offset),
-            y: offset + Math.random() * (1 - offset),
-            radius: BOOSTER_RADIUS
-        };
-        let weightCounter = 0;
-        for (let index = 0; index < KNOWN_BOOSTERS.length; ++index) {
-            const booster = KNOWN_BOOSTERS[index];
-            weightCounter += booster.weight;
-            if (weightCounter > selectedWeight) {
-                return { collider, ...booster };
-            }
-        }
-        return { collider, ...KNOWN_BOOSTERS[KNOWN_BOOSTERS.length - 1] };
-    }
-
-    state.timeLeft -= dt;
-    if (state.timeLeft < 0) {
-        let attempts = 0;
-        let booster = randomBooster();
-        while (attempts < 10 && !validate(game, booster)) {
-            booster = randomBooster();
-        }
-
-        boosters.push(randomBooster());
-        state.timeLeft = state.delay;
     }
 }
