@@ -43,6 +43,12 @@ export function isDeltaState(data: any): data is DeltaState {
         && data.type === "DeltaState";
 }
 
+export function isKnownBoosterState(data: any): data is KnownBoosterState {
+    return typeof data === "object"
+        && "type" in data
+        && data.type === "KnownBoosterState";
+}
+
 export type State = {
     readonly type: StateType,
 };
@@ -72,7 +78,7 @@ export type GameState = State & {
     walls: LineCollider[],
     ballDirection: Vec2,
     boosters: Booster[],
-    requestedBoosters: KnownBooster[],
+    requestedBoosters: KnownBoosterState[],
     boostSpawner: BoostSpawnerState,
     boostShuffler: BoostShufflerState,
     obstacles: Obstacle[],
@@ -82,7 +88,7 @@ export type GameState = State & {
 
 export type Color = string | CanvasGradient | CanvasPattern;
 
-export type KnownBooster = State & {
+export type KnownBoosterState = State & {
     name: string,
     color: Color,
     weight: number,

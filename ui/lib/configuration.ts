@@ -1,4 +1,4 @@
-import { KnownBooster } from './types';
+import { KnownBoosterState } from './types';
 
 export const BALL_RADIUS = 0.020;
 export const BALL_MAX_RADIUS = 0.15;
@@ -22,7 +22,7 @@ export const DEATH_BALL_WEIGHT = 10;
 export const OBSTACLE_WEIGHT = 20;
 export const MEGA_ELECTRIC_WEIGHT = 10;
 
-export const KNOWN_BOOSTERS: KnownBooster[] = [
+export const KNOWN_BOOSTERS: KnownBoosterState[] = [
     { type: "KnownBooster", name: "biggerPlayer", color: "purple", weight: BIGGER_PLAYER_WEIGHT },
     { type: "KnownBooster", name: "biggerBall", color: "lightgreen", weight: BIGGER_BALL_WEIGHT },
     { type: "KnownBooster", name: "shuffleBoosters", color: "yellow", weight: SHUFFLE_BOOSTERS_WEIGHT },

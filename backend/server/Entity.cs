@@ -96,7 +96,7 @@ public class Entity : BackgroundService
         Action<KnownBoosterState> send)
     {
         static KnownBoosterState GenerateBooster()
-            => new KnownBoosterState("BiggerPlayer", "purple", 40);
+            => new KnownBoosterState("biggerPlayer", "purple", 40);
 
         if (!stopwatch.IsRunning) stopwatch.Start();
         var elapsed = stopwatch.Elapsed;
