@@ -82,7 +82,12 @@ export type GameState = State & {
 
 export type Color = string | CanvasGradient | CanvasPattern;
 
-export type KnownBooster = State & { name: string, color: Color, weight: number };
+export type KnownBooster = State & {
+    name: string,
+    color: Color,
+    weight: number,
+};
+
 export type Booster = { name: string, color: Color, collider: CircleCollider };
 
 export type BoosterValidatorState = {};
