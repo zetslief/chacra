@@ -1,5 +1,6 @@
 using System.Diagnostics; 
 using Chacra;
+using System.Collections;
 
 public class Entity : BackgroundService
 {
@@ -90,13 +91,22 @@ public class Entity : BackgroundService
         return true;
     }
 
+    private static readonly KnownBoosterState[] knownBoosters = {
+        new("biggerPlayer", "purple", 40),
+        new("biggerBall", "lightgreen", 30),
+        // new("shuffleBoosters", "yellow", 5),
+        new("deathBall", "darkred", 1),
+        // new("obstacle", "gold", 20),
+        new("megaElectric", "cyan", 10),
+    };
+    private static readonly Random boosterRandom = new();
     private static bool ProcessBoosterSpawner(
         Stopwatch stopwatch,
         TimeSpan boosterSpawnDelay,
         Action<KnownBoosterState> send)
     {
         static KnownBoosterState GenerateBooster()
-            => new KnownBoosterState("biggerPlayer", "purple", 40);
+            => knownBoosters[boosterRandom.Next(knownBoosters.Length)];
 
         if (!stopwatch.IsRunning) stopwatch.Start();
         var elapsed = stopwatch.Elapsed;
