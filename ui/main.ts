@@ -83,6 +83,8 @@ function loop(render: RenderState, view: PerfView) {
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
+    canvas.width = 1024;
+    canvas.height = 1024; // aspect-ratio: 3/2
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }

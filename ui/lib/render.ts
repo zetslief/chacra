@@ -94,7 +94,7 @@ export function drawPlayer(
     const y1 = player.colliders.bottom.y * scale.y;
     const x2 = player.colliders.top.x * scale.x;
     const y2 = player.colliders.top.y * scale.y;
-    const size = player.size * scale.x;
+    const size = player.size * scale.y;
     fillCircle(ctx, x1, y1, size, player.color);
     fillCircle(ctx, x2, y2, size, player.color);
 }
@@ -108,7 +108,7 @@ export function drawBallOwner(
     const y1 = player.colliders.bottom.y * scale.y;
     const x2 = player.colliders.top.x * scale.x;
     const y2 = player.colliders.top.y * scale.y;
-    const size = player.size * scale.x * 1.1;
+    const size = player.size * scale.y * 1.1;
     strokeCircle(ctx, x1, y1, size, BALL, LINE_WIDTH * 3);
     strokeCircle(ctx, x2, y2, size, BALL, LINE_WIDTH * 3);
 }
@@ -121,7 +121,7 @@ export function drawBall(
 ) {
     const x = ball.position.x * scale.x;
     const y = ball.position.y * scale.y;
-    const size = ball.size * scale.x;
+    const size = ball.size * scale.y;
     fillCircle(ctx, x, y, size, color);
     strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
 }
@@ -133,7 +133,7 @@ export function drawBooster(
     const collider = booster.collider;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const size = collider.radius * scale.x;
+    const size = collider.radius * scale.y;
     fillCircle(ctx, x, y, size, booster.color);
 }
 
@@ -144,7 +144,7 @@ export function drawObstacle(
     const collider = obstacle;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const size = collider.radius * scale.x;
+    const size = collider.radius * scale.y;
     strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
     const textHeight = Math.round(size / 2);
     ctx.font = textHeight + "px Serif";
@@ -166,3 +166,8 @@ export function drawAreaBooster(
     strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
 }
 
+
+export class RenderContext {
+    constructor(public readonly canvas: CanvasRenderingContext2D) {
+    }
+}
