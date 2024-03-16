@@ -226,7 +226,7 @@ async function writeErrorMessage(content, debugContent) {
     console.error(content);
     console.error(debugContent);
     writeMessage(lobbyData.host.name, content);
-    if (debugContent.json) {
+    if (debugContent && debugContent.json) {
         debugContent.json().then((d) => console.error(d));
     }
 }
