@@ -1,8 +1,8 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
-using System.Text.Json.Serialization;
+using Chacra.State;
+using Chacra.Api;
 
-using Chacra;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -288,53 +288,3 @@ void PushState(State state)
 }
 
 app.Run();
-
-namespace Chacra {
-    public record CreateLobby(string LobbyName, string PlayerName);
-    public record RenameLobby(string NewName);
-    public record JoinLobby(string LobbyName, string PlayerName);
-    public record LobbyStatus(bool Started);
-    public record PlayerJoinRequest(string PlayerName);
-    public record PlayerJoinRequestInformation(string PlayerName, bool IsAccepted);
-    public record BotJoinRequest(string BotName);
-    public record AddPlayer(string PlayerName, string NewPlayer);
-    public record AddBot(string PlayerName, string BotName);
-
-    public record LobbyData(
-        int Id,
-        string Name,
-        Player Host,
-        Game Game,
-        HashSet<Player> Players,
-        HashSet<Bot> Bots,
-        HashSet<PlayerJoinRequest> PlayerJoinRequests,
-        HashSet<BotJoinRequest> BotJoinRequests)
-    {
-        public LobbyData(int id, string name, Player host, Game game)
-            : this(id, name, host, game, new() { host }, new(), new(), new()) { }
-    }
-
-    public record Message(string Content);
-    public record MessageOutput(string Sender, string Content);
-
-    public record LobbyInformation(int Id, string Name, int CurrentNumberOfPlayers, Game game);
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-    [JsonDerivedType(typeof(InitialState), nameof(InitialState))]
-    [JsonDerivedType(typeof(GameStartState), nameof(GameStartState))]
-    [JsonDerivedType(typeof(GameFinishedState), nameof(GameFinishedState))]
-    [JsonDerivedType(typeof(InputState), nameof(InputState))]
-    [JsonDerivedType(typeof(DeltaState), nameof(DeltaState))]
-    [JsonDerivedType(typeof(KnownBoosterState), nameof(KnownBoosterState))]
-    public abstract record State();
-    public record InitialState(string[] Players) : State();
-    public record GameStartState(float X, float Y) : State();
-    public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
-    public record GameFinishedState() : State();
-    public record DeltaState(long Delta) : State();
-    public record KnownBoosterState(string Name, string Color, float Weight) : State();
-
-    public record Player(string Name);
-    public record Bot(string Name);
-    public record Game(string Name, int NumberOfPlayers);
-}

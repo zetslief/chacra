@@ -1,6 +1,5 @@
 using System.Diagnostics; 
-using Chacra;
-using System.Collections;
+using Chacra.State;
 
 public class Entity : BackgroundService
 {
@@ -99,6 +98,7 @@ public class Entity : BackgroundService
         // new("obstacle", "gold", 20),
         new("megaElectric", "cyan", 10),
     };
+
     private static readonly Random boosterRandom = new();
     private static bool ProcessBoosterSpawner(
         Stopwatch stopwatch,
