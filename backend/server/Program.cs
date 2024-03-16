@@ -1,7 +1,8 @@
 using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
-using Chacra.State;
 using Chacra.Api;
+using Chacra.State;
+using Chacra.Colors;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -235,7 +236,9 @@ IResult StartLobby(string playerName, EntityWriter writer)
     if (lobby is null) return Results.BadRequest("Failed to start lobbby: it is not yet created.");
     if (!lobbyStarted)
     {
-        var initialState = new InitialState(lobby.Players.Select(p => new PlayerData(p.Name, "red")).ToArray());
+        var initialState = new InitialState(lobby.Players
+            .Select(p => new PlayerData(p.Name, Colors.GetRandomColor()))
+            .ToArray());
         var startState = new GameStartState(0.5f, 0.5f);
         foreach (var player in lobby.Players)
             inputQueue.Add(player.Name, new() { initialState, startState });
