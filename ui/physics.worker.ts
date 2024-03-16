@@ -2,7 +2,8 @@ import {
     Player,
     Ball,
     KnownBoosterState,
-    InitialState, GameState, InputState, DeltaState,
+    InitialState, PlayerData,
+    GameState, InputState, DeltaState,
     isInitialState, isGameStartState, isInputState, isDeltaState,
     isKnownBoosterState,
 } from './lib/types';
@@ -92,21 +93,21 @@ function physicsTick(game: GameState, delta: DeltaState) {
 
 function defaultState(initialState: InitialState): GameState {
     type Pivot = Point & {
-        name: string
+        data: PlayerData
     };
-    function calculatePivots(players: string[]): Pivot[] {
+    function calculatePivots(players: PlayerData[]): Pivot[] {
         const result: Pivot[] = [];
         const angleOffset = Math.PI;
         const stepAngle = 2 * Math.PI / players.length;
         for (let index = 0; index < players.length; ++index) {
-            const name = players[index];
             const angle = (stepAngle * index) + angleOffset;
             let x = Math.cos(angle);
             let y = Math.sin(angle);
             console.log(x, y, angle, angleOffset);
             x = (x + 1) * 0.5;
             y = (y + 1) * 0.5;
-            result.push({name, x, y});
+            console.log(players);
+            result.push({x, y, data: players[index]});
         }
         return result;
     }
@@ -118,10 +119,8 @@ function defaultState(initialState: InitialState): GameState {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];
         let players = []
         for (const pivot of pivots) {
-            const index: number = Math.random();
-            const name: string = pivot.name;
-            const colorValue = Math.round(index * 360);
-            const color = "hsl(" + colorValue + ", 80%, 70%)";
+            const name: string = pivot.data.name;
+            const color = pivot.data.color;
             const position = { x: pivot.x, y: pivot.y };
             const dead = false;
             players.push({

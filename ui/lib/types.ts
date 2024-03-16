@@ -54,7 +54,12 @@ export type State = {
 };
 
 export type InitialState = State & {
-    readonly players: string[],
+    readonly players: PlayerData[],
+};
+
+export type PlayerData = {
+    readonly name: string,
+    readonly color: Color,
 };
 
 export type GameStartState = State & {
@@ -63,11 +68,11 @@ export type GameStartState = State & {
 };
 
 export type GameFinishedState = State & {
-    won: string,
+    readonly won: string,
 };
 
 export type DeltaState = State & {
-    delta: number
+    readonly delta: number
 };
 
 export type GameState = State & {
