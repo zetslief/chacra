@@ -57,6 +57,7 @@ function drawFinalScreen(game: GameState, render: RenderState) {
 }
 
 let frameSkipCounter = 0;
+let exited = false;
 function loop(render: RenderState, view: PerfView) {
     if (!newState) {
         requestAnimationFrame(() => loop(render, view));
@@ -72,6 +73,10 @@ function loop(render: RenderState, view: PerfView) {
     if (game.players.length == 1) {
         draw(game, render);
         drawFinalScreen(game, render);
+        if (!exited) {
+            setTimeout(() => { location.assign("/"); }, 5 * 1000);
+            exited = true;
+        }
     } else {
         draw(game, render);
     }
