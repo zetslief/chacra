@@ -11,6 +11,8 @@ public static class Colors
         "fuchsia"
     };
 
+    public static int NumberOfColors => colors.Length;
+
     public static string GetRandomColor()
         => colors[random.Next(colors.Length)];
 }

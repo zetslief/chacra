@@ -1,4 +1,5 @@
-using System.Diagnostics; 
+using System.Diagnostics;
+using Chacra.Colors;
 using Chacra.State;
 
 public class Entity : BackgroundService
@@ -20,9 +21,25 @@ public class Entity : BackgroundService
 
     public EntityWriter Writer { get; }
 
-    public void GameStarted()
+    public void GameStarted(string[] players)
     {
         started = true;
+        var selectedColors = new HashSet<string>();
+        var numberOfColors = Colors.NumberOfColors;
+        var playerData = new PlayerData[players.Length];
+        for (var playerIndex = 0; playerIndex < playerData.Length; ++playerIndex)
+        {
+            var playerColor = Colors.GetRandomColor();
+            while (selectedColors.Contains(playerColor) && selectedColors.Count < Colors.NumberOfColors)
+            {
+                playerColor = Colors.GetRandomColor();
+            }
+            playerData[playerIndex] = new(players[playerIndex], playerColor);
+        }
+        var initialState = new InitialState(playerData);
+        var startState = new GameStartState(0.5f, 0.5f);
+        this.send(initialState);
+        this.send(startState);
     }
 
     public void GameFinished()
@@ -129,6 +146,6 @@ public class EntityWriter
         this.entity = entity;
     }
 
-    public void GameStarted() => entity.GameStarted();
+    public void GameStarted(string[] players) => entity.GameStarted(players);
     public void GameFinished() => entity.GameFinished();
 }
