@@ -115,7 +115,7 @@ public class Entity : BackgroundService
         new("biggerPlayer", "purple", 40),
         new("biggerBall", "lightgreen", 30),
         // new("shuffleBoosters", "yellow", 5),
-        new("deathBall", "darkred", 1),
+        // new("deathBall", "darkred", 1),
         // new("obstacle", "gold", 20),
         new("megaElectric", "cyan", 10),
     };
