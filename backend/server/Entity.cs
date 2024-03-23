@@ -34,9 +34,13 @@ public class Entity : BackgroundService
             {
                 playerColor = Colors.GetRandomColor();
             }
+            if (!selectedColors.Contains(playerColor))
+                selectedColors.Add(playerColor);
+            selectedColors.Add(playerColor);
             playerData[playerIndex] = new(players[playerIndex], playerColor);
         }
-        var initialState = new InitialState(playerData);
+        var gameData = new GameData(1200, 800); 
+        var initialState = new InitialState(gameData, playerData);
         var startState = new GameStartState(0.5f, 0.5f);
         this.send(initialState);
         this.send(startState);

@@ -54,7 +54,13 @@ export type State = {
 };
 
 export type InitialState = State & {
+    readonly game: GameData,
     readonly players: PlayerData[],
+};
+
+export type GameData = {
+    readonly fieldWidth: number,
+    readonly fieldHeight: number,
 };
 
 export type PlayerData = {
@@ -76,6 +82,8 @@ export type DeltaState = State & {
 };
 
 export type GameState = State & {
+    fieldWidth: number,
+    fieldHeight: number,
     numberOfPlayers: number,
     players: Player[],
     ballOwner: Player,

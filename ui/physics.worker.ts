@@ -147,6 +147,8 @@ function defaultState(initialState: InitialState): GameState {
     const randomPlayerIndex = Math.floor(Math.random() * players.length);
     return {
         type: "GameState",
+        fieldWidth: initialState.game.fieldWidth,
+        fieldHeight: initialState.game.fieldHeight,
         numberOfPlayers,
         players,
         ballOwner: players[randomPlayerIndex],

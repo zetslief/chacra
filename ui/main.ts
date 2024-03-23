@@ -58,12 +58,19 @@ function drawFinalScreen(game: GameState, render: RenderState) {
 
 let frameSkipCounter = 0;
 let exited = false;
+let gameFieldSet = false;
 function loop(render: RenderState, view: PerfView) {
     if (!newState) {
         requestAnimationFrame(() => loop(render, view));
         ++frameSkipCounter;
         view.write("frames skipped", frameSkipCounter);
         return;
+    }
+    if (!gameFieldSet) {
+        render.canvas.width = newState.fieldWidth;
+        render.canvas.height = newState.fieldHeight;
+        gameFieldSet = true;
+        console.log("Game field is set:", newState.fieldWidth, newState.fieldHeight);
     }
     frameSkipCounter = 0;
     view.write("frames skipped", frameSkipCounter);
@@ -88,8 +95,6 @@ function loop(render: RenderState, view: PerfView) {
 
 function setupRenderState(): RenderState {
     const canvas = document.getElementById('gameField') as HTMLCanvasElement;
-    canvas.width = 1024;
-    canvas.height = 1024; // aspect-ratio: 3/2
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     return { canvas: canvas, ctx: ctx };
 }
