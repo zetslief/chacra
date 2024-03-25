@@ -39,6 +39,7 @@ export function updatePhysics(
     moveBall(game.ball, game.ballDirection, dt);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
+            console.log("Collision:", game.ball, player.collider);
             game.ballOwner = player;
             game.ballDirection = normalize(game.ballDirection);
             game.areaBoosters.push({

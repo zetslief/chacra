@@ -92,7 +92,7 @@ export function drawPlayer(
 ) {
     const x1 = player.collider.x * scale.x;
     const y1 = player.collider.y * scale.y;
-    const size = player.collider.radius * scale.y;
+    const size = player.collider.radius * scale.x;
     fillCircle(ctx, x1, y1, size, player.color);
 }
 
@@ -103,7 +103,7 @@ export function drawBallOwner(
 ) {
     const x1 = player.collider.x * scale.x;
     const y1 = player.collider.y * scale.y;
-    const size = player.collider.radius * scale.y * 1.1;
+    const size = player.collider.radius * scale.x * 1.1;
     strokeCircle(ctx, x1, y1, size, BALL, LINE_WIDTH * 3);
 }
 
@@ -115,7 +115,7 @@ export function drawBall(
 ) {
     const x = ball.position.x * scale.x;
     const y = ball.position.y * scale.y;
-    const size = ball.size * scale.y;
+    const size = ball.size * scale.x;
     fillCircle(ctx, x, y, size, color);
     strokeCircle(ctx, x, y, size, BALL, LINE_WIDTH * 2);
 }
@@ -127,7 +127,7 @@ export function drawBooster(
     const collider = booster.collider;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const size = collider.radius * scale.y;
+    const size = collider.radius * scale.x;
     fillCircle(ctx, x, y, size, booster.color);
 }
 
@@ -138,7 +138,7 @@ export function drawObstacle(
     const collider = obstacle;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const size = collider.radius * scale.y;
+    const size = collider.radius * scale.x;
     strokeCircle(ctx, x, y, size, OBSTACLE_COLOR, LINE_WIDTH);
     const textHeight = Math.round(size / 2);
     ctx.font = textHeight + "px Serif";
@@ -156,7 +156,7 @@ export function drawAreaBooster(
     const collider = areaBooster.collider;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
-    const radius = collider.radius * scale.y;
+    const radius = collider.radius * scale.x;
     strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
 }
 
