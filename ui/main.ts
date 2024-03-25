@@ -60,12 +60,13 @@ let frameSkipCounter = 0;
 let exited = false;
 let gameFieldSet = false;
 function loop(render: RenderState, view: PerfView) {
-    if (!newState) {
+    if (newStates.length == 0) {
         requestAnimationFrame(() => loop(render, view));
         ++frameSkipCounter;
         view.write("frames skipped", frameSkipCounter);
         return;
     }
+    const newState = newStates.shift()!;
     if (!gameFieldSet) {
         render.canvas.width = newState.fieldWidth;
         render.canvas.height = newState.fieldHeight;
@@ -76,7 +77,6 @@ function loop(render: RenderState, view: PerfView) {
     view.write("frames skipped", frameSkipCounter);
     const start = Date.now();
     const game = newState;
-    newState = null;
     if (game.players.length == 1) {
         draw(game, render);
         drawFinalScreen(game, render);
@@ -133,7 +133,7 @@ function dumpGameState(game: GameState, dump: Dump) {
     dump("areaBoosters", game.areaBoosters.length);
 }
 
-let newState: GameState | null = null;
+const newStates: GameState[] = [];
 async function main() {
     const renderer = setupRenderState();
     const perfView = new PerfView();
@@ -145,7 +145,8 @@ async function main() {
         perfView.write("physics time, ms", e.data);
     };
     networkWorker.onmessage = (e) => {
-        newState = e.data as GameState;
+        const newState = e.data as GameState;
+        newStates.push(newState);
         if (newState.players.length == 1) {
             networkWorker.postMessage({
                 type: "GameFinishedState",
