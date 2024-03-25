@@ -127,7 +127,7 @@ function defaultState(initialState: InitialState): GameState {
                 name,
                 size,
                 color,
-                colliders: { bottom: { radius, ...position }, top: { radius, ...position } },
+                collider: { radius, ...position },
                 speed: PLAYER_DEFAULT_SPEED,
                 dead });
         }

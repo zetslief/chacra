@@ -101,14 +101,15 @@ function setupRenderState(): RenderState {
 
 function setupInputHandlers(update: (state: InputState) => void) {
     const playerName = sessionStorage.getItem("playerName")!;
-    const input: InputState = new InputState(playerName);
     document.onclick = (e) => {
+        const input: InputState = new InputState(playerName);
         input.click = { x: e.pageX, y: e.pageY };
         console.log("click", input);
         update(input);
     };
     document.onkeydown = (e) => {
-        if (e.isComposing || e.keyCode === 229) {
+        const input: InputState = new InputState(playerName);
+        if (e.isComposing) {
             return;
         }
         const key = e.code.toUpperCase();
