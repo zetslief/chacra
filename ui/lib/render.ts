@@ -92,7 +92,7 @@ export function drawPlayer(
 ) {
     const x1 = player.collider.x * scale.x;
     const y1 = player.collider.y * scale.y;
-    const size = player.size * scale.y;
+    const size = player.collider.radius * scale.y;
     fillCircle(ctx, x1, y1, size, player.color);
 }
 
@@ -103,7 +103,7 @@ export function drawBallOwner(
 ) {
     const x1 = player.collider.x * scale.x;
     const y1 = player.collider.y * scale.y;
-    const size = player.size * scale.y * 1.1;
+    const size = player.collider.radius * scale.y * 1.1;
     strokeCircle(ctx, x1, y1, size, BALL, LINE_WIDTH * 3);
 }
 
