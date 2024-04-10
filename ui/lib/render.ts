@@ -112,7 +112,7 @@ export function drawBallOwner(
 export function drawBoosterSlot(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    slot: BoosterSlot
+    slot: BoosterSlot,
 ) {
     const x = slot.x * scale.x;
     const y = slot.y * scale.y;
