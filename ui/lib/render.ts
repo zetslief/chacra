@@ -9,7 +9,7 @@ import {
 } from './types';
 
 import {
-    Vec2,
+    Vec2, Point,
 } from './math';
 
 const LINE_WIDTH = 1.00;
@@ -118,6 +118,24 @@ export function drawBoosterSlot(
     const y = slot.y * scale.y;
     const size = slot.size * scale.x * 1.1;
     strokeCircle(ctx, x, y, size, BOOSTER_SLOT, LINE_WIDTH);
+}
+
+export function drawLine(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    from: Point,
+    to: Point,
+) {
+    const fromX = from.x * scale.x;
+    const fromY = from.y * scale.y;
+    const toX = to.x * scale.x;
+    const toY = to.y * scale.y;
+    ctx.lineWidth = LINE_WIDTH;
+    ctx.strokeStyle = "lightgreen";
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.stroke();
 }
 
 export function drawBall(

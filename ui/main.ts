@@ -14,6 +14,7 @@ import {
     drawBooster,
     drawBoosterSlot,
     drawOverlay,
+    drawLine,
     fillCenteredText,
 } from './lib/render';
 
@@ -33,6 +34,7 @@ function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
+    drawLine(ctx, scale, { x: 0.5, y: 0 }, { x: 0.5, y: 1 });
     for (const particle of game.areaBoosters) {
         drawAreaBooster(ctx, scale, particle);
     }
