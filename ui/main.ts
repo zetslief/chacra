@@ -12,6 +12,7 @@ import {
     drawObstacle,
     drawBall,
     drawBooster,
+    drawBoosterSlot,
     drawOverlay,
     fillCenteredText,
 } from './lib/render';
@@ -41,6 +42,9 @@ function draw(game: GameState, render: RenderState) {
     drawBallOwner(ctx, scale, game.ballOwner);
     for (const obstacle of game.obstacles) {
         drawObstacle(ctx, scale, obstacle);
+    }
+    for (const slot of game.slots) {
+        drawBoosterSlot(ctx, scale, slot);
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {

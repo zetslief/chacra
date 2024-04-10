@@ -92,8 +92,8 @@ export type GameState = State & {
     ballDirection: Vec2,
     boosters: Booster[],
     requestedBoosters: KnownBoosterState[],
-    boostSpawner: BoostSpawnerState,
     boostShuffler: BoostShufflerState,
+    slots: BoosterSlot[],
     obstacles: Obstacle[],
     areaBoosters: AreaBooster[],
     areaBoosterSpawners: AreaBoosterSpawnerState[],
@@ -108,15 +108,6 @@ export type KnownBoosterState = State & {
 };
 
 export type Booster = { name: string, color: Color, collider: CircleCollider };
-
-export type BoosterValidatorState = {};
-export type BoosterValidator = (gameState: GameState, booster: Booster) => boolean;
-
-export type BoostSpawnerState = {
-    readonly delay: number;
-    timeLeft: number;
-};
-export type BoostSpawner = (dt: number, state: BoostSpawnerState, game: GameState, boosters: Booster[], validator: BoosterValidator) => void;
 
 export type BoostShufflerState = {
     initialized: boolean,
@@ -146,6 +137,10 @@ export type Player = {
     color: Color,
     speed: number,
     dead: boolean
+};
+
+export type BoosterSlot = Point & {
+    size: number
 };
 
 export type Ball = {

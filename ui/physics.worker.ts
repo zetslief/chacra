@@ -145,6 +145,7 @@ function defaultState(initialState: InitialState): GameState {
     const playerPivots = calculatePivots(initialState.players);
     const players = createPlayers(playerPivots);
     const randomPlayerIndex = Math.floor(Math.random() * players.length);
+    const boosterSlotSize = 0.1;
     return {
         type: "GameState",
         fieldWidth: initialState.game.fieldWidth,
@@ -157,10 +158,16 @@ function defaultState(initialState: InitialState): GameState {
         ballDirection: vec2(1.0, 0.0),
         boosters: [],
         requestedBoosters: [],
-        boostSpawner: {
-            delay: 1,
-            timeLeft: 1,
-        },
+        slots: [
+            { x: 0.20, y: 0.33, size: boosterSlotSize },
+            { x: 0.40, y: 0.33, size: boosterSlotSize },
+            { x: 0.40, y: 0.66, size: boosterSlotSize },
+            { x: 0.20, y: 0.66, size: boosterSlotSize },
+            { x: 0.60, y: 0.33, size: boosterSlotSize },
+            { x: 0.80, y: 0.33, size: boosterSlotSize },
+            { x: 0.60, y: 0.66, size: boosterSlotSize },
+            { x: 0.80, y: 0.66, size: boosterSlotSize },
+        ],
         boostShuffler: {
             initialized: false,
             destinationMap: new Map(),

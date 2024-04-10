@@ -3,6 +3,7 @@ import {
     Ball,
     Obstacle,
     Booster,
+    BoosterSlot,
     Player,
     Color,
 } from './types';
@@ -14,6 +15,7 @@ import {
 const LINE_WIDTH = 1.00;
 const BACKGROUND = "#111122";
 const BALL = "#33dd33";
+const BOOSTER_SLOT = "gold";
 const OBSTACLE_COLOR = "cyan";
 const OVERLAY = "rgba(100, 100, 255, 0.50)";
 
@@ -105,6 +107,17 @@ export function drawBallOwner(
     const y1 = player.collider.y * scale.y;
     const size = player.collider.radius * scale.x * 1.1;
     strokeCircle(ctx, x1, y1, size, BALL, LINE_WIDTH * 3);
+}
+
+export function drawBoosterSlot(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    slot: BoosterSlot
+) {
+    const x = slot.x * scale.x;
+    const y = slot.y * scale.y;
+    const size = slot.size * scale.x * 1.1;
+    strokeCircle(ctx, x, y, size, BOOSTER_SLOT, LINE_WIDTH);
 }
 
 export function drawBall(
