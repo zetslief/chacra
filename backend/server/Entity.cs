@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Chacra;
 using Chacra.Colors;
 using Chacra.State;
 
@@ -111,23 +112,18 @@ public class Entity : BackgroundService
         return true;
     }
 
-    private static readonly KnownBoosterState[] knownBoosters = {
-        new("biggerPlayer", "purple", 40),
-        new("biggerBall", "lightgreen", 30),
-        // new("shuffleBoosters", "yellow", 5),
-        // new("deathBall", "darkred", 1),
-        // new("obstacle", "gold", 20),
-        new("megaElectric", "cyan", 10),
-    };
-
     private static readonly Random boosterRandom = new();
     private static bool ProcessBoosterSpawner(
         Stopwatch stopwatch,
         TimeSpan boosterSpawnDelay,
-        Action<KnownBoosterState> send)
+        Action<BoosterState> send)
     {
-        static KnownBoosterState GenerateBooster()
-            => knownBoosters[boosterRandom.Next(knownBoosters.Length)];
+        static BoosterState GenerateBooster()
+        {
+            var boosterIndex = boosterRandom.Next(BoosterFactory.All.Length);
+            var booster = BoosterFactory.All[boosterIndex];
+            return BoosterFactory.Create(boosterRandom.Next(8), booster);
+        }
 
         if (!stopwatch.IsRunning) stopwatch.Start();
         var elapsed = stopwatch.Elapsed;
