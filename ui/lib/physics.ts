@@ -134,13 +134,10 @@ function processBoostShuffler(dt: number, state: BoostShufflerState, boosters: B
     }
 }
 
-function createObstacle(): Obstacle {
-    let position = vec2(Math.random(), Math.random());
-    position = ssum(smul(position, 0.64), 0.5 - 0.64 / 2);
+function createObstacle(booster: Booster): Obstacle {
     return {
         lifeCounter: 3,
-        radius: OBSTACLE_RADIUS,
-        ...position
+        ...booster.collider
     };
 }
 
@@ -192,7 +189,8 @@ function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec
     return false;
 }
 
-function processBooster(game: GameState, boosterName: string, player: Player) {
+function processBooster(game: GameState, booster: Booster, player: Player) {
+    const boosterName = booster.name;
     if (boosterName == "biggerPlayer") {
         player.size *= BOOSTER_SCALE;
         player.collider.radius *= BOOSTER_SCALE;
@@ -203,11 +201,13 @@ function processBooster(game: GameState, boosterName: string, player: Player) {
     } else if (boosterName == "shuffleBoosters") {
         game.boostShuffler = createBoostShuffler();
     } else if (boosterName == "obstacle") {
-        game.obstacles.push(createObstacle());
+        game.obstacles.push(createObstacle(booster));
     } else if (boosterName == "megaElectric") {
         game.areaBoosterSpawners.push(createAreaBoosterSpawner(player));
     } else if (boosterName == "deathBall") {
         player.dead = true;
+    } else {
+        console.error("Unknown booster", booster);
     }
 }
 
@@ -225,7 +225,13 @@ function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoo
 function processRequestedBoosters(game: GameState, player: Player) {
     while (game.requestedBoosters.length > 0) {
         const requestedBooster = game.requestedBoosters.pop()!;
-        processBooster(game, requestedBooster.name, player);
+        var slot = game.slots[requestedBooster.index];
+        const booster: Booster = {
+            name: requestedBooster.name,
+            color: requestedBooster.color,
+            collider: { x: slot.x, y: slot.y, radius: slot.size },
+        };
+        processBooster(game, booster, player);
     }
 }
 
@@ -236,7 +242,7 @@ function collideBallAndBooster(
     player: Player,
 ): boolean {
     if (collideCC(ball.collider, booster.collider)) {
-        processBooster(game, booster.name, player);
+        processBooster(game, booster, player);
         return true;
     }
     return false;
@@ -248,7 +254,7 @@ function collidePlayerAndBooster(
     booster: Booster,
 ): boolean {
     if (collideCC(player.collider, booster.collider)) {
-        processBooster(game, booster.name, player);
+        processBooster(game, booster, player);
         return true;
     }
     return false;

@@ -23,7 +23,7 @@ import {
 } from './lib/configuration';
 
 let inputs: InputState[] = []; 
-let knownBoosterQueue: BoosterState[] = [];
+let boosterQueue: BoosterState[] = [];
 let port: MessagePort | null = null;
 let defaultGameState: GameState | null = null;
 
@@ -34,7 +34,7 @@ onmessage = (event) => {
         port = event.ports[0];
         port.onmessage = (e) => e.data.forEach(processState);
     } else if (isBoosterState(event.data)) {
-        knownBoosterQueue.push(event.data);
+        boosterQueue.push(event.data);
     } else {
         console.error("Unknown event data from message", event.data);
     }
@@ -62,7 +62,7 @@ function processState(data: any) {
         }
         physicsTick(state, data);
     } else if (isBoosterState(data)) {
-        knownBoosterQueue.push(data);
+        boosterQueue.push(data);
     } else {
         console.error(`Unsupported event data:`, data);
     }
@@ -71,8 +71,8 @@ function processState(data: any) {
 function physicsTick(game: GameState, delta: DeltaState) {
     const start = Date.now();
     const dt = delta.delta / 1000;
-    game.requestedBoosters = knownBoosterQueue;
-    knownBoosterQueue = [];
+    processBoosterQueue(game, boosterQueue);
+    boosterQueue = [];
     if (game.players.length > 1) {
         const playerInputs = [];
         for (const input of inputs) {
@@ -89,6 +89,21 @@ function physicsTick(game: GameState, delta: DeltaState) {
     }
     const stop = Date.now();
     postMessage((stop - start).toString());
+}
+
+function processBoosterQueue(game: GameState, boosterQueue: BoosterState[]) {
+    for (const booster of boosterQueue) {
+        if (booster.index >= game.slots.length) {
+            console.error("Booster index is bigger than number of slots", booster);
+            continue;
+        }
+        const slot = game.slots[booster.index];
+        game.boosters.push({
+            name: booster.name,
+            color: booster.color,
+            collider: { x: slot.x, y: slot.y, radius: slot.size }
+        });
+    }
 }
 
 function defaultState(initialState: InitialState): GameState {
