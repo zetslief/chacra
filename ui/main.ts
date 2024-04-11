@@ -66,13 +66,13 @@ let frameSkipCounter = 0;
 let exited = false;
 let gameFieldSet = false;
 function loop(render: RenderState, view: PerfView) {
-    if (newStates.length == 0) {
+    const newState = newStates.shift();
+    if (!newState) {
         requestAnimationFrame(() => loop(render, view));
         ++frameSkipCounter;
         view.write("frames skipped", frameSkipCounter);
         return;
     }
-    const newState = newStates.shift()!;
     if (!gameFieldSet) {
         render.canvas.width = newState.fieldWidth;
         render.canvas.height = newState.fieldHeight;
@@ -96,7 +96,7 @@ function loop(render: RenderState, view: PerfView) {
     const stop = Date.now();
     view.write("frame time, ms", (stop - start));
     dumpGameState(game, (k, v) => view.write(k, v));
-    requestAnimationFrame(() => loop(render, view));
+    loop(render, view);
 }
 
 function setupRenderState(): RenderState {
