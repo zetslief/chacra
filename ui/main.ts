@@ -1,7 +1,7 @@
 import {
     GameState,
     InputState,
-    KnownBoosterState,
+    BoosterState,
 } from './lib/types';
 
 import {
@@ -200,13 +200,13 @@ class PerfView {
 }
 
 class BoostersView {
-    constructor(onKnownBoosterTrigger: (knownBooster: KnownBoosterState) => void) {
+    constructor(onKnownBoosterTrigger: (knownBooster: BoosterState) => void) {
         const boosters = document.getElementById("boosters")!;
         const children = boosters.children;
         while (children.length > 0) {
             children[0].remove();
         }
-        const divBoosterMap = new Map<HTMLButtonElement, KnownBoosterState>();
+        const divBoosterMap = new Map<HTMLButtonElement, BoosterState>();
         for (var booster of KNOWN_BOOSTERS) {
             const boosterButton = document.createElement("button");
             boosterButton.type = "button";

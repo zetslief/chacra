@@ -15,7 +15,7 @@ public record GameStartState(float X, float Y) : State();
 public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
 public record GameFinishedState() : State();
 public record DeltaState(long Delta) : State();
-public record BoosterState(int Index, string Name, string Color, float Weight) : State();
+public record BoosterState(int Index, string Name, string Color) : State();
 
 // I do not like that this type is called `Data`.
 // `Data` should not be be polimorphic. Inheritance is allowed?

@@ -2,13 +2,13 @@ using Chacra.State;
 
 namespace Chacra;
 
-public record BoosterDescription(string Name, string Color, int Chance);
+public record BoosterDescription(string Name, string Color);
 
 public static class BoosterFactory
 {
-    public static BoosterDescription BiggerPlayer { get; } = new("biggerPlayer", "purple", 40);
-    public static BoosterDescription BiggerBall { get; } = new("biggerBall", "lightgreen", 30);
-    public static BoosterDescription Obstacle { get; } = new("obstacle", "white", 20);
+    public static BoosterDescription BiggerPlayer { get; } = new("biggerPlayer", "purple");
+    public static BoosterDescription BiggerBall { get; } = new("biggerBall", "lightgreen");
+    public static BoosterDescription Obstacle { get; } = new("obstacle", "white");
 
     public static BoosterDescription[] All { get; } = [
         BiggerPlayer,
@@ -17,5 +17,5 @@ public static class BoosterFactory
     ];
 
     public static BoosterState Create(int index, BoosterDescription description)
-        => new(index, description.Name, description.Color, description.Chance);
+        => new(index, description.Name, description.Color);
 }

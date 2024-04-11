@@ -1,11 +1,11 @@
 import { 
     Player,
     Ball,
-    KnownBoosterState,
+    BoosterState,
     InitialState, PlayerData,
     GameState, InputState, DeltaState,
     isInitialState, isGameStartState, isInputState, isDeltaState,
-    isKnownBoosterState,
+    isBoosterState,
 } from './lib/types';
 
 import { updatePhysics } from './lib/physics';
@@ -23,7 +23,7 @@ import {
 } from './lib/configuration';
 
 let inputs: InputState[] = []; 
-let knownBoosterQueue: KnownBoosterState[] = [];
+let knownBoosterQueue: BoosterState[] = [];
 let port: MessagePort | null = null;
 let defaultGameState: GameState | null = null;
 
@@ -33,7 +33,7 @@ onmessage = (event) => {
     if (event.data === "connect") {
         port = event.ports[0];
         port.onmessage = (e) => e.data.forEach(processState);
-    } else if (isKnownBoosterState(event.data)) {
+    } else if (isBoosterState(event.data)) {
         knownBoosterQueue.push(event.data);
     } else {
         console.error("Unknown event data from message", event.data);
@@ -61,7 +61,7 @@ function processState(data: any) {
             return;
         }
         physicsTick(state, data);
-    } else if (isKnownBoosterState(data)) {
+    } else if (isBoosterState(data)) {
         knownBoosterQueue.push(data);
     } else {
         console.error(`Unsupported event data:`, data);

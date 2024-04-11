@@ -9,7 +9,7 @@ export type StateType =
     | "GameStartState"
     | "GameState"
     | "InputState"
-    | "KnownBooster"
+    | "Booster"
     | "DeltaState"
     | "GameFinished";
 
@@ -43,10 +43,10 @@ export function isDeltaState(data: any): data is DeltaState {
         && data.type === "DeltaState";
 }
 
-export function isKnownBoosterState(data: any): data is KnownBoosterState {
+export function isBoosterState(data: any): data is BoosterState {
     return typeof data === "object"
         && "type" in data
-        && data.type === "KnownBoosterState";
+        && data.type === "BoosterState";
 }
 
 export type State = {
@@ -91,7 +91,7 @@ export type GameState = State & {
     walls: LineCollider[],
     ballDirection: Vec2,
     boosters: Booster[],
-    requestedBoosters: KnownBoosterState[],
+    requestedBoosters: BoosterState[],
     boostShuffler: BoostShufflerState,
     slots: BoosterSlot[],
     obstacles: Obstacle[],
@@ -101,10 +101,10 @@ export type GameState = State & {
 
 export type Color = string | CanvasGradient | CanvasPattern;
 
-export type KnownBoosterState = State & {
+export type BoosterState = State & {
+    index: number,
     name: string,
     color: Color,
-    weight: number,
 };
 
 export type Booster = { name: string, color: Color, collider: CircleCollider };
