@@ -8,14 +8,14 @@ namespace Chacra.State;
 [JsonDerivedType(typeof(GameFinishedState), nameof(GameFinishedState))]
 [JsonDerivedType(typeof(InputState), nameof(InputState))]
 [JsonDerivedType(typeof(DeltaState), nameof(DeltaState))]
-[JsonDerivedType(typeof(KnownBoosterState), nameof(KnownBoosterState))]
+[JsonDerivedType(typeof(BoosterState), nameof(BoosterState))]
 public abstract record State();
 public record InitialState(GameData Game, PlayerData[] Players) : State();
 public record GameStartState(float X, float Y) : State();
 public record InputState(string Type, string PlayerName, float Dx, float Dy) : State();
 public record GameFinishedState() : State();
 public record DeltaState(long Delta) : State();
-public record KnownBoosterState(string Name, string Color, float Weight) : State();
+public record BoosterState(int Index, string Name, string Color, float Weight) : State();
 
 // I do not like that this type is called `Data`.
 // `Data` should not be be polimorphic. Inheritance is allowed?
