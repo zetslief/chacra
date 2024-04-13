@@ -2,6 +2,7 @@ import {
     Player,
     Ball,
     BoosterState,
+    Booster,
     InitialState, PlayerData,
     GameState, InputState, DeltaState,
     isInitialState, isGameStartState, isInputState, isDeltaState,
@@ -98,11 +99,11 @@ function processBoosterQueue(game: GameState, boosterQueue: BoosterState[]) {
             continue;
         }
         const slot = game.slots[booster.index];
-        game.boosters.push({
+        game.boosters[booster.index] = {
             name: booster.name,
             color: booster.color,
             collider: { x: slot.x, y: slot.y, radius: slot.size }
-        });
+        };
     }
 }
 
@@ -171,7 +172,7 @@ function defaultState(initialState: InitialState): GameState {
         ball: ball(vec2(0.5, 0.5)),
         walls: walls(),
         ballDirection: vec2(1.0, 0.0),
-        boosters: [],
+        boosters: Array<Booster | null>(8).fill(null),
         requestedBoosters: [],
         slots: [
             { x: 0.20, y: 0.25, size: boosterSlotSize },

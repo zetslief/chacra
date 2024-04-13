@@ -50,6 +50,9 @@ function draw(game: GameState, render: RenderState) {
     }
     drawBall(ctx, scale, game.ball, game.ballOwner.color);
     for (const booster of game.boosters) {
+        if (!booster) {
+            continue;
+        }
         drawBooster(ctx, scale, booster);
     }
 }

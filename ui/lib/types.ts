@@ -90,7 +90,7 @@ export type GameState = State & {
     ball: Ball,
     walls: LineCollider[],
     ballDirection: Vec2,
-    boosters: Booster[],
+    boosters: (Booster | null)[],
     requestedBoosters: BoosterState[],
     boostShuffler: BoostShufflerState,
     slots: BoosterSlot[],

@@ -11,7 +11,6 @@ import {
 import {
     BALL_MAX_RADIUS,
     BOOSTER_SCALE,
-    OBSTACLE_RADIUS,
     PLAYER_DEFAULT_SPEED,
     AREA_BOOSTER_RADIUS,
     AREA_BOOSTER_DURATION,
@@ -75,24 +74,18 @@ export function updatePhysics(
     collideBallAndObstacle(game, game.ball);
     processBoostShuffler(dt, game.boostShuffler, game.boosters);
     processRequestedBoosters(game, game.ballOwner);
-    let boosters = []
-    for (const booster of game.boosters) {
-        let collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
-        if (!collided) {
-            for (const player of game.players) {
-                collided = collidePlayerAndBooster(game, player, booster);
-                if (collided) {
-                    break;
-                }
-            }
+    for (let index = 0; index < game.boosters.length; ++index) {
+        const booster = game.boosters[index];
+        if (!booster) {
+            continue;
         }
-        if (!collided) {
-            boosters.push(booster);
+        let collided = collideBallAndBooster(game, game.ball, booster, game.ballOwner);
+        if (collided) {
+            game.boosters[index] = null;
         }
     }
     game.players = game.players.filter(player => !player.dead);
     game.areaBoosters = game.areaBoosters.filter(ab => ab.duration > 0);
-    game.boosters = boosters;
     if (game.ballOwner.dead) {
         if (game.players.length > 0) {
             const randomPlayerIndex = Math.floor(Math.random() * game.players.length);
@@ -105,9 +98,12 @@ function createBoostShuffler(): BoostShufflerState {
     return { initialized: false, destinationMap: new Map() };
 }
 
-function processBoostShuffler(dt: number, state: BoostShufflerState, boosters: Booster[]) {
+function processBoostShuffler(dt: number, state: BoostShufflerState, boosters: (Booster | null)[]) {
     if (!state.initialized) {
         for (const booster of boosters) {
+            if (!booster) {
+                continue;
+            }
             let destination = smul(ssum(booster.collider, -0.5), 2)
             destination = smul(destination, -1);
             destination = ssum(smul(destination, 0.5), 0.5);
@@ -116,6 +112,9 @@ function processBoostShuffler(dt: number, state: BoostShufflerState, boosters: B
         state.initialized = true;
     }
     for (const booster of boosters) {
+        if (!booster) {
+            continue;
+        }
         if (!state.destinationMap.has(booster)) {
             state.destinationMap.delete(booster);
         }
