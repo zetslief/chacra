@@ -204,9 +204,11 @@ function processBooster(game: GameState, booster: Booster, player: Player) {
         game.areaBoosterSpawners.push(createAreaBoosterSpawner(player));
     } else if (boosterName == "deathBall") {
         player.dead = true;
+        return false;
     } else {
         console.error("Unknown booster", booster);
     }
+    return true;
 }
 
 function processAreaBooster(areaBooster: AreaBooster, dt: number) {
@@ -240,22 +242,10 @@ function collideBallAndBooster(
     player: Player,
 ): boolean {
     if (collideCC(ball.collider, booster.collider)) {
-        processBooster(game, booster, player);
-        return true;
+        return processBooster(game, booster, player);
+    } else {
+        return false;
     }
-    return false;
-}
-
-function collidePlayerAndBooster(
-    game: GameState,
-    player: Player,
-    booster: Booster,
-): boolean {
-    if (collideCC(player.collider, booster.collider)) {
-        processBooster(game, booster, player);
-        return true;
-    }
-    return false;
 }
 
 function collideBallAndObstacle(game: GameState, ball: Ball) {

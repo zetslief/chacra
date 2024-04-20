@@ -116,6 +116,14 @@ function setupInputHandlers(update: (state: InputState) => void) {
         console.log("click", input);
         update(input);
     };
+    document.onmousemove = (e) => {
+        if (e.ctrlKey) {
+            const input = new InputState(playerName);
+            input.dy = e.movementY > 2 ? -1 : e.movementY < -2 ? 1 : 0;
+            update(input);
+            console.log(e.movementY);
+        }
+    };
     document.onkeydown = (e) => {
         const input: InputState = new InputState(playerName);
         if (e.isComposing) {
