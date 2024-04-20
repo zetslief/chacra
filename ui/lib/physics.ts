@@ -161,19 +161,18 @@ function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
 
 function moveBall(ball: Ball, direction: Vec2, dt: number) {
     const step = 0.20;
-    ball.position = sum(ball.position, smul(smul(direction, dt), step));
-    if (ball.position.x > 1) {
-        ball.position.x -= 1;
+    let newPosition = sum(ball.position, smul(smul(direction, dt), step));
+    const size = ball.collider.radius;
+    if (newPosition.x <= size || newPosition.x >= (1 - size))
+    {
+        direction.x *= -1;
     }
-    if (ball.position.x < 0) {
-        ball.position.x += 1;
+    if (newPosition.y <= size || newPosition.y >= (1 - size))
+    {
+        direction.y *= -1;
     }
-    if (ball.position.y > 1) {
-        ball.position.y -= 1;
-    }
-    if (ball.position.y < 0) {
-        ball.position.y += 1;
-    }
+    newPosition = sum(ball.position, smul(smul(direction, dt), step));
+    ball.position = newPosition; 
     ball.collider.x = ball.position.x;
     ball.collider.y = ball.position.y;
 }
