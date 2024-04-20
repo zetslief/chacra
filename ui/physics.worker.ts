@@ -138,11 +138,13 @@ function defaultState(initialState: InitialState): GameState {
             const name: string = pivot.data.name;
             const color = pivot.data.color;
             const position = { x: pivot.x, y: pivot.y };
+            const target = { x: pivot.x, y: pivot.y };
             const dead = false;
             players.push({
                 name,
                 size,
                 color,
+                target,
                 collider: { radius, ...position },
                 speed: PLAYER_DEFAULT_SPEED,
                 dead });

@@ -108,12 +108,16 @@ function setupRenderState(): RenderState {
     return { canvas: canvas, ctx: ctx };
 }
 
-function setupInputHandlers(update: (state: InputState) => void) {
+function setupInputHandlers(renderState: RenderState, update: (state: InputState) => void) {
     const playerName = sessionStorage.getItem("playerName")!;
-    document.onclick = (e) => {
+    renderState.canvas.onclick = (e) => {
         const input: InputState = new InputState(playerName);
-        input.click = { x: e.pageX, y: e.pageY };
-        console.log("click", input);
+        const width = renderState.canvas.offsetWidth;
+        const height = renderState.canvas.offsetHeight;
+        input.click = {
+            x: e.offsetX / width,
+            y: e.offsetY / height,
+        };
         update(input);
     };
     document.onmousemove = (e) => {
@@ -170,7 +174,7 @@ async function main() {
             });
         }
     };
-    setupInputHandlers((input) => networkWorker.postMessage(input));
+    setupInputHandlers(renderer, (input) => networkWorker.postMessage(input));
     new BoostersView(b => physicsWorker.postMessage(b));
 
     const messageChannel = new MessageChannel();

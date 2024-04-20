@@ -31,6 +31,9 @@ export function updatePhysics(
     for (const [player, input] of inputs) {
         processInput(player, input, dt);
     }
+    for (const player of game.players) {
+        movePlayer(player, dt);
+    }
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
         processAreaBooster(areaBooster, dt);
@@ -140,23 +143,24 @@ function createObstacle(booster: Booster): Obstacle {
     };
 }
 
-function movePlayer(player: Player, _dx: number, dy: number, dt: number) {
-    const step = player.speed * dt * dy;
+function movePlayer(player: Player, dt: number) {
+    console.log("move", player.target, player.collider.y);
+
+    const currentPosition = player.collider.y;
+    const delta = player.target.y - currentPosition;
+    const direction = Math.sign(delta);
+    const step = direction * player.speed * dt;
+    if (Math.abs(delta) < Math.abs(step)) {
+        return;
+    }
     const radius = player.collider.radius;
-    let position = player.collider.y;
-    position -= step;
-    if (position < 0) {
-        position = 1;
+    let newPosition = currentPosition + step;
+    if (newPosition < radius) {
+        newPosition = radius;
+    } else if (newPosition > (1 - radius)) {
+        newPosition = 1 - radius;
     }
-    player.collider.y = position;
-    let topPosition = position;
-    if (position - radius < 0) {
-        topPosition = 1 + position;
-    }
-    if (position + radius > 1) {
-        topPosition = -1 + position;
-    }
-    player.collider.y = topPosition;
+    player.collider.y = newPosition;
 }
 
 function moveBall(ball: Ball, direction: Vec2, dt: number) {
@@ -260,12 +264,10 @@ function collideBallAndObstacle(game: GameState, ball: Ball) {
 }
 
 function processInput(player: Player, input: InputState, dt: number) {
-    if (input.dx != 0 || input.dy != 0) {
-        movePlayer(player, input.dx, input.dy, dt);
-        input.dx = 0;
-        input.dy = 0;
+    if (input.click) {
+        player.target = input.click;
+        input.click = undefined;
     }
-    input.click = undefined;
 }
 
 function createAreaBoosterSpawner(player: Player): AreaBoosterSpawnerState {
