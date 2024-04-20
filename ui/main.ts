@@ -109,23 +109,22 @@ function setupRenderState(): RenderState {
 }
 
 function setupInputHandlers(renderState: RenderState, update: (state: InputState) => void) {
-    const playerName = sessionStorage.getItem("playerName")!;
-    renderState.canvas.onclick = (e) => {
+    function sendClick(event: MouseEvent) {
         const input: InputState = new InputState(playerName);
         const width = renderState.canvas.offsetWidth;
         const height = renderState.canvas.offsetHeight;
         input.click = {
-            x: e.offsetX / width,
-            y: e.offsetY / height,
+            x: event.offsetX / width,
+            y: event.offsetY / height,
         };
         update(input);
-    };
+    }
+
+    const playerName = sessionStorage.getItem("playerName")!;
+    renderState.canvas.onclick = sendClick;
     document.onmousemove = (e) => {
         if (e.ctrlKey) {
-            const input = new InputState(playerName);
-            input.dy = e.movementY > 2 ? -1 : e.movementY < -2 ? 1 : 0;
-            update(input);
-            console.log(e.movementY);
+            sendClick(e);
         }
     };
     document.onkeydown = (e) => {
