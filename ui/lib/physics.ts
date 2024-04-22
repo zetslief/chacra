@@ -10,6 +10,7 @@ import {
 
 import {
     BALL_MAX_RADIUS,
+    BALL_DEFAULT_SPEED,
     BOOSTER_SCALE,
     PLAYER_DEFAULT_SPEED,
     AREA_BOOSTER_RADIUS,
@@ -164,7 +165,7 @@ function movePlayer(player: Player, dt: number) {
 }
 
 function moveBall(ball: Ball, direction: Vec2, dt: number) {
-    const step = 0.20;
+    const step = BALL_DEFAULT_SPEED;
     let newPosition = sum(ball.position, smul(smul(direction, dt), step));
     const size = ball.collider.radius;
     if (newPosition.x <= size || newPosition.x >= (1 - size))
@@ -196,10 +197,18 @@ function processBooster(game: GameState, booster: Booster, player: Player) {
     if (boosterName == "biggerPlayer") {
         player.size *= BOOSTER_SCALE;
         player.collider.radius *= BOOSTER_SCALE;
+    } else if (boosterName == "fasterPlayer") {
+        player.speed += PLAYER_DEFAULT_SPEED * 0.1;
+    } else if (boosterName == "slowerPlayer") {
+        player.speed -= PLAYER_DEFAULT_SPEED * 0.1;
     } else if (boosterName == "biggerBall") {
         game.ball.size *= BOOSTER_SCALE;
         game.ball.size = Math.min(game.ball.size, BALL_MAX_RADIUS);
         game.ball.collider.radius = game.ball.size;
+    } else if (boosterName == "fasterBall") {
+        game.ball.speed += BALL_DEFAULT_SPEED * 0.1;
+    } else if (boosterName == "slowerBall") {
+        game.ball.speed -= BALL_DEFAULT_SPEED * 0.1;
     } else if (boosterName == "shuffleBoosters") {
         game.boostShuffler = createBoostShuffler();
     } else if (boosterName == "obstacle") {

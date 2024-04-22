@@ -221,7 +221,8 @@ class BoostersView {
             children[0].remove();
         }
         const divBoosterMap = new Map<HTMLButtonElement, BoosterState>();
-        for (var booster of KNOWN_BOOSTERS) {
+        for (const boosterFactory of KNOWN_BOOSTERS) {
+            const booster = boosterFactory(Math.round(Math.random() * 8));
             const boosterButton = document.createElement("button");
             boosterButton.type = "button";
             boosterButton.style.backgroundColor = booster.color as string;

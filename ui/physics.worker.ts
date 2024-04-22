@@ -19,6 +19,7 @@ import {
 
 import { 
     BALL_RADIUS,
+    BALL_DEFAULT_SPEED,
     PLAYER_RADIUS,
     PLAYER_DEFAULT_SPEED,
 } from './lib/configuration';
@@ -129,7 +130,12 @@ function defaultState(initialState: InitialState): GameState {
     }
     function ball(position: Point): Ball {
         const [size, radius] = [BALL_RADIUS, BALL_RADIUS];
-        return { position, size, collider: { x: position.x, y: position.y, radius } };
+        return {
+            position,
+            speed: BALL_DEFAULT_SPEED,
+            size,
+            collider: { x: position.x, y: position.y, radius }
+        };
     }
     function createPlayers(pivots: Pivot[]): Player[] {
         const [size, radius] = [PLAYER_RADIUS, PLAYER_RADIUS];

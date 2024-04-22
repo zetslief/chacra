@@ -9,7 +9,7 @@ export type StateType =
     | "GameStartState"
     | "GameState"
     | "InputState"
-    | "Booster"
+    | "BoosterState"
     | "DeltaState"
     | "GameFinished";
 
@@ -107,7 +107,11 @@ export type BoosterState = State & {
     color: Color,
 };
 
-export type Booster = { name: string, color: Color, collider: CircleCollider };
+export type Booster = {
+    name: string,
+    color: Color,
+    collider: CircleCollider
+};
 
 export type BoostShufflerState = {
     initialized: boolean,
@@ -146,6 +150,7 @@ export type BoosterSlot = Point & {
 
 export type Ball = {
     position: Point,
+    speed: number,
     size: number,
     collider: CircleCollider
 }
