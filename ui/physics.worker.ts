@@ -191,6 +191,7 @@ function defaultState(initialState: InitialState): GameState {
             { x: 0.80, y: 0.25, size: boosterSlotSize },
             { x: 0.60, y: 0.80, size: boosterSlotSize },
             { x: 0.80, y: 0.80, size: boosterSlotSize },
+            { x: 0.50, y: 0.50, size: boosterSlotSize },
         ],
         boostShuffler: {
             initialized: false,

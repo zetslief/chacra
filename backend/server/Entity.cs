@@ -14,6 +14,8 @@ public class Entity : BackgroundService
     private bool started = false;
     private bool finished = false;
     private bool sending = false;
+    private TimeSpan gameTime = TimeSpan.Zero;
+    private bool deathBallSpawned = false;
 
     public Entity(ILogger<Entity> logger, Action<State> sendState)
     {
@@ -27,6 +29,7 @@ public class Entity : BackgroundService
     public void GameStarted(string[] players)
     {
         started = true;
+        gameTime = TimeSpan.Zero;
         var selectedColors = new HashSet<string>();
         var numberOfColors = Colors.NumberOfColors;
         var playerData = new PlayerData[players.Length];
@@ -45,8 +48,8 @@ public class Entity : BackgroundService
         var gameData = new GameData(1200, 800); 
         var initialState = new InitialState(gameData, playerData);
         var startState = new GameStartState(0.5f, 0.5f);
-        this.send(initialState);
-        this.send(startState);
+        send(initialState);
+        send(startState);
     }
 
     public void GameFinished()
@@ -58,25 +61,38 @@ public class Entity : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            bool sent = ProcessDeltaTime(
-                stopwatch, delayMs, send, logger, ref started, ref finished, ref sending);
-            if (sending)
-            {
-                ProcessBoosterSpawner(boosterStopwatch, boosterDelayMs, send, logger);
-            }
-            else
-            {
-                boosterStopwatch.Stop();
-            }
+            await IterateOnceAsync(stoppingToken).ConfigureAwait(false);
+        }
+    }
 
-            if (sending && !sent)
-            {
-                await Task.Yield();
-            }
-            else
-            {
-                await Task.Delay(delayMs).ConfigureAwait(false);
-            }
+    private async Task IterateOnceAsync(CancellationToken stoppingToken)
+    {
+        bool sent = ProcessDeltaTime(
+            stopwatch, delayMs, send, logger, ref started, ref finished, ref sending, ref gameTime);
+        if (sending)
+        {
+            ProcessBoosterSpawner(boosterStopwatch, boosterDelayMs, send, logger);
+        }
+        else
+        {
+            boosterStopwatch.Stop();
+        }
+
+        if (gameTime > TimeSpan.FromSeconds(10) && !deathBallSpawned)
+        {
+            var deathBall = BoosterFactory.Create(8, BoosterFactory.DeathBall);
+            send(deathBall);
+            logger.Log(LogLevel.Information, "Sending death ball: {booster}", deathBall);
+            deathBallSpawned = true;
+        }
+
+        if (sending && !sent)
+        {
+            await Task.Yield();
+        }
+        else
+        {
+            await Task.Delay(delayMs).ConfigureAwait(false);
         }
     }
 
@@ -87,7 +103,8 @@ public class Entity : BackgroundService
         ILogger logger,
         ref bool started, 
         ref bool finished,
-        ref bool sending)
+        ref bool sending,
+        ref TimeSpan gameTime)
     {
         if (started)
         {
@@ -112,6 +129,7 @@ public class Entity : BackgroundService
         if (elapsed < delay) return false;
         stopwatch.Restart();
         send(new DeltaState(elapsed));
+        gameTime += TimeSpan.FromMilliseconds(elapsed);
         return true;
     }
 

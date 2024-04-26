@@ -19,8 +19,7 @@ public static class BoosterFactory
     public const int SlowerPlayerChance = 55;
     public const int BiggerBallChance = 65;
     public const int FasterBallChance = 80;
-    public const int SlowerBallChance = 95;
-    public const int DeathBallChance = 100;
+    public const int SlowerBallChance = 100;
 
     public static BoosterDescription[] All { get; } = GenerateBoosterDescriptions();
 
@@ -36,7 +35,6 @@ public static class BoosterFactory
             < BiggerBallChance => BiggerBall,
             < FasterBallChance => FasterBall,
             < SlowerBallChance => SlowerBall,
-            < DeathBallChance => DeathBall,
             _ => throw new NotSupportedException("Chances greater than 100 does not exist :)"),
         }).ToArray();
 }
