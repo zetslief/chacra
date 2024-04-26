@@ -4,9 +4,6 @@ using Chacra.Api;
 using Chacra.State;
 using Chacra.Colors;
 
-
-var builder = WebApplication.CreateBuilder(args);
-
 var loginPagePath = Path.GetFullPath("./../../ui/dist/login.html");
 var lobbyHostPage = Path.GetFullPath("./../../ui/dist/lobby.host.html");
 var lobbyGuestPage = Path.GetFullPath("./../../ui/dist/lobby.guest.html");
@@ -25,10 +22,17 @@ var games = new []
 var lobbyStarted = false;
 LobbyData? lobby = null;
 Dictionary<string, BlockingCollection<State>> inputQueue = new();
-var entity = new Entity((s) => PushState(s));
 
-builder.Services.AddHostedService<Entity>((p) => entity);
-builder.Services.AddSingleton(entity.Writer);
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddConsole();
+
+builder.Services.AddSingleton<Entity>(
+    services => new(services.GetRequiredService<ILogger<Entity>>(), PushState));
+builder.Services.AddHostedService<Entity>(
+    services => services.GetRequiredService<Entity>());
+builder.Services.AddSingleton<EntityWriter>(
+    services => services.GetRequiredService<Entity>().Writer);
 
 var app = builder.Build();
 

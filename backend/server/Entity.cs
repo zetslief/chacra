@@ -10,14 +10,16 @@ public class Entity : BackgroundService
     private readonly int delayMs = 1000 / 60;
     private readonly TimeSpan boosterDelayMs = TimeSpan.FromSeconds(3);
     private readonly Action<State> send;
+    private readonly ILogger<Entity> logger;
     private bool started = false;
     private bool finished = false;
     private bool sending = false;
 
-    public Entity(Action<State> sendState)
+    public Entity(ILogger<Entity> logger, Action<State> sendState)
     {
         this.send = sendState;
         this.Writer = new(this);
+        this.logger = logger;
     }
 
     public EntityWriter Writer { get; }
@@ -57,10 +59,10 @@ public class Entity : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             bool sent = ProcessDeltaTime(
-                stopwatch, delayMs, send, ref started, ref finished, ref sending);
+                stopwatch, delayMs, send, logger, ref started, ref finished, ref sending);
             if (sending)
             {
-                ProcessBoosterSpawner(boosterStopwatch, boosterDelayMs, send);
+                ProcessBoosterSpawner(boosterStopwatch, boosterDelayMs, send, logger);
             }
             else
             {
@@ -82,6 +84,7 @@ public class Entity : BackgroundService
         Stopwatch stopwatch,
         int delay,
         Action<DeltaState> send,
+        ILogger logger,
         ref bool started, 
         ref bool finished,
         ref bool sending)
@@ -91,14 +94,14 @@ public class Entity : BackgroundService
             started = false;
             sending = true;
             stopwatch.Start();
-            Console.WriteLine("Staring the game...");
+            logger.Log(LogLevel.Information, "Staring the game...");
         }
         if (finished)
         {
             stopwatch.Stop();
             sending = false;
             finished = false;
-            Console.WriteLine("Finishing the game...");
+            logger.Log(LogLevel.Information, "Finishing the game...");
         }
         if (!sending)
         {
@@ -116,7 +119,8 @@ public class Entity : BackgroundService
     private static bool ProcessBoosterSpawner(
         Stopwatch stopwatch,
         TimeSpan boosterSpawnDelay,
-        Action<BoosterState> send)
+        Action<BoosterState> send,
+        ILogger logger)
     {
         static BoosterState GenerateBooster()
         {
@@ -129,7 +133,7 @@ public class Entity : BackgroundService
         var elapsed = stopwatch.Elapsed;
         if (elapsed < boosterSpawnDelay) return false;
         var booster = GenerateBooster();
-        Console.WriteLine($"Generating the booster: {booster}");
+        logger.Log(LogLevel.Information, "Generating the booster: {booster}", booster);
         send(booster);
         stopwatch.Restart();
         return true;
