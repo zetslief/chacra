@@ -24,13 +24,13 @@ export const KNOWN_BOOSTERS: ((index: number) => BoosterState)[] = [
         { type: "BoosterState", name: "fasterPlayer", color: "yellow", index }
     ),
     (index) => (
-        { type: "BoosterState", name: "slowerPlayer", color: "darkyellow", index }
+        { type: "BoosterState", name: "slowerPlayer", color: "tan", index }
     ),
     (index) => (
         { type: "BoosterState", name: "biggerBall", color: "lightgreen", index }
     ),
     (index) => (
-        { type: "BoosterState", name: "fasterBall", color: "lightblue", index }
+        { type: "BoosterState", name: "fasterBall", color: "blue", index }
     ),
     (index) => (
         { type: "BoosterState", name: "slowerBall", color: "lightblue", index }

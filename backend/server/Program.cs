@@ -2,7 +2,6 @@ using Microsoft.Extensions.FileProviders;
 using System.Collections.Concurrent;
 using Chacra.Api;
 using Chacra.State;
-using Chacra.Colors;
 
 var loginPagePath = Path.GetFullPath("./../../ui/dist/login.html");
 var lobbyHostPage = Path.GetFullPath("./../../ui/dist/lobby.host.html");
@@ -76,6 +75,8 @@ app.MapGet("/game/{playerName}", GetGame);
 app.MapGet("/game/inputStates/{playerName}", GetInputStates);
 app.MapPost("/game/input", PushInputState);
 app.MapPost("/game/finished", PushGameFinished);
+
+app.Run();
 
 IResult GetMainPage()
     => Results.Content(File.ReadAllText(loginPagePath), "text/html");
@@ -289,5 +290,3 @@ void PushState(State state)
     foreach (var queue in inputQueue.Values)
         queue.Add(state);
 }
-
-app.Run();

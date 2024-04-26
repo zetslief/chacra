@@ -8,7 +8,7 @@ public static class BoosterFactory
 {
     public static BoosterDescription BiggerPlayer { get; } = new("biggerPlayer", "purple");
     public static BoosterDescription FasterPlayer { get; } = new("fasterPlayer", "yellow");
-    public static BoosterDescription SlowerPlayer { get; } = new("slowerPlayer", "darkyellow");
+    public static BoosterDescription SlowerPlayer { get; } = new("slowerPlayer", "tan");
     public static BoosterDescription BiggerBall { get; } = new("biggerBall", "lightgreen");
     public static BoosterDescription FasterBall { get; } = new("fasterBall", "blue");
     public static BoosterDescription SlowerBall { get; } = new("slowerBall", "lightblue");

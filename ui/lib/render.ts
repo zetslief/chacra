@@ -154,18 +154,26 @@ export function drawBall(
 export function drawBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    booster: Booster) {
+    booster: Booster
+): void {
     const collider = booster.collider;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
     const size = collider.radius * scale.x;
     fillCircle(ctx, x, y, size, booster.color);
+
+    const metrics = ctx.measureText(booster.name);
+    const fontSize = Math.round(size / 4);
+    ctx.font = fontSize + "px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText(booster.name, x - metrics.width / 2, y);
 }
 
 export function drawObstacle(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
-    obstacle: Obstacle) {
+    obstacle: Obstacle
+): void {
     const collider = obstacle;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;
@@ -183,7 +191,7 @@ export function drawAreaBooster(
     ctx: CanvasRenderingContext2D,
     scale: Vec2,
     areaBooster: AreaBooster,
-) {
+): void {
     const collider = areaBooster.collider;
     const x = collider.x * scale.x;
     const y = collider.y * scale.y;

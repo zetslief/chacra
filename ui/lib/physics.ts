@@ -145,8 +145,6 @@ function createObstacle(booster: Booster): Obstacle {
 }
 
 function movePlayer(player: Player, dt: number) {
-    console.log("move", player.target, player.collider.y);
-
     const currentPosition = player.collider.y;
     const delta = player.target.y - currentPosition;
     const direction = Math.sign(delta);
