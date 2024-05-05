@@ -30,6 +30,7 @@ public class Entity : BackgroundService
     {
         started = true;
         gameTime = TimeSpan.Zero;
+        deathBallSpawned = false;
         var selectedColors = new HashSet<string>();
         var numberOfColors = Colors.NumberOfColors;
         var playerData = new PlayerData[players.Length];
