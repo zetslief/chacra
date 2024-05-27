@@ -67,10 +67,6 @@ export type LineCollider = {
     b: Point
 }
 
-function lineCollider(a: Point, b: Point) {
-    return { a, b }
-}
-
 type KC = [ k: number, c: number ];
 export function line_k_c(a: Point, b: Point): KC | undefined {
     if (a.x == b.x) {

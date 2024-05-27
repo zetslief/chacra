@@ -200,5 +200,6 @@ function defaultState(initialState: InitialState): GameState {
         obstacles: [],
         areaBoosters: [],
         areaBoosterSpawners: [],
+        trajectory: [],
     }
 }

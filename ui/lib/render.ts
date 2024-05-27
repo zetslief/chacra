@@ -199,6 +199,16 @@ export function drawAreaBooster(
     strokeCircle(ctx, x, y, radius, areaBooster.color, LINE_WIDTH);
 }
 
+export function drawTrajectory(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    trajectory: Point[])
+{
+    for (let index = 0; index < trajectory.length - 1; ++index) {
+        drawLine(ctx, scale, trajectory[index], trajectory[index + 1]);
+    }
+}
+
 
 export class RenderContext {
     constructor(public readonly canvas: CanvasRenderingContext2D) {

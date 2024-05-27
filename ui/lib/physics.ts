@@ -20,7 +20,7 @@ import {
 import {
     Vec2,
     vec2, smul, sum, sub, ssum, normalize, len,
-    CircleCollider,
+    CircleCollider, LineCollider,
     collideCC, collideCL
 } from './math';
 
@@ -40,6 +40,7 @@ export function updatePhysics(
         processAreaBooster(areaBooster, dt);
     }
     moveBall(game.ball, game.ballDirection, dt);
+    processTrajectory(game.ball, game.players, game);
     for (const player of game.players) {
         if (collideBallAndPlayer(game.ball, player.collider, game.ballDirection)) {
             console.log("Collision:", game.ball, player.collider);
@@ -306,4 +307,27 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
         });
         ++state.index;
     }
+}
+
+function processTrajectory(ball: Ball, players: Player[], game: GameState): void {
+    for (const player of players) {
+        if (len(sub(ball.collider, player.collider)) > 0.3) {
+            continue;
+        }
+        // TODO: fix this dummy trajectory calculation with proper math :)
+        const distance = player.collider.y - ball.collider.y;
+        const yDestination = distance > 0
+            ? ball.collider.y - distance * 2
+            : ball.collider.y - distance * 2;
+        game.trajectory = [
+            ball.collider,   // point 0
+            player.collider,
+            player.collider, // point 1
+            { x: ball.collider.x, y: yDestination }
+        ];
+        console.log("trajectory is created for", player);
+        console.log(game.trajectory);
+        return;
+    }
+    game.trajectory = [];
 }

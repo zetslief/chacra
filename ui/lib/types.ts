@@ -97,6 +97,7 @@ export type GameState = State & {
     obstacles: Obstacle[],
     areaBoosters: AreaBooster[],
     areaBoosterSpawners: AreaBoosterSpawnerState[],
+    trajectory: Point[]
 }
 
 export type Color = string | CanvasGradient | CanvasPattern;
