@@ -311,22 +311,23 @@ function processAreaBoosterSpawner(state: AreaBoosterSpawnerState, areaBoosters:
 
 function processTrajectory(ball: Ball, players: Player[], game: GameState): void {
     for (const player of players) {
-        if (len(sub(ball.collider, player.collider)) > 0.3) {
+        if (len(sub(ball.collider, player.collider)) > 0.35) {
             continue;
         }
-        // TODO: fix this dummy trajectory calculation with proper math :)
-        const distance = player.collider.y - ball.collider.y;
-        const yDestination = distance > 0
-            ? ball.collider.y - distance * 2
-            : ball.collider.y - distance * 2;
+
+        const distance = len(sub(player.collider, ball.collider));
+        const direction = smul(game.ballDirection, player.collider.radius + ball.collider.radius);
+        const point = sum(player.collider, direction);
+        const tempBallCollider = { radius: ball.collider.radius, ...point };
+        const directionAfterCollision = directionCC(player.collider, tempBallCollider);
+        const pointAfterCollision = smul(directionAfterCollision, distance);
+
         game.trajectory = [
             ball.collider,   // point 0
             player.collider,
             player.collider, // point 1
-            { x: ball.collider.x, y: yDestination }
+            pointAfterCollision
         ];
-        console.log("trajectory is created for", player);
-        console.log(game.trajectory);
         return;
     }
     game.trajectory = [];
