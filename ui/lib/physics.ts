@@ -20,8 +20,8 @@ import {
 import {
     Vec2,
     vec2, smul, sum, sub, ssum, normalize, len,
-    CircleCollider, LineCollider,
-    collideCC, collideCL
+    CircleCollider,
+    collideCC, collideCL, directionCC
 } from './math';
 
 
@@ -183,7 +183,7 @@ function moveBall(ball: Ball, direction: Vec2, dt: number) {
 
 function collideBallAndPlayer(ball: Ball, player: CircleCollider, direction: Vec2): boolean {
     if (collideCC(ball.collider, player)) {
-        const newDirection = normalize(sub(ball.collider, player));
+        const newDirection = directionCC(ball.collider, player);
         direction.x = newDirection.x;
         direction.y = newDirection.y;
         return true;

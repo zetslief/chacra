@@ -151,6 +151,10 @@ export function collideCC(first: CircleCollider, second: CircleCollider): boolea
     return len(diff) < (first.radius + second.radius);
 }
 
+export function directionCC(first: CircleCollider, second: CircleCollider): Vec2 {
+    return normalize(sub(first, second));
+}
+
 export function collideCL(line: LineCollider, circle: CircleCollider): boolean {
     const result = line_k_c(line.a, line.b);
     if (!result) {
