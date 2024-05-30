@@ -170,5 +170,20 @@ export class InputState implements State {
 
 export type Obstacle = CircleCollider & { lifeCounter: number };
 
+export type EffectType =
+    "BackgroundBlink";
+
 export type Effect = {
+    type: EffectType,
+    duration: number,
 };
+
+export interface BackgroundBlinkEffect extends Effect {
+    color: Color,
+    blinkCount: number
+};
+
+export function isBackgroundBlinkEffect(effect: Effect): effect is BackgroundBlinkEffect 
+{
+    return effect.type == "BackgroundBlink";
+}
