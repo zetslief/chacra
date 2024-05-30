@@ -199,6 +199,6 @@ export function createBackgroundBlinkEffect(
         initialDuration: duration,
         duration,
         color,
-        blinkCount
+        blinkCount,
     };
 }

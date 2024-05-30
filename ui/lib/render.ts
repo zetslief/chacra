@@ -6,6 +6,7 @@ import {
     BoosterSlot,
     Player,
     Color,
+    BackgroundBlinkEffect
 } from './types';
 
 import {
@@ -209,6 +210,13 @@ export function drawTrajectory(
     }
 }
 
+export function drawBackgroundBlinkEffect(
+    ctx: CanvasRenderingContext2D,
+    scale: Vec2,
+    effect: BackgroundBlinkEffect
+): void {
+    drawRect(ctx, 0, 0, scale.x, scale.y, effect.color);
+}
 
 export class RenderContext {
     constructor(public readonly canvas: CanvasRenderingContext2D) {
