@@ -182,6 +182,7 @@ export type Effect = {
 export interface BackgroundBlinkEffect extends Effect {
     color: Color,
     blinkCount: number
+    enabled: boolean
 };
 
 export function isBackgroundBlinkEffect(effect: Effect): effect is BackgroundBlinkEffect 
@@ -200,5 +201,6 @@ export function createBackgroundBlinkEffect(
         duration,
         color,
         blinkCount,
+        enabled: true,
     };
 }

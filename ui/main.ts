@@ -2,6 +2,7 @@ import {
     GameState,
     InputState,
     BoosterState,
+    isBackgroundBlinkEffect,
 } from './lib/types';
 
 import {
@@ -16,6 +17,7 @@ import {
     drawOverlay,
     drawLine,
     drawTrajectory,
+    drawBackgroundBlinkEffect,
     fillCenteredText,
 } from './lib/render';
 
@@ -35,6 +37,11 @@ function draw(game: GameState, render: RenderState) {
     const ctx = render.ctx;
     const scale = vec2(render.canvas.width, render.canvas.height);
     drawBackground(ctx, scale);
+    for (const effect of game.effects) {
+        if (isBackgroundBlinkEffect(effect)) {
+            drawBackgroundBlinkEffect(ctx, scale, effect);
+        }
+    }
     drawLine(ctx, scale, { x: 0.5, y: 0 }, { x: 0.5, y: 1 });
     drawTrajectory(ctx, scale, game.trajectory);
     for (const particle of game.areaBoosters) {

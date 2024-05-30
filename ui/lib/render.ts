@@ -215,7 +215,9 @@ export function drawBackgroundBlinkEffect(
     scale: Vec2,
     effect: BackgroundBlinkEffect
 ): void {
-    drawRect(ctx, 0, 0, scale.x, scale.y, effect.color);
+    if (effect.enabled) {
+        drawRect(ctx, 0, 0, scale.x, scale.y, effect.color);
+    }
 }
 
 export class RenderContext {

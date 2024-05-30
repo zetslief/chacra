@@ -7,6 +7,7 @@ import {
     AreaBooster, AreaBoosterSpawnerState,
     Obstacle,
     createBackgroundBlinkEffect,
+    isBackgroundBlinkEffect,
 } from './types';
 
 import {
@@ -36,6 +37,7 @@ export function updatePhysics(
     for (const player of game.players) {
         movePlayer(player, dt);
     }
+    processEffects(game, dt);
     processAreaBoosterSpawners(game.areaBoosterSpawners, game.areaBoosters, game, dt);
     for (const areaBooster of game.areaBoosters) {
         processAreaBooster(areaBooster, dt);
@@ -52,7 +54,8 @@ export function updatePhysics(
                 duration: AREA_BOOSTER_DURATION,
                 color: player.color
             });
-            game.effects.push(createBackgroundBlinkEffect(300, "yellow", 3));
+            const blinkCount = 1;
+            game.effects.push(createBackgroundBlinkEffect(0.300, `hsla(${Math.random() * 360}, 20%, 50%, 0.3)`, blinkCount));
             break;
         }
         player.speed = PLAYER_DEFAULT_SPEED;
@@ -227,6 +230,23 @@ function processBooster(game: GameState, booster: Booster, player: Player) {
 
 function processAreaBooster(areaBooster: AreaBooster, dt: number) {
     areaBooster.duration -= dt;
+}
+
+function processEffects(game: GameState, dt: number): void {
+    const result = []
+    for (const effect of game.effects) {
+        effect.duration -= dt;
+        if (isBackgroundBlinkEffect(effect)) {
+            const progress = 1 - (effect.duration / effect.initialDuration)
+            const numberOfPeriods = effect.blinkCount;
+            const periodProgress = 1 / numberOfPeriods;
+            effect.enabled = Math.round(progress / periodProgress) % 2 == 0;
+        }
+        if (effect.duration > 0) {
+            result.push(effect);
+        }
+    }
+    game.effects = result;
 }
 
 function processAreaBoosterSpawners(spawners: AreaBoosterSpawnerState[], areaBoosters: AreaBooster[], game: GameState, dt: number) {
