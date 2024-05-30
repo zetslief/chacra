@@ -6,6 +6,7 @@ import {
     Booster, BoostShufflerState,
     AreaBooster, AreaBoosterSpawnerState,
     Obstacle,
+    createBackgroundBlinkEffect,
 } from './types';
 
 import {
@@ -51,6 +52,7 @@ export function updatePhysics(
                 duration: AREA_BOOSTER_DURATION,
                 color: player.color
             });
+            game.effects.push(createBackgroundBlinkEffect(300, "yellow", 3));
             break;
         }
         player.speed = PLAYER_DEFAULT_SPEED;

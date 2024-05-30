@@ -175,6 +175,7 @@ export type EffectType =
 
 export type Effect = {
     type: EffectType,
+    initialDuration: number,
     duration: number,
 };
 
@@ -186,4 +187,18 @@ export interface BackgroundBlinkEffect extends Effect {
 export function isBackgroundBlinkEffect(effect: Effect): effect is BackgroundBlinkEffect 
 {
     return effect.type == "BackgroundBlink";
+}
+
+export function createBackgroundBlinkEffect(
+    duration: number,
+    color: Color,
+    blinkCount: number,
+): BackgroundBlinkEffect {
+    return {
+        type: "BackgroundBlink",
+        initialDuration: duration,
+        duration,
+        color,
+        blinkCount
+    };
 }
