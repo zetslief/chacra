@@ -97,7 +97,8 @@ export type GameState = State & {
     obstacles: Obstacle[],
     areaBoosters: AreaBooster[],
     areaBoosterSpawners: AreaBoosterSpawnerState[],
-    trajectory: Point[]
+    trajectory: Point[],
+    effects: Effect[]
 }
 
 export type Color = string | CanvasGradient | CanvasPattern;
@@ -168,3 +169,6 @@ export class InputState implements State {
 };
 
 export type Obstacle = CircleCollider & { lifeCounter: number };
+
+export type Effect = {
+};
