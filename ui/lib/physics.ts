@@ -337,17 +337,24 @@ function processTrajectory(ball: Ball, players: Player[], game: GameState): void
             continue;
         }
 
+        if ((Math.sign(game.ballDirection.x) > 0 && player.collider.x < 0.5)
+           || (Math.sign(game.ballDirection.x) < 0 && player.collider.x > 0.5)) {
+            continue;
+        }
+
+        const direction = normalize(game.ballDirection);
         const distance = len(sub(player.collider, ball.collider));
-        const direction = smul(game.ballDirection, player.collider.radius + ball.collider.radius);
-        const point = sum(player.collider, direction);
-        const tempBallCollider = { radius: ball.collider.radius, ...point };
+        const collisionDistance = distance - player.collider.radius;
+        const collisionPoint = sum(ball.collider, smul(direction, collisionDistance));
+        const tempBallPosition = sum(ball.collider, smul(direction, collisionDistance - ball.collider.radius));
+        const tempBallCollider = { radius: ball.collider.radius, ...tempBallPosition };
         const directionAfterCollision = directionCC(player.collider, tempBallCollider);
-        const pointAfterCollision = smul(directionAfterCollision, distance);
+        const pointAfterCollision = smul(directionAfterCollision, collisionDistance);
 
         game.trajectory = [
             ball.collider,   // point 0
-            player.collider,
-            player.collider, // point 1
+            collisionPoint,
+            collisionPoint, // point 1
             pointAfterCollision
         ];
         return;
