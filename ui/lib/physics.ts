@@ -22,7 +22,7 @@ import {
 import {
     Vec2,
     vec2, smul, sum, sub, ssum, normalize, len,
-    CircleCollider,
+    CircleCollider, LineCollider,
     collideCC, collideCL, directionCC
 } from './math';
 
@@ -220,7 +220,7 @@ function processBooster(game: GameState, booster: Booster, player: Player) {
     } else if (boosterName == "megaElectric") {
         game.areaBoosterSpawners.push(createAreaBoosterSpawner(player));
     } else if (boosterName == "deathBall") {
-        player.dead = true;
+        // player.dead = true;
         return false;
     } else {
         console.error("Unknown booster", booster);
@@ -344,6 +344,14 @@ function processTrajectory(ball: Ball, players: Player[], game: GameState): void
 
         const direction = normalize(game.ballDirection);
         const distance = len(sub(player.collider, ball.collider));
+
+        const b = sum(ball.collider, smul(direction, distance));
+        const line: LineCollider = { a: ball.collider, b };
+        console.log(line);
+        if (!collideCL(line, player.collider)) {
+            continue;
+        }
+
         const collisionDistance = distance - player.collider.radius;
         const collisionPoint = sum(ball.collider, smul(direction, collisionDistance));
         const tempBallPosition = sum(ball.collider, smul(direction, collisionDistance - ball.collider.radius));
