@@ -339,7 +339,7 @@ function processTrajectory(ball: Ball, players: Player[], game: GameState): void
 
         if ((Math.sign(game.ballDirection.x) > 0 && player.collider.x < 0.5)
            || (Math.sign(game.ballDirection.x) < 0 && player.collider.x > 0.5)) {
-            continue;
+           return;
         }
 
         const direction = normalize(game.ballDirection);
@@ -349,15 +349,18 @@ function processTrajectory(ball: Ball, players: Player[], game: GameState): void
         const line: LineCollider = { a: ball.collider, b };
         console.log(line);
         if (!collideCL(line, player.collider)) {
-            continue;
+            return;
         }
 
         const collisionDistance = distance - player.collider.radius;
         const collisionPoint = sum(ball.collider, smul(direction, collisionDistance));
         const tempBallPosition = sum(ball.collider, smul(direction, collisionDistance - ball.collider.radius));
         const tempBallCollider = { radius: ball.collider.radius, ...tempBallPosition };
-        const directionAfterCollision = directionCC(player.collider, tempBallCollider);
-        const pointAfterCollision = smul(directionAfterCollision, collisionDistance);
+        const directionAfterCollision = directionCC(tempBallCollider, player.collider);
+        const pointAfterCollision = sum(
+            tempBallPosition,
+            smul(directionAfterCollision, 0.35)
+        );
 
         game.trajectory = [
             ball.collider,   // point 0
